@@ -1,5 +1,5 @@
 from flask import render_template, request, jsonify, redirect, url_for
-from app import app, cache
+from app import app
 from f1_data import F1DataService
 import json
 import logging

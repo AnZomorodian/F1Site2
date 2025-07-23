@@ -4,17 +4,12 @@ import numpy as np
 from typing import Dict, List, Optional, Tuple
 import logging
 from models import SessionInfo, DriverInfo, LapData, TelemetryData, TrackData
-from app import cache
-
-# Enable FastF1 cache
-fastf1.Cache.enable_cache('cache')
 
 class F1DataService:
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
     
-    @cache.memoize(timeout=3600)
     def get_available_years(self) -> List[int]:
         """Get list of available years"""
         try:
@@ -25,7 +20,6 @@ class F1DataService:
             self.logger.error(f"Error getting available years: {e}")
             return [2024, 2023, 2022, 2021, 2020, 2019, 2018]
     
-    @cache.memoize(timeout=3600)
     def get_season_schedule(self, year: int) -> List[Dict]:
         """Get race schedule for a given year"""
         try:
@@ -43,7 +37,6 @@ class F1DataService:
             self.logger.error(f"Error getting season schedule for {year}: {e}")
             return []
     
-    @cache.memoize(timeout=1800)
     def get_session_info(self, year: int, round_number: int) -> Dict[str, SessionInfo]:
         """Get session information for a specific round"""
         try:
@@ -78,7 +71,6 @@ class F1DataService:
             self.logger.error(f"Error getting session info for {year} round {round_number}: {e}")
             return {}
     
-    @cache.memoize(timeout=1800)
     def get_drivers_in_session(self, year: int, round_number: int, session_type: str) -> List[DriverInfo]:
         """Get list of drivers in a specific session"""
         try:
@@ -120,7 +112,6 @@ class F1DataService:
             self.logger.error(f"Error getting drivers for {year} round {round_number} {session_type}: {e}")
             return []
     
-    @cache.memoize(timeout=1800)
     def get_lap_data(self, year: int, round_number: int, session_type: str, driver_codes: List[str]) -> Dict[str, List[LapData]]:
         """Get lap data for specified drivers"""
         try:
@@ -158,7 +149,6 @@ class F1DataService:
             self.logger.error(f"Error getting lap data: {e}")
             return {}
     
-    @cache.memoize(timeout=1800)
     def get_telemetry_data(self, year: int, round_number: int, session_type: str, driver_code: str, lap_number: int) -> Optional[TelemetryData]:
         """Get telemetry data for a specific lap"""
         try:
@@ -184,7 +174,6 @@ class F1DataService:
             self.logger.error(f"Error getting telemetry data: {e}")
             return None
     
-    @cache.memoize(timeout=3600)
     def get_track_data(self, year: int, round_number: int, session_type: str) -> Optional[TrackData]:
         """Get track layout data"""
         try:
