@@ -139,7 +139,8 @@ body {
     border: 1px solid rgba(237, 17, 49, 0.3);
 }
 
-.driver-selection .form-check {
+.driver-selection .form-check,
+.driver-grid-item {
     margin-bottom: 1rem;
     padding: 0.75rem;
     border-radius: 10px;
@@ -148,6 +149,8 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
+    cursor: pointer;
+    user-select: none;
 }
 
 .driver-selection .form-check:hover {
@@ -213,6 +216,45 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* Driver Selection Indicator */
+.driver-selection-indicator {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--f1-red);
+    font-size: 1.2rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.driver-grid-item.selected .driver-selection-indicator,
+.driver-grid-item:has(.driver-checkbox:checked) .driver-selection-indicator {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.driver-grid-item.selected,
+.driver-grid-item:has(.driver-checkbox:checked) {
+    background: rgba(237, 17, 49, 0.15);
+    border-color: rgba(237, 17, 49, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(237, 17, 49, 0.3);
+}
+
+.driver-grid-item.selected:before,
+.driver-grid-item:has(.driver-checkbox:checked):before {
+    width: 6px;
+    background: var(--f1-red);
+}
+
+/* Hide default checkbox in grid mode */
+.driver-grid-item .driver-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
 .form-check-input:checked {
     background-color: var(--f1-red);
     border-color: var(--f1-red);
@@ -265,6 +307,62 @@ canvas {
     font-size: 0.9rem;
     text-align: center;
     margin-bottom: 20px;
+}
+
+/* Chart Header with Expand Button */
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.chart-header .chart-title {
+    text-align: left;
+    margin-bottom: 5px;
+}
+
+.chart-header .chart-subtitle {
+    text-align: left;
+    margin-bottom: 0;
+}
+
+.chart-expand-btn {
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    min-width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-expand-btn:hover {
+    opacity: 1;
+    background-color: rgba(237, 17, 49, 0.2);
+    border-color: var(--f1-red);
+    transform: scale(1.1);
+}
+
+/* Enlarged Chart Modal */
+.enlarged-chart-container {
+    height: 80vh;
+    position: relative;
+}
+
+.enlarged-chart-container canvas {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Enlarged View Mode */
+.enlarged-view .chart-container {
+    height: 600px;
+    margin-bottom: 4rem;
+}
+
+.enlarged-view .chart-container canvas {
+    height: 500px !important;
 }
 
 /* Telemetry Message */

@@ -12,6 +12,10 @@ F-lap is a revolutionary Flask-based web application that provides professional-
 ✓ **Performance Insights Engine** - AI-powered analysis providing speed, braking, and efficiency insights
 ✓ **Sample Data Generation** - Realistic demonstration data when live F1 data is unavailable
 ✓ **Responsive Design** - Optimized for all screen sizes with mobile-first approach
+✓ **Data View Windows** - Click-to-enlarge functionality for all telemetry charts
+✓ **Enhanced Track Visualization** - Advanced circuit visualization with speed mapping
+✓ **2-Driver Comparison System** - Side-by-side telemetry analysis capabilities
+✓ **Clickable Driver Grid** - Entire driver area clickable with visual selection feedback
 
 ## User Preferences
 
@@ -20,6 +24,10 @@ Preferred communication style: Simple, everyday language.
 User requested: Bigger telemetry data display for better readability
 User requested: Enhanced driver styling and presentation
 User requested: Innovative new features and data analysis capabilities
+User requested: Data view windows that enlarge when clicked for better visibility
+User requested: Track visualization feature implementation
+User requested: 2-driver telemetry data comparison capability
+User requested: Clickable driver grid with enhanced selection feedback
 ```
 
 ## System Architecture
