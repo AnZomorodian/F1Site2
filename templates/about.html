@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}About - F-lap{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Hero Section -->
+        <div class="card bg-dark border-danger mb-4">
+            <div class="card-header bg-danger text-white">
+                <h1 class="mb-0">
+                    <i class="fas fa-flag-checkered me-2"></i>
+                    About F-lap
+                </h1>
+            </div>
+            <div class="card-body">
+                <p class="lead">
+                    F-lap is a revolutionary web platform that brings professional-grade Formula 1 telemetry analysis 
+                    to racing enthusiasts, engineers, and data scientists worldwide.
+                </p>
+            </div>
+        </div>
+
+        <!-- Mission Section -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bullseye me-2 text-danger"></i>Our Mission</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            To democratize access to F1 data analysis tools and make the fascinating world of Formula 1 
+                            telemetry accessible to everyone - from casual fans to professional engineers.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-header">
+                        <h3><i class="fas fa-eye me-2 text-danger"></i>Our Vision</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            To become the leading platform for F1 data analysis, helping users understand the intricate 
+                            details that make the difference between victory and defeat in Formula 1.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="card bg-dark border-secondary mb-4">
+            <div class="card-header">
+                <h3><i class="fas fa-rocket me-2 text-danger"></i>Key Features</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h5><i class="fas fa-chart-line me-2 text-danger"></i>Advanced Telemetry</h5>
+                            <p>Real-time analysis of speed, throttle, brake, and gear data from official F1 sources.</p>
+                        </div>
+                        <div class="mb-3">
+                            <h5><i class="fas fa-users me-2 text-danger"></i>Driver Comparison</h5>
+                            <p>Side-by-side analysis of multiple drivers to identify performance differences.</p>
+                        </div>
+                        <div class="mb-3">
+                            <h5><i class="fas fa-brain me-2 text-danger"></i>AI Insights</h5>
+                            <p>Machine learning powered performance analysis and strategic recommendations.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <h5><i class="fas fa-map me-2 text-danger"></i>Track Visualization</h5>
+                            <p>Interactive circuit maps with speed profiles and racing line analysis.</p>
+                        </div>
+                        <div class="mb-3">
+                            <h5><i class="fas fa-download me-2 text-danger"></i>Data Export</h5>
+                            <p>Export analysis data in multiple formats for further research and analysis.</p>
+                        </div>
+                        <div class="mb-3">
+                            <h5><i class="fas fa-mobile-alt me-2 text-danger"></i>Responsive Design</h5>
+                            <p>Optimized for all devices - desktop, tablet, and mobile.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Section -->
+        <div class="card bg-dark border-secondary mb-4">
+            <div class="card-header">
+                <h3><i class="fas fa-cogs me-2 text-danger"></i>Technology Stack</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5>Backend</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fab fa-python me-2"></i>Python Flask</li>
+                            <li><i class="fas fa-database me-2"></i>FastF1 API</li>
+                            <li><i class="fas fa-chart-bar me-2"></i>Pandas & NumPy</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Frontend</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fab fa-bootstrap me-2"></i>Bootstrap 5</li>
+                            <li><i class="fas fa-chart-line me-2"></i>Chart.js</li>
+                            <li><i class="fab fa-js me-2"></i>JavaScript</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Data Sources</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-flag-checkered me-2"></i>Official F1 API</li>
+                            <li><i class="fas fa-clock me-2"></i>Live Timing Data</li>
+                            <li><i class="fas fa-map-marked-alt me-2"></i>Circuit Information</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Section -->
+        <div class="card bg-dark border-secondary mb-4">
+            <div class="card-header">
+                <h3><i class="fas fa-users me-2 text-danger"></i>Development Team</h3>
+            </div>
+            <div class="card-body">
+                <p>
+                    F-lap is developed by a passionate team of Formula 1 enthusiasts, data scientists, and 
+                    software engineers who share a common love for racing and technology.
+                </p>
+                <p>
+                    We continuously work to improve the platform, add new features, and provide the most 
+                    accurate and insightful F1 analysis tools available.
+                </p>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="card bg-dark border-secondary">
+            <div class="card-header">
+                <h3><i class="fas fa-envelope me-2 text-danger"></i>Get In Touch</h3>
+            </div>
+            <div class="card-body">
+                <p>
+                    Have questions, suggestions, or want to contribute? We'd love to hear from you!
+                </p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><i class="fas fa-envelope me-2 text-danger"></i>Email: info@f-lap.com</p>
+                        <p><i class="fab fa-github me-2 text-danger"></i>GitHub: github.com/f-lap</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><i class="fab fa-twitter me-2 text-danger"></i>Twitter: @FlapAnalysis</p>
+                        <p><i class="fab fa-discord me-2 text-danger"></i>Discord: F-lap Community</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

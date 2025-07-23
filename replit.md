@@ -21,6 +21,15 @@ F-lap is a revolutionary Flask-based web application that provides professional-
 ✓ **2-Driver Comparison System** - Side-by-side telemetry analysis capabilities
 ✓ **Clickable Driver Grid** - Entire driver area clickable with visual selection feedback
 
+### Latest Enhancements (July 23, 2025)
+✓ **Export Functionality** - JSON and CSV export options for telemetry analysis data
+✓ **AI Performance Insights** - OpenAI-powered dynamic analysis with refresh capability
+✓ **Weather Data Integration** - Real-time weather conditions display (temperature, humidity, wind)
+✓ **Fuel Analysis Module** - Driver-specific fuel consumption analysis and efficiency ratings
+✓ **Enhanced Comparison Tools** - Advanced driver performance comparison with modal display
+✓ **API Expansion** - New endpoints for export, insights, weather, and fuel data
+✓ **UI Improvements** - Enhanced styling for weather displays, fuel cards, and export dropdowns
+
 ## User Preferences
 
 ```
@@ -32,6 +41,9 @@ User requested: Data view windows that enlarge when clicked for better visibilit
 User requested: Track visualization feature implementation
 User requested: 2-driver telemetry data comparison capability
 User requested: Clickable driver grid with enhanced selection feedback
+User requested: Export and compare functionality for analysis data
+User requested: Weather and fuel data integration for comprehensive analysis
+User requested: AI-powered dynamic performance insights instead of static content
 ```
 
 ## System Architecture

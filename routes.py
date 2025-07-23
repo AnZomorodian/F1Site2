@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify, redirect, url_for
+from flask import render_template, request, jsonify, redirect, url_for, Response
 from app import app
 from f1_data import F1DataService
 import json
@@ -161,4 +161,131 @@ def api_track(year, round_number, session_type):
             return jsonify({'success': False, 'error': 'No track data available'})
     except Exception as e:
         logger.error(f"Error getting track data: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+# New page routes
+@app.route('/about')
+def about():
+    """About page"""
+    return render_template('about.html')
+
+@app.route('/blog')
+def blog():
+    """Blog page"""
+    return render_template('blog.html')
+
+@app.route('/privacy')
+def privacy():
+    """Privacy policy page"""
+    return render_template('privacy.html')
+
+# Enhanced API endpoints for export and comparison features
+@app.route('/api/export/<int:year>/<int:round_number>/<session_type>')
+def api_export_data(year, round_number, session_type):
+    """API endpoint to export analysis data"""
+    try:
+        driver_codes = request.args.getlist('drivers')
+        export_format = request.args.get('format', 'json')
+        
+        if not driver_codes:
+            return jsonify({'success': False, 'error': 'No drivers selected'})
+        
+        # Get comprehensive data for export
+        export_data = f1_service.get_export_data(year, round_number, session_type, driver_codes)
+        
+        if export_format == 'csv':
+            # Generate CSV format
+            csv_data = f1_service.format_as_csv(export_data)
+            return csv_data, 200, {
+                'Content-Type': 'text/csv',
+                'Content-Disposition': f'attachment; filename=f1_analysis_{year}_{round_number}_{session_type}.csv'
+            }
+        else:
+            # Return JSON format
+            return jsonify({
+                'success': True,
+                'data': export_data,
+                'meta': {
+                    'year': year,
+                    'round': round_number,
+                    'session': session_type,
+                    'drivers': driver_codes,
+                    'exported_at': f1_service.get_current_timestamp()
+                }
+            })
+    except Exception as e:
+        logger.error(f"Error exporting data: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/compare/<int:year>/<int:round_number>/<session_type>')
+def api_compare_drivers(year, round_number, session_type):
+    """API endpoint for advanced driver comparison"""
+    try:
+        driver_codes = request.args.getlist('drivers')
+        comparison_type = request.args.get('type', 'performance')
+        
+        if len(driver_codes) < 2:
+            return jsonify({'success': False, 'error': 'At least 2 drivers required for comparison'})
+        
+        comparison_data = f1_service.get_detailed_comparison(year, round_number, session_type, driver_codes, comparison_type)
+        
+        return jsonify({
+            'success': True,
+            'data': comparison_data,
+            'meta': {
+                'drivers': driver_codes,
+                'comparison_type': comparison_type,
+                'session_info': f1_service.get_session_info(year, round_number).get(session_type)
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error in driver comparison: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/insights/<int:year>/<int:round_number>/<session_type>')
+def api_performance_insights(year, round_number, session_type):
+    """API endpoint for AI-powered performance insights"""
+    try:
+        driver_codes = request.args.getlist('drivers')
+        
+        if not driver_codes:
+            return jsonify({'success': False, 'error': 'No drivers selected for analysis'})
+        
+        # Get AI-powered insights
+        insights = f1_service.get_ai_performance_insights(year, round_number, session_type, driver_codes)
+        
+        return jsonify({
+            'success': True,
+            'data': insights,
+            'timestamp': f1_service.get_current_timestamp()
+        })
+    except Exception as e:
+        logger.error(f"Error generating performance insights: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/weather/<int:year>/<int:round_number>')
+def api_weather_data(year, round_number):
+    """API endpoint for weather data"""
+    try:
+        weather_data = f1_service.get_weather_data(year, round_number)
+        return jsonify({
+            'success': True,
+            'data': weather_data
+        })
+    except Exception as e:
+        logger.error(f"Error getting weather data: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/fuel/<int:year>/<int:round_number>/<session_type>')
+def api_fuel_data(year, round_number, session_type):
+    """API endpoint for fuel consumption data"""
+    try:
+        driver_codes = request.args.getlist('drivers')
+        fuel_data = f1_service.get_fuel_data(year, round_number, session_type, driver_codes)
+        return jsonify({
+            'success': True,
+            'data': fuel_data
+        })
+    except Exception as e:
+        logger.error(f"Error getting fuel data: {e}")
         return jsonify({'success': False, 'error': str(e)})

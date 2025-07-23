@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Blog - F-lap{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Hero Section -->
+        <div class="card bg-dark border-danger mb-4">
+            <div class="card-header bg-danger text-white">
+                <h1 class="mb-0">
+                    <i class="fas fa-newspaper me-2"></i>
+                    F-lap Blog
+                </h1>
+                <p class="mb-0 mt-2">Latest insights, analysis, and updates from the world of F1 data</p>
+            </div>
+        </div>
+
+        <!-- Featured Article -->
+        <div class="card bg-dark border-danger mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">🏆 Featured Article</h2>
+                    <span class="badge bg-danger">New</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <h3 class="text-danger">Max Verstappen's 2024 Dominance: A Data Deep Dive</h3>
+                <p class="text-muted">Published on July 20, 2025 • 8 min read</p>
+                <p class="lead">
+                    Analyzing telemetry data from the 2024 season reveals the key factors behind Max Verstappen's 
+                    championship-winning performance and Red Bull's strategic advantages.
+                </p>
+                <p>
+                    Through comprehensive analysis of speed profiles, braking points, and tire management data, 
+                    we uncover the technical elements that made Verstappen nearly unbeatable in 2024...
+                </p>
+                <a href="#" class="btn btn-danger">Read Full Article</a>
+            </div>
+        </div>
+
+        <!-- Blog Posts Grid -->
+        <div class="row">
+            <!-- Article 1 -->
+            <div class="col-lg-6 mb-4">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Understanding DRS Impact</h5>
+                            <span class="badge bg-secondary">Technical</span>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <p class="text-muted">July 18, 2025 • 5 min read</p>
+                        <p>
+                            How DRS activation affects lap times and overtaking opportunities. 
+                            We analyze speed gains and strategic implications across different circuits.
+                        </p>
+                        <div class="mt-auto">
+                            <a href="#" class="btn btn-outline-danger btn-sm">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article 2 -->
+            <div class="col-lg-6 mb-4">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Tire Strategy Optimization</h5>
+                            <span class="badge bg-info">Strategy</span>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <p class="text-muted">July 15, 2025 • 7 min read</p>
+                        <p>
+                            Machine learning models predict optimal tire strategies based on historical 
+                            data and real-time conditions.
+                        </p>
+                        <div class="mt-auto">
+                            <a href="#" class="btn btn-outline-danger btn-sm">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article 3 -->
+            <div class="col-lg-6 mb-4">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Braking Point Analysis</h5>
+                            <span class="badge bg-warning">Data Science</span>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <p class="text-muted">July 12, 2025 • 6 min read</p>
+                        <p>
+                            Comparing braking techniques across different drivers and circuits. 
+                            Discover what separates the best from the rest.
+                        </p>
+                        <div class="mt-auto">
+                            <a href="#" class="btn btn-outline-danger btn-sm">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article 4 -->
+            <div class="col-lg-6 mb-4">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Weather Impact on Performance</h5>
+                            <span class="badge bg-success">Analytics</span>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <p class="text-muted">July 10, 2025 • 4 min read</p>
+                        <p>
+                            How temperature, humidity, and track conditions affect car setup 
+                            and driver performance throughout a race weekend.
+                        </p>
+                        <div class="mt-auto">
+                            <a href="#" class="btn btn-outline-danger btn-sm">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article 5 -->
+            <div class="col-lg-6 mb-4">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">F1 Data API Deep Dive</h5>
+                            <span class="badge bg-primary">Tutorial</span>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <p class="text-muted">July 8, 2025 • 10 min read</p>
+                        <p>
+                            A comprehensive guide to accessing and working with F1 telemetry data. 
+                            Perfect for developers and data enthusiasts.
+                        </p>
+                        <div class="mt-auto">
+                            <a href="#" class="btn btn-outline-danger btn-sm">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article 6 -->
+            <div class="col-lg-6 mb-4">
+                <div class="card bg-dark border-secondary h-100">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Qualifying vs Race Pace</h5>
+                            <span class="badge bg-secondary">Analysis</span>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <p class="text-muted">July 5, 2025 • 5 min read</p>
+                        <p>
+                            Understanding the difference between one-lap pace and race pace. 
+                            Why some drivers excel in qualifying but struggle in races.
+                        </p>
+                        <div class="mt-auto">
+                            <a href="#" class="btn btn-outline-danger btn-sm">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Newsletter Signup -->
+        <div class="card bg-dark border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-envelope me-2"></i>
+                    Stay Updated
+                </h3>
+            </div>
+            <div class="card-body">
+                <p>
+                    Subscribe to our newsletter for the latest F1 analysis, new feature announcements, 
+                    and exclusive insights from the world of Formula 1 data science.
+                </p>
+                <div class="row">
+                    <div class="col-md-8">
+                        <input type="email" class="form-control" placeholder="Enter your email address">
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-danger w-100 mt-2 mt-md-0">Subscribe</button>
+                    </div>
+                </div>
+                <small class="text-muted">
+                    We respect your privacy. Unsubscribe at any time.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
