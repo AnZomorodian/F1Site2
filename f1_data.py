@@ -1,11 +1,18 @@
 import fastf1
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+from matplotlib.collections import LineCollection
 from typing import Dict, List, Optional, Tuple
 import logging
 import json
 import os
 import random
+import base64
+import io
 from datetime import datetime
 from openai import OpenAI
 from models import SessionInfo, DriverInfo, LapData, TelemetryData, TrackData
@@ -80,10 +87,15 @@ class F1DataService:
             return {}
     
     def get_drivers_in_session(self, year: int, round_number: int, session_type: str) -> List[DriverInfo]:
-        """Get list of drivers in a specific session"""
+        """Get list of drivers in a specific session with performance optimization"""
         try:
+            # Enable caching for better performance
+            fastf1.Cache.enable_cache('/tmp/fastf1_cache')
+            
             session = fastf1.get_session(year, round_number, session_type)
-            session.load()
+            
+            # Load only essential data for better performance
+            session.load(telemetry=False, weather=False, messages=False)
             
             drivers = []
             
@@ -246,11 +258,141 @@ class F1DataService:
             time=time_data
         )
     
-    def get_lap_data(self, year: int, round_number: int, session_type: str, driver_codes: List[str]) -> Dict[str, List[LapData]]:
-        """Get lap data for specified drivers"""
+    def generate_circuit_layout(self, year: int, round_number: int, session_type: str, driver_code: str, lap_number: int) -> str:
+        """Generate circuit layout with speed visualization based on your provided code"""
         try:
+            # Enable caching for better performance
+            fastf1.Cache.enable_cache('/tmp/fastf1_cache')
+            
             session = fastf1.get_session(year, round_number, session_type)
             session.load()
+            
+            # Get fastest lap for the driver
+            driver_laps = session.laps.pick_drivers(driver_code)
+            if driver_laps.empty:
+                return self._generate_sample_circuit_layout()
+                
+            if lap_number:
+                lap = driver_laps[driver_laps['LapNumber'] == lap_number].iloc[0]
+            else:
+                lap = driver_laps.pick_fastest()
+                
+            # Get telemetry data
+            if hasattr(lap, 'get_telemetry'):
+                telemetry = lap.get_telemetry()
+                x = telemetry['X']
+                y = telemetry['Y'] 
+                color = telemetry['Speed']
+            else:
+                return self._generate_sample_circuit_layout()
+            
+            # Create the circuit visualization
+            colormap = mpl.cm.plasma
+            
+            # Create line segments for coloring
+            points = np.array([x, y]).T.reshape(-1, 1, 2)
+            segments = np.concatenate([points[:-1], points[1:]], axis=1)
+            
+            # Create the plot
+            fig, ax = plt.subplots(figsize=(12, 8))
+            weekend = session.event
+            fig.suptitle(f'{weekend["EventName"]} {year} - {driver_code} - Speed Map', size=16, y=0.95)
+            
+            # Adjust margins and turn off axis
+            plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.12)
+            ax.axis('off')
+            
+            # Create background track line
+            ax.plot(x, y, color='black', linestyle='-', linewidth=12, zorder=0)
+            
+            # Create speed-colored line
+            norm = plt.Normalize(color.min(), color.max())
+            lc = LineCollection(segments, cmap=colormap, norm=norm, linestyle='-', linewidth=5)
+            lc.set_array(color)
+            line = ax.add_collection(lc)
+            
+            # Add colorbar
+            cbaxes = fig.add_axes([0.25, 0.05, 0.5, 0.05])
+            normlegend = mpl.colors.Normalize(vmin=color.min(), vmax=color.max())
+            legend = mpl.colorbar.ColorbarBase(cbaxes, norm=normlegend, cmap=colormap, orientation="horizontal")
+            legend.set_label('Speed (km/h)', fontsize=12)
+            
+            # Convert to base64 for web display
+            buffer = io.BytesIO()
+            plt.savefig(buffer, format='png', bbox_inches='tight', dpi=100, facecolor='black')
+            buffer.seek(0)
+            
+            image_base64 = base64.b64encode(buffer.getvalue()).decode()
+            plt.close(fig)
+            
+            return f"data:image/png;base64,{image_base64}"
+            
+        except Exception as e:
+            self.logger.error(f"Error generating circuit layout: {e}")
+            return self._generate_sample_circuit_layout()
+    
+    def _generate_sample_circuit_layout(self) -> str:
+        """Generate a sample circuit layout for demonstration"""
+        try:
+            # Create a sample track layout
+            t = np.linspace(0, 2*np.pi, 500)
+            x = 16 * np.sin(t)**3
+            y = 13 * np.cos(t) - 5 * np.cos(2*t) - 2 * np.cos(3*t) - np.cos(4*t)
+            
+            # Generate sample speed data
+            speed = 150 + 100 * np.sin(4*t) + 50 * np.cos(6*t)
+            speed = np.clip(speed, 80, 320)
+            
+            # Create visualization
+            colormap = mpl.cm.plasma
+            points = np.array([x, y]).T.reshape(-1, 1, 2)
+            segments = np.concatenate([points[:-1], points[1:]], axis=1)
+            
+            fig, ax = plt.subplots(figsize=(12, 8))
+            fig.suptitle('Sample Circuit - Speed Visualization', size=16, y=0.95)
+            
+            plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.12)
+            ax.axis('off')
+            
+            # Background track
+            ax.plot(x, y, color='black', linestyle='-', linewidth=12, zorder=0)
+            
+            # Speed-colored line
+            norm = plt.Normalize(speed.min(), speed.max())
+            lc = LineCollection(segments, cmap=colormap, norm=norm, linestyle='-', linewidth=5)
+            lc.set_array(speed)
+            ax.add_collection(lc)
+            
+            # Colorbar
+            cbaxes = fig.add_axes([0.25, 0.05, 0.5, 0.05])
+            normlegend = mpl.colors.Normalize(vmin=speed.min(), vmax=speed.max())
+            legend = mpl.colorbar.ColorbarBase(cbaxes, norm=normlegend, cmap=colormap, orientation="horizontal")
+            legend.set_label('Speed (km/h)', fontsize=12)
+            
+            # Convert to base64
+            buffer = io.BytesIO()
+            plt.savefig(buffer, format='png', bbox_inches='tight', dpi=100, facecolor='black')
+            buffer.seek(0)
+            
+            image_base64 = base64.b64encode(buffer.getvalue()).decode()
+            plt.close(fig)
+            
+            return f"data:image/png;base64,{image_base64}"
+            
+        except Exception as e:
+            self.logger.error(f"Error generating sample circuit: {e}")
+            return ""
+    
+    def get_lap_data(self, year: int, round_number: int, session_type: str, driver_codes: List[str]) -> Dict[str, List[LapData]]:
+        """Get lap data for specified drivers with optimized loading"""
+        try:
+            # Enable caching for better performance
+            fastf1.Cache.enable_cache('/tmp/fastf1_cache')
+            
+            session = fastf1.get_session(year, round_number, session_type)
+            
+            # Load only essential data for performance
+            session.load(telemetry=False, weather=False, messages=False)
             
             lap_data = {}
             

@@ -123,6 +123,16 @@ def api_drivers(year, round_number, session_type):
         logger.error(f"Error getting drivers: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/api/circuit-layout/<int:year>/<int:round_number>/<session_type>/<driver_code>/<int:lap_number>')
+def api_circuit_layout(year, round_number, session_type, driver_code, lap_number):
+    """API endpoint to get circuit layout with speed visualization"""
+    try:
+        circuit_image = f1_service.generate_circuit_layout(year, round_number, session_type, driver_code, lap_number)
+        return jsonify({'success': True, 'data': {'image': circuit_image}})
+    except Exception as e:
+        logger.error(f"Error generating circuit layout: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/api/lap_data/<int:year>/<int:round_number>/<session_type>')
 def api_lap_data(year, round_number, session_type):
     """API endpoint to get lap data for drivers"""

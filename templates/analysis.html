@@ -159,7 +159,14 @@
                             {% set max_laps = lap_data.values() | map('length') | max %}
                             {% for lap_num in range(1, max_laps + 1) %}
                             <tr>
-                                <td class="fw-bold">{{ lap_num }}</td>
+                                <td class="fw-bold">
+                                    {{ lap_num }}
+                                    <button class="btn btn-link btn-sm p-0 ms-2 text-info" 
+                                            onclick="showLapSectors({{ lap_num }})" 
+                                            title="View sector times">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </td>
                                 {% for driver_code in selected_drivers %}
                                 <td>
                                     {% set driver_laps = lap_data.get(driver_code, []) %}
@@ -168,7 +175,11 @@
                                         {% set minutes = (lap.lap_time // 60) | int %}
                                         {% set seconds = lap.lap_time % 60 %}
                                         <span class="lap-time clickable-lap" data-driver="{{ driver_code }}" data-lap="{{ lap_num }}" 
-                                              data-time="{{ lap.lap_time }}" style="cursor: pointer; color: {{ drivers | selectattr('driver_code', 'equalto', driver_code) | map(attribute='team_color') | first }}"
+                                              data-time="{{ lap.lap_time }}" 
+                                              data-sector1="{{ lap.sector_1_time if lap.sector_1_time else 'N/A' }}"
+                                              data-sector2="{{ lap.sector_2_time if lap.sector_2_time else 'N/A' }}"
+                                              data-sector3="{{ lap.sector_3_time if lap.sector_3_time else 'N/A' }}"
+                                              style="cursor: pointer; color: {{ drivers | selectattr('driver_code', 'equalto', driver_code) | map(attribute='team_color') | first }}"
                                               onclick="selectLapForTelemetry('{{ driver_code }}', {{ lap_num }}, this)">
                                             <span class="lap-star" style="display: none;">⭐</span>
                                             {{ "%d:%06.3f" | format(minutes, seconds) }}
@@ -428,23 +439,20 @@
                                             </div>
                                         </div>
                                         <div class="chart-body-pro track-visualization">
-                                            <canvas id="trackMapChart" class="telemetry-chart-xl"></canvas>
+                                            <div id="trackMapContainer" style="display: flex; justify-content: center; align-items: center; min-height: 400px;">
+                                                <div class="text-center">
+                                                    <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                                                    <p class="text-muted">Click on a lap to generate circuit layout</p>
+                                                </div>
+                                            </div>
                                             <div class="track-legend">
                                                 <div class="legend-item">
-                                                    <div class="legend-color" style="background: #00ff00;"></div>
-                                                    <span>High Speed (300+ km/h)</span>
+                                                    <div class="legend-color" style="background: linear-gradient(90deg, #0d1117, #9400d3, #ff00ff, #ff0000, #ffff00, #00ff00);"></div>
+                                                    <span>Speed Profile (Low to High)</span>
                                                 </div>
                                                 <div class="legend-item">
-                                                    <div class="legend-color" style="background: #ffff00;"></div>
-                                                    <span>Medium Speed (200-300 km/h)</span>
-                                                </div>
-                                                <div class="legend-item">
-                                                    <div class="legend-color" style="background: #ff0000;"></div>
-                                                    <span>Low Speed (0-200 km/h)</span>
-                                                </div>
-                                                <div class="legend-item">
-                                                    <div class="legend-color" style="background: #0066ff;"></div>
-                                                    <span>Braking Zones</span>
+                                                    <div class="legend-color" style="background: #000000;"></div>
+                                                    <span>Track Layout</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -1770,5 +1778,138 @@ function hideLoadingHints() {
     btnContent.style.display = 'inline-flex';
     btnLoading.style.display = 'none';
 }
+
+// Sector Details Modal functionality
+function showLapSectors(lapNumber) {
+    const modal = new bootstrap.Modal(document.getElementById('sectorModal'));
+    document.getElementById('sectorLapNumber').textContent = lapNumber;
+    
+    const container = document.getElementById('sectorTimesContainer');
+    container.innerHTML = '';
+    
+    // Get sector data for all selected drivers
+    {% for driver_code in selected_drivers %}
+        const {{ driver_code.lower() }}LapData = document.querySelector(`[data-driver="{{ driver_code }}"][data-lap="${lapNumber}"]`);
+        if ({{ driver_code.lower() }}LapData) {
+            const sector1 = {{ driver_code.lower() }}LapData.dataset.sector1;
+            const sector2 = {{ driver_code.lower() }}LapData.dataset.sector2;
+            const sector3 = {{ driver_code.lower() }}LapData.dataset.sector3;
+            const driverColor = '{{ drivers | selectattr("driver_code", "equalto", driver_code) | map(attribute="team_color") | first }}';
+            
+            const driverCard = document.createElement('div');
+            driverCard.className = 'col-md-6 mb-3';
+            driverCard.innerHTML = `
+                <div class="card bg-secondary border-0">
+                    <div class="card-header" style="background-color: ${driverColor}20; border-left: 4px solid ${driverColor};">
+                        <h6 class="mb-0" style="color: ${driverColor};">{{ driver_code }}</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="sector-times">
+                            <div class="sector-time mb-2">
+                                <span class="sector-label">Sector 1:</span>
+                                <span class="sector-value">${sector1 !== 'N/A' ? formatSectorTime(parseFloat(sector1)) : 'N/A'}</span>
+                            </div>
+                            <div class="sector-time mb-2">
+                                <span class="sector-label">Sector 2:</span>
+                                <span class="sector-value">${sector2 !== 'N/A' ? formatSectorTime(parseFloat(sector2)) : 'N/A'}</span>
+                            </div>
+                            <div class="sector-time">
+                                <span class="sector-label">Sector 3:</span>
+                                <span class="sector-value">${sector3 !== 'N/A' ? formatSectorTime(parseFloat(sector3)) : 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(driverCard);
+        }
+    {% endfor %}
+    
+    modal.show();
+}
+
+// Format sector times
+function formatSectorTime(seconds) {
+    if (!seconds || seconds <= 0) return 'N/A';
+    return `${seconds.toFixed(3)}s`;
+}
+
+// Circuit layout functionality
+function loadCircuitLayout(driverCode, lapNumber) {
+    const container = document.getElementById('trackMapContainer');
+    container.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-danger mb-3" role="status">
+                <span class="visually-hidden">Loading circuit...</span>
+            </div>
+            <p class="text-muted">Generating circuit layout...</p>
+        </div>
+    `;
+    
+    const sessionData = {
+        year: {{ session.year if session else 2025 }},
+        round: {{ session.round_number if session else 1 }},
+        session: '{{ session.session_type if session else "R" }}'
+    };
+    
+    fetch(`/api/circuit-layout/${sessionData.year}/${sessionData.round}/${sessionData.session}/${driverCode}/${lapNumber}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data.image) {
+                container.innerHTML = `
+                    <img src="${data.data.image}" 
+                         alt="Circuit Layout" 
+                         class="img-fluid rounded"
+                         style="max-width: 100%; height: auto; background: black; padding: 10px;">
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center text-danger">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <p>Unable to generate circuit layout</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Circuit layout error:', error);
+            container.innerHTML = `
+                <div class="text-center text-danger">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                    <p>Error loading circuit layout</p>
+                </div>
+            `;
+        });
+}
+
+// Override selectLapForTelemetry to also load circuit
+const originalSelectLap = window.selectLapForTelemetry;
+window.selectLapForTelemetry = function(driverCode, lapNumber, element) {
+    if (originalSelectLap) {
+        originalSelectLap(driverCode, lapNumber, element);
+    }
+    loadCircuitLayout(driverCode, lapNumber);
+};
 </script>
+
+<!-- Sector Details Modal -->
+<div class="modal fade" id="sectorModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark border-danger">
+            <div class="modal-header border-danger">
+                <h5 class="modal-title text-danger">
+                    <i class="fas fa-stopwatch me-2"></i>
+                    Lap <span id="sectorLapNumber"></span> - Sector Times
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="sectorTimesContainer">
+                    <!-- Sector times will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
