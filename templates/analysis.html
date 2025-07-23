@@ -290,11 +290,11 @@
                                                 <p class="chart-desc">Track distance vs speed with sector breakdowns</p>
                                             </div>
                                             <div class="chart-controls">
-                                                <button class="btn-pro btn-zoom" onclick="enlargeChart('speedChart')">
-                                                    <i class="fas fa-search-plus"></i>
+                                                <button class="btn-pro btn-refresh" onclick="refreshChart('speedChart')">
+                                                    <i class="fas fa-sync"></i>
                                                 </button>
-                                                <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('speedChart')">
-                                                    <i class="fas fa-expand-arrows-alt"></i>
+                                                <button class="btn-pro btn-maximize" onclick="maximizeChart('speedChart')">
+                                                    <i class="fas fa-expand"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -422,11 +422,11 @@
                                                 <p class="chart-desc">Multi-axis visualization with speed, throttle, and brake correlation</p>
                                             </div>
                                             <div class="chart-controls">
-                                                <button class="btn-pro btn-zoom" onclick="enlargeChart('combinedChart')">
-                                                    <i class="fas fa-search-plus"></i>
+                                                <button class="btn-pro btn-refresh" onclick="refreshChart('combinedChart')">
+                                                    <i class="fas fa-sync"></i>
                                                 </button>
-                                                <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('combinedChart')">
-                                                    <i class="fas fa-expand-arrows-alt"></i>
+                                                <button class="btn-pro btn-maximize" onclick="maximizeChart('combinedChart')">
+                                                    <i class="fas fa-expand"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -497,11 +497,15 @@
                                         </div>
                                         <div class="chart-body-pro">
                                             <div id="weatherData" class="weather-display">
-                                                <div class="text-center py-4">
-                                                    <div class="spinner-border text-primary mb-3" role="status">
-                                                        <span class="visually-hidden">Loading weather data...</span>
+                                                <div class="loading-animation" id="weatherLoading">
+                                                    <div class="weather-loading-spinner">
+                                                        <div class="loading-dots">
+                                                            <div class="dot"></div>
+                                                            <div class="dot"></div>
+                                                            <div class="dot"></div>
+                                                        </div>
+                                                        <p class="loading-text">Loading weather conditions...</p>
                                                     </div>
-                                                    <p class="text-muted">Fetching live weather conditions...</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -525,11 +529,13 @@
                                         </div>
                                         <div class="chart-body-pro">
                                             <div id="fuelData" class="fuel-display">
-                                                <div class="text-center py-4">
-                                                    <div class="spinner-border text-warning mb-3" role="status">
-                                                        <span class="visually-hidden">Analyzing fuel consumption...</span>
+                                                <div class="loading-animation" id="fuelLoading">
+                                                    <div class="fuel-loading-spinner">
+                                                        <div class="fuel-gauge-loading">
+                                                            <div class="gauge-fill-animation"></div>
+                                                        </div>
+                                                        <p class="loading-text">Analyzing fuel consumption...</p>
                                                     </div>
-                                                    <p class="text-muted">Calculating fuel efficiency metrics...</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -641,6 +647,41 @@
                                                     </div>
                                                     <div class="metric-trend">
                                                         <i class="fas fa-trophy trend-icon"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Custom Performance Insights Engine - Final Section -->
+                            <div class="row mt-5">
+                                <div class="col-12">
+                                    <div class="professional-chart-card insights-engine">
+                                        <div class="chart-header-pro">
+                                            <div class="chart-info">
+                                                <h5 class="chart-title-pro">
+                                                    <i class="fas fa-cogs me-2 text-warning"></i>
+                                                    Advanced Performance Insights Engine
+                                                </h5>
+                                                <p class="chart-desc">Custom analysis engine combining telemetry data for intelligent insights</p>
+                                            </div>
+                                            <div class="chart-controls">
+                                                <button class="btn-pro btn-refresh" onclick="generateCustomInsights()" id="insightsEngineBtn">
+                                                    <i class="fas fa-brain"></i> Generate Insights
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="chart-body-pro">
+                                            <div id="customInsightsContent">
+                                                <div class="loading-animation" id="insightsLoading">
+                                                    <div class="insights-loading-spinner">
+                                                        <div class="brain-animation">
+                                                            <div class="synapse"></div>
+                                                            <div class="synapse"></div>
+                                                            <div class="synapse"></div>
+                                                        </div>
+                                                        <p class="loading-text">Processing telemetry insights...</p>
                                                     </div>
                                                 </div>
                                             </div>

@@ -1,0 +1,51 @@
+DEBUG:requests_cache.policy.actions:Post-read cache actions: CacheActions(expire_after=datetime.timedelta(seconds=43200))
+core        WARNING     Driver 81 completed the race distance 00:00.036000 before the recorded end of the session.
+WARNING:fastf1.fastf1.core:Driver 81 completed the race distance 00:00.036000 before the recorded end of the session.
+core           INFO     Finished loading data for 20 drivers: ['81', '4', '63', '1', '23', '12', '16', '44', '55', '22', '6', '31', '10', '27', '14', '18', '30', '5', '87', '7']
+INFO:fastf1.fastf1.core:Finished loading data for 20 drivers: ['81', '4', '63', '1', '23', '12', '16', '44', '55', '22', '6', '31', '10', '27', '14', '18', '30', '5', '87', '7']
+ERROR:f1_data:Error calculating performance metrics: 'Timedelta' object has no attribute 'iloc'
+DEBUG:requests_cache.backends:Initializing backend: sqlite /tmp/fastf1_cache/fastf1_http_cache
+DEBUG:requests_cache.backends.base:Initialized SQLiteDict with serializer: SerializerPipeline(name=pickle, n_stages=2)
+DEBUG:requests_cache.backends.sqlite:Opening connection to /tmp/fastf1_cache/fastf1_http_cache.sqlite:responses
+DEBUG:requests_cache.backends.base:Initialized SQLiteDict with serializer: None
+DEBUG:requests_cache.backends.sqlite:Opening connection to /tmp/fastf1_cache/fastf1_http_cache.sqlite:redirects
+DEBUG:requests_cache.policy.actions:Cache directives from request headers: CacheDirectives()
+DEBUG:requests_cache.policy.actions:Pre-read cache checks: Passed
+DEBUG:requests_cache.policy.actions:Post-read cache actions: CacheActions(expire_after=datetime.timedelta(seconds=43200))
+core           INFO     Loading data for Miami Grand Prix - Race [v3.6.0]
+INFO:fastf1.fastf1.core:Loading data for Miami Grand Prix - Race [v3.6.0]
+req            INFO     Using cached data for session_info
+INFO:fastf1.fastf1.req:Using cached data for session_info
+req            INFO     Using cached data for driver_info
+INFO:fastf1.fastf1.req:Using cached data for driver_info
+DEBUG:requests_cache.policy.actions:Cache directives from request headers: CacheDirectives()
+DEBUG:requests_cache.policy.actions:Pre-read cache checks: Passed
+DEBUG:requests_cache.policy.actions:Post-read cache actions: CacheActions(expire_after=datetime.timedelta(seconds=43200))
+req            INFO     Using cached data for session_status_data
+INFO:fastf1.fastf1.req:Using cached data for session_status_data
+req            INFO     Using cached data for lap_count
+INFO:fastf1.fastf1.req:Using cached data for lap_count
+req            INFO     Using cached data for track_status_data
+INFO:fastf1.fastf1.req:Using cached data for track_status_data
+req            INFO     Using cached data for _extended_timing_data
+INFO:fastf1.fastf1.req:Using cached data for _extended_timing_data
+req            INFO     Using cached data for timing_app_data
+INFO:fastf1.fastf1.req:Using cached data for timing_app_data
+core           INFO     Processing timing data...
+INFO:fastf1.fastf1.core:Processing timing data...
+core        WARNING     Fixed incorrect tyre stint information for driver '6'
+WARNING:fastf1.fastf1.core:Fixed incorrect tyre stint information for driver '6'
+core        WARNING     Fixed incorrect tyre stint information for driver '31'
+WARNING:fastf1.fastf1.core:Fixed incorrect tyre stint information for driver '31'
+core        WARNING     Fixed incorrect tyre stint information for driver '18'
+WARNING:fastf1.fastf1.core:Fixed incorrect tyre stint information for driver '18'
+core        WARNING     Fixed incorrect tyre stint information for driver '5'
+WARNING:fastf1.fastf1.core:Fixed incorrect tyre stint information for driver '5'
+DEBUG:requests_cache.policy.actions:Cache directives from request headers: CacheDirectives()
+DEBUG:requests_cache.policy.actions:Pre-read cache checks: Passed
+DEBUG:requests_cache.policy.actions:Post-read cache actions: CacheActions(expire_after=datetime.timedelta(seconds=43200))
+core        WARNING     Driver 81 completed the race distance 00:00.036000 before the recorded end of the session.
+WARNING:fastf1.fastf1.core:Driver 81 completed the race distance 00:00.036000 before the recorded end of the session.
+core           INFO     Finished loading data for 20 drivers: ['81', '4', '63', '1', '23', '12', '16', '44', '55', '22', '6', '31', '10', '27', '14', '18', '30', '5', '87', '7']
+INFO:fastf1.fastf1.core:Finished loading data for 20 drivers: ['81', '4', '63', '1', '23', '12', '16', '44', '55', '22', '6', '31', '10', '27', '14', '18', '30', '5', '87', '7']
+ERROR:f1_data:Error calculating performance metrics: 'Timedelta' object has no attribute 'iloc'

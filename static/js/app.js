@@ -472,3 +472,136 @@ window.F1Utils = {
         };
     }
 };
+
+// Custom Insights Engine Functions
+function generateCustomInsights() {
+    const button = document.getElementById('insightsEngineBtn');
+    const content = document.getElementById('customInsightsContent');
+    const loading = document.getElementById('insightsLoading');
+    
+    if (!button || !content) return;
+    
+    // Show loading animation
+    loading.style.display = 'flex';
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    
+    // Get current session parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const year = urlParams.get('year');
+    const round = urlParams.get('round');
+    const session = urlParams.get('session') || 'R';
+    
+    if (!year || !round) {
+        showInsightsError('Session parameters not found');
+        return;
+    }
+    
+    // Make API call to custom insights engine
+    fetch(`/api/custom-insights/${year}/${round}/${session}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayCustomInsights(data.insights, data.engine);
+                button.innerHTML = '<i class="fas fa-brain"></i> Refresh Insights';
+            } else {
+                showInsightsError(data.error || 'Failed to generate insights');
+            }
+        })
+        .catch(error => {
+            console.error('Error generating insights:', error);
+            showInsightsError('Network error occurred');
+        })
+        .finally(() => {
+            loading.style.display = 'none';
+            button.disabled = false;
+        });
+}
+
+function displayCustomInsights(insights, engine) {
+    const content = document.getElementById('customInsightsContent');
+    if (!content) return;
+    
+    const insightsHtml = `
+        <div class="custom-insights-grid">
+            ${insights.map(insight => `
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <div class="insight-icon">
+                            <i class="fas ${insight.icon}"></i>
+                        </div>
+                        <h6 class="insight-title">${insight.title}</h6>
+                    </div>
+                    <div class="insight-content">
+                        <p>${insight.content}</p>
+                        <div class="insight-data-points mt-3">
+                            <strong>Key Data:</strong>
+                            <ul class="list-unstyled mt-2">
+                                ${insight.data_points.map(point => `<li>• ${point}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="insight-recommendation mt-3">
+                            <strong>Recommendation:</strong>
+                            <p class="mt-1 text-warning">${insight.recommendation}</p>
+                        </div>
+                    </div>
+                    <div class="insight-rating">
+                        <div class="rating-stars">
+                            ${Array.from({length: 5}, (_, i) => 
+                                `<span class="star ${i < Math.floor(insight.rating) ? 'fas' : 'far'} fa-star"></span>`
+                            ).join('')}
+                        </div>
+                        <span class="rating-text">Confidence: ${insight.rating.toFixed(1)}/5.0</span>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                <i class="fas fa-cogs me-1"></i>
+                Powered by ${engine}
+            </small>
+        </div>
+    `;
+    
+    content.innerHTML = insightsHtml;
+}
+
+function showInsightsError(message) {
+    const content = document.getElementById('customInsightsContent');
+    const button = document.getElementById('insightsEngineBtn');
+    
+    if (content) {
+        content.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 2rem;"></i>
+                <p class="text-muted">${message}</p>
+                <button class="btn btn-outline-warning btn-sm mt-2" onclick="generateCustomInsights()">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            </div>
+        `;
+    }
+    
+    if (button) {
+        button.innerHTML = '<i class="fas fa-brain"></i> Generate Insights';
+    }
+}
+
+// Loading animation helpers for data sections
+function hideLoadingAfterDelay() {
+    setTimeout(() => {
+        const loadingElements = ['weatherLoading', 'fuelLoading', 'metricsLoading'];
+        loadingElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = 'none';
+            }
+        });
+    }, 2000);
+}
+
+// Auto-hide loading animations on page load
+document.addEventListener('DOMContentLoaded', function() {
+    hideLoadingAfterDelay();
+});
