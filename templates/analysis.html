@@ -85,10 +85,49 @@
                     </div>
                 </div>
 
-                <button class="btn btn-danger w-100" id="updateAnalysis">
-                    <i class="fas fa-sync me-1"></i>
-                    Update Analysis
+                <button class="btn btn-danger w-100" id="updateAnalysis" data-loading="false">
+                    <span class="btn-content">
+                        <i class="fas fa-sync me-1"></i>
+                        Update Analysis
+                    </span>
+                    <span class="btn-loading" style="display: none;">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        Loading...
+                    </span>
                 </button>
+                
+                <!-- Loading Hints Modal -->
+                <div class="modal fade" id="loadingHintsModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content bg-dark border-danger">
+                            <div class="modal-header border-danger">
+                                <h5 class="modal-title text-danger">
+                                    <i class="fas fa-rocket me-2"></i>
+                                    Loading F1 Data
+                                </h5>
+                            </div>
+                            <div class="modal-body text-center">
+                                <div class="mb-4">
+                                    <div class="spinner-border text-danger mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <h6 class="text-light">Analyzing Telemetry Data...</h6>
+                                </div>
+                                <div class="f1-hint-card p-3 rounded border border-secondary">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                                        <strong class="text-warning">F1 Pro Tip</strong>
+                                    </div>
+                                    <p id="loadingHint" class="text-light mb-0">Loading hint...</p>
+                                </div>
+                                <div class="progress mt-3" style="height: 6px;">
+                                    <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" style="width: 0%" id="loadingProgress"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -503,6 +542,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update analysis button handler
     updateButton.addEventListener('click', function() {
+        showLoadingWithHints();
         updateAnalysisView();
     });
 
@@ -1565,28 +1605,59 @@ function toggleEnlargedView() {
     const btn = document.getElementById('enlargeViewBtn');
     
     if (dashboard.classList.contains('enlarged-mode')) {
-        dashboard.classList.remove('enlarged-mode');
-        btn.innerHTML = '<i class="fas fa-expand me-1"></i> Enlarge View';
-        
-        // Reset all chart sizes
+        closeEnlargedView();
+    } else {
+        openEnlargedView();
+    }
+}
+
+function openEnlargedView() {
+    const dashboard = document.querySelector('.telemetry-dashboard');
+    const btn = document.getElementById('enlargeViewBtn');
+    
+    dashboard.classList.add('enlarged-mode');
+    btn.innerHTML = '<i class="fas fa-compress me-1"></i> Normal View';
+    
+    // Add close button to enlarged view
+    if (!document.getElementById('enlargedCloseBtn')) {
+        const closeBtn = document.createElement('button');
+        closeBtn.id = 'enlargedCloseBtn';
+        closeBtn.className = 'btn btn-danger position-fixed';
+        closeBtn.style.cssText = 'top: 20px; right: 20px; z-index: 10001; border-radius: 50px; padding: 12px 16px;';
+        closeBtn.innerHTML = '<i class="fas fa-times me-2"></i>Close Enlarged View';
+        closeBtn.onclick = closeEnlargedView;
+        document.body.appendChild(closeBtn);
+    }
+    
+    // Resize all charts for enlarged mode
+    setTimeout(() => {
         Object.keys(window.chartInstances || {}).forEach(chartId => {
             if (window.chartInstances[chartId]) {
                 window.chartInstances[chartId].resize();
             }
         });
-    } else {
-        dashboard.classList.add('enlarged-mode');
-        btn.innerHTML = '<i class="fas fa-compress me-1"></i> Normal View';
-        
-        // Resize all charts for enlarged mode
-        setTimeout(() => {
-            Object.keys(window.chartInstances || {}).forEach(chartId => {
-                if (window.chartInstances[chartId]) {
-                    window.chartInstances[chartId].resize();
-                }
-            });
-        }, 300);
+    }, 300);
+}
+
+function closeEnlargedView() {
+    const dashboard = document.querySelector('.telemetry-dashboard');
+    const btn = document.getElementById('enlargeViewBtn');
+    const closeBtn = document.getElementById('enlargedCloseBtn');
+    
+    dashboard.classList.remove('enlarged-mode');
+    btn.innerHTML = '<i class="fas fa-expand me-1"></i> Enlarge View';
+    
+    // Remove close button
+    if (closeBtn) {
+        document.body.removeChild(closeBtn);
     }
+    
+    // Reset all chart sizes
+    Object.keys(window.chartInstances || {}).forEach(chartId => {
+        if (window.chartInstances[chartId]) {
+            window.chartInstances[chartId].resize();
+        }
+    });
 }
 
 // Enhanced driver comparison
@@ -1615,6 +1686,89 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && window.currentFullscreenModal) {
         closeFullscreen();
     }
+    if (e.key === 'Escape' && document.querySelector('.telemetry-dashboard.enlarged-mode')) {
+        closeEnlargedView();
+    }
 });
+
+// Loading with hints functionality
+const f1Hints = [
+    "DRS (Drag Reduction System) can provide up to 10-12 km/h speed advantage on straights when activated.",
+    "F1 drivers experience up to 6G of lateral force during high-speed corners, requiring incredible physical strength.",
+    "Modern F1 cars generate enough downforce to theoretically drive upside down at speeds above 120 km/h.",
+    "F1 engines rev up to 15,000 RPM and can accelerate from 0-100 km/h in just 2.6 seconds.",
+    "Brake discs in F1 can reach temperatures of 1,000°C during heavy braking, glowing bright orange.",
+    "F1 tires lose grip rapidly - a 'fresh' tire can be 2-3 seconds per lap faster than a worn one.",
+    "Telemetry data shows F1 drivers make steering corrections up to 50 times per corner to maintain optimal line.",
+    "ERS (Energy Recovery System) can provide an extra 160 horsepower for 33 seconds per lap strategically.",
+    "F1 cars use different gear ratios for each track - Monaco uses shorter ratios than Monza's long straights.",
+    "Advanced telemetry tracks over 300 parameters per second, generating 3GB of data during a race weekend."
+];
+
+let currentHintIndex = 0;
+let hintInterval;
+let progressInterval;
+
+function showLoadingWithHints() {
+    const modal = new bootstrap.Modal(document.getElementById('loadingHintsModal'));
+    const btn = document.getElementById('updateAnalysis');
+    const btnContent = btn.querySelector('.btn-content');
+    const btnLoading = btn.querySelector('.btn-loading');
+    
+    // Show button loading state
+    btn.setAttribute('data-loading', 'true');
+    btnContent.style.display = 'none';
+    btnLoading.style.display = 'inline-flex';
+    
+    // Reset progress
+    document.getElementById('loadingProgress').style.width = '0%';
+    currentHintIndex = 0;
+    
+    // Show first hint
+    document.getElementById('loadingHint').textContent = f1Hints[currentHintIndex];
+    
+    // Show modal
+    modal.show();
+    
+    // Start hint rotation
+    hintInterval = setInterval(() => {
+        currentHintIndex = (currentHintIndex + 1) % f1Hints.length;
+        document.getElementById('loadingHint').textContent = f1Hints[currentHintIndex];
+    }, 2000);
+    
+    // Start progress animation
+    let progress = 0;
+    progressInterval = setInterval(() => {
+        progress += Math.random() * 15 + 5;
+        if (progress > 100) progress = 100;
+        document.getElementById('loadingProgress').style.width = progress + '%';
+        
+        if (progress >= 100) {
+            clearInterval(progressInterval);
+            setTimeout(() => {
+                hideLoadingHints();
+            }, 1000);
+        }
+    }, 500);
+}
+
+function hideLoadingHints() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('loadingHintsModal'));
+    const btn = document.getElementById('updateAnalysis');
+    const btnContent = btn.querySelector('.btn-content');
+    const btnLoading = btn.querySelector('.btn-loading');
+    
+    // Clear intervals
+    if (hintInterval) clearInterval(hintInterval);
+    if (progressInterval) clearInterval(progressInterval);
+    
+    // Hide modal
+    if (modal) modal.hide();
+    
+    // Reset button state
+    btn.setAttribute('data-loading', 'false');
+    btnContent.style.display = 'inline-flex';
+    btnLoading.style.display = 'none';
+}
 </script>
 {% endblock %}

@@ -64,12 +64,59 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-center py-3 mt-auto">
+    <!-- Enhanced Footer -->
+    <footer class="enhanced-footer bg-dark py-4 mt-auto border-top border-danger">
         <div class="container">
-            <small class="text-muted">
-                Powered by FastF1 • Data from Formula 1
-            </small>
+            <div class="row align-items-center">
+                <!-- Left: Powered By -->
+                <div class="col-md-4 text-start">
+                    <div class="footer-brand">
+                        <i class="fas fa-code text-danger me-2"></i>
+                        <span class="text-light">Powered By</span>
+                        <strong class="text-danger ms-1">DeepInk Team</strong>
+                    </div>
+                </div>
+                
+                <!-- Center: F-lap Logo -->
+                <div class="col-md-4 text-center">
+                    <div class="footer-logo">
+                        <i class="fas fa-flag-checkered text-danger me-2" style="font-size: 1.5rem;"></i>
+                        <span class="footer-brand-name">F-lap</span>
+                        <div class="footer-tagline">Advanced F1 Telemetry Analysis</div>
+                    </div>
+                </div>
+                
+                <!-- Right: Social Media -->
+                <div class="col-md-4 text-end">
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="Twitter" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link" title="GitHub" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link" title="LinkedIn" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="social-link" title="Discord" aria-label="Discord">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="social-link" title="Instagram" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Copyright -->
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <hr class="border-secondary">
+                    <small class="text-muted">
+                        © {{ current_year or 2025 }} F-lap Platform • Built with FastF1 • All F1 data from official sources
+                    </small>
+                </div>
+            </div>
         </div>
     </footer>
 
