@@ -65,25 +65,31 @@ class F1DataService:
             return []
     
     def get_session_info(self, year: int, round_number: int) -> Dict[str, SessionInfo]:
-        """Get session information for a specific round"""
+        """Get session information for a specific round with enhanced detection"""
         try:
             event = fastf1.get_event(year, round_number)
             sessions = {}
             
-            session_types = {
-                'FP1': 'Practice 1',
-                'FP2': 'Practice 2', 
-                'FP3': 'Practice 3',
-                'Q': 'Qualifying',
-                'SQ': 'Sprint Qualifying',
-                'S': 'Sprint',
-                'R': 'Race'
-            }
+            # Define all possible session types in order
+            session_types = [
+                ('FP1', 'Practice 1'),
+                ('FP2', 'Practice 2'), 
+                ('FP3', 'Practice 3'),
+                ('SQ', 'Sprint Qualifying'),
+                ('S', 'Sprint'),
+                ('Q', 'Qualifying'),
+                ('R', 'Race')
+            ]
             
-            for session_key, session_name in session_types.items():
+            # Check which sessions actually exist for this event
+            for session_key, session_name in session_types:
                 try:
-                    session = event.get_session(session_key)
-                    if session is not None:
+                    # Try to get the session and check if it has data
+                    session = fastf1.get_session(year, round_number, session_key)
+                    session.load(telemetry=False, weather=False, messages=False)
+                    
+                    # If session loads successfully and has results, include it
+                    if hasattr(session, 'results') and len(session.results) > 0:
                         sessions[session_key] = SessionInfo(
                             year=year,
                             round_number=round_number,
@@ -92,13 +98,36 @@ class F1DataService:
                             grand_prix_name=event['EventName'],
                             circuit_name=event['Location']
                         )
-                except:
+                        self.logger.info(f"Found valid session: {session_key} for {event['EventName']}")
+                except Exception as session_error:
+                    self.logger.debug(f"Session {session_key} not available: {session_error}")
                     continue
+            
+            # If no sessions found, return at least Race as fallback
+            if not sessions:
+                sessions['R'] = SessionInfo(
+                    year=year,
+                    round_number=round_number,
+                    session_name='Race',
+                    session_type='R',
+                    grand_prix_name=event.get('EventName', 'Unknown GP'),
+                    circuit_name=event.get('Location', 'Unknown Circuit')
+                )
             
             return sessions
         except Exception as e:
             self.logger.error(f"Error getting session info for {year} round {round_number}: {e}")
-            return {}
+            # Return default race session as fallback
+            return {
+                'R': SessionInfo(
+                    year=year,
+                    round_number=round_number,
+                    session_name='Race',
+                    session_type='R',
+                    grand_prix_name='Unknown GP',
+                    circuit_name='Unknown Circuit'
+                )
+            }
     
     def get_drivers_in_session(self, year: int, round_number: int, session_type: str) -> List[DriverInfo]:
         """Get list of drivers in a specific session with performance optimization"""
