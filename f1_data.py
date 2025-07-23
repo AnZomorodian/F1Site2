@@ -256,7 +256,7 @@ class F1DataService:
             
             for driver_code in driver_codes:
                 try:
-                    driver_laps = session.laps.pick_driver(driver_code)
+                    driver_laps = session.laps.pick_drivers(driver_code)
                     laps = []
                     
                     for idx, lap in driver_laps.iterrows():
@@ -289,21 +289,27 @@ class F1DataService:
             session = fastf1.get_session(year, round_number, session_type)
             session.load()
             
-            lap = session.laps.pick_driver(driver_code).pick_lap(lap_number)
-            telemetry = lap.get_telemetry()
+            driver_laps = session.laps.pick_drivers(driver_code)
+            lap = driver_laps.pick_laps(lap_number)
+            if not lap.empty:
+                # Get the first lap if multiple laps returned
+                if hasattr(lap, 'iloc'):
+                    lap = lap.iloc[0]
+                
+                telemetry = lap.get_telemetry()
+                
+                if not telemetry.empty:
+                    return TelemetryData(
+                        distance=telemetry['Distance'].tolist(),
+                        speed=telemetry['Speed'].tolist(),
+                        throttle=telemetry['Throttle'].tolist(),
+                        brake=telemetry['Brake'].tolist(),
+                        gear=telemetry['nGear'].tolist(),
+                        drs=telemetry['DRS'].tolist() if 'DRS' in telemetry.columns else [0] * len(telemetry),
+                        time=telemetry['Time'].dt.total_seconds().tolist()
+                    )
             
-            if telemetry.empty:
-                return None
-            
-            return TelemetryData(
-                distance=telemetry['Distance'].tolist(),
-                speed=telemetry['Speed'].tolist(),
-                throttle=telemetry['Throttle'].tolist(),
-                brake=telemetry['Brake'].tolist(),
-                gear=telemetry['nGear'].tolist(),
-                drs=telemetry['DRS'].tolist() if 'DRS' in telemetry.columns else [0] * len(telemetry),
-                time=telemetry['Time'].dt.total_seconds().tolist()
-            )
+            return None
         except Exception as e:
             self.logger.error(f"Error getting telemetry data: {e}")
             return None

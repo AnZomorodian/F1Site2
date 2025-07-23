@@ -132,8 +132,10 @@
                                 <td>
                                     {% if lap_data[driver_code] and lap_num <= lap_data[driver_code]|length %}
                                     {% set lap = lap_data[driver_code][lap_num-1] %}
-                                    <span class="lap-time" data-driver="{{ driver_code }}" data-lap="{{ lap_num }}"
-                                          style="color: {{ drivers | selectattr('driver_code', 'equalto', driver_code) | map(attribute='team_color') | first }}">
+                                    <span class="lap-time clickable-lap" data-driver="{{ driver_code }}" data-lap="{{ lap_num }}"
+                                          style="color: {{ drivers | selectattr('driver_code', 'equalto', driver_code) | map(attribute='team_color') | first }}"
+                                          onclick="selectLapForTelemetry('{{ driver_code }}', {{ lap_num }}, this)">
+                                        <span class="lap-star" style="display: none;">⭐</span>
                                         {{ format_lap_time(lap.lap_time) if lap.lap_time else '-' }}
                                     </span>
                                     {% else %}
@@ -383,21 +385,81 @@ function updateAnalysisView() {
 function loadTelemetryData(driver, lap) {
     const url = `/api/telemetry/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}/${driver}/${lap}`;
 
+    // Show loading state
     document.getElementById('telemetryMessage').style.display = 'none';
     document.getElementById('telemetryCharts').style.display = 'block';
+    
+    // Show loading in stats area
+    const statsElement = document.getElementById('telemetryStats');
+    if (statsElement) {
+        statsElement.innerHTML = `
+            <div class="text-center">
+                <i class="fas fa-spinner fa-spin"></i> Loading telemetry...
+            </div>
+        `;
+    }
 
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
+            if (data.success && data.data) {
                 renderTelemetryCharts(data.data, driver, lap);
+                updateTelemetryStats(data.data);
             } else {
                 console.error('Error loading telemetry:', data.error);
+                showTelemetryError('Failed to load telemetry data');
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            showTelemetryError('Network error loading telemetry');
         });
+}
+
+function showTelemetryError(message) {
+    const statsElement = document.getElementById('telemetryStats');
+    if (statsElement) {
+        statsElement.innerHTML = `
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i> ${message}
+            </div>
+        `;
+    }
+}
+
+function updateTelemetryStats(telemetryData) {
+    if (!telemetryData || !telemetryData.speed || !telemetryData.throttle) {
+        showTelemetryError('Invalid telemetry data received');
+        return;
+    }
+
+    const maxSpeed = Math.max(...telemetryData.speed);
+    const avgSpeed = telemetryData.speed.reduce((a, b) => a + b, 0) / telemetryData.speed.length;
+    const maxThrottle = Math.max(...telemetryData.throttle);
+    const maxBrake = Math.max(...telemetryData.brake);
+    
+    const statsHtml = `
+        <div class="row text-center">
+            <div class="col-6 mb-2">
+                <strong>Max Speed</strong><br>
+                <span class="text-danger">${maxSpeed.toFixed(1)} km/h</span>
+            </div>
+            <div class="col-6 mb-2">
+                <strong>Avg Speed</strong><br>
+                <span class="text-info">${avgSpeed.toFixed(1)} km/h</span>
+            </div>
+            <div class="col-6 mb-2">
+                <strong>Max Throttle</strong><br>
+                <span class="text-success">${maxThrottle.toFixed(1)}%</span>
+            </div>
+            <div class="col-6 mb-2">
+                <strong>Max Brake</strong><br>
+                <span class="text-warning">${maxBrake.toFixed(1)}%</span>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('telemetryStats').innerHTML = statsHtml;
 }
 
 function loadWeatherData() {
@@ -450,6 +512,42 @@ function displayWeatherData(weather) {
     `;
 
     document.getElementById('weatherData').innerHTML = weatherHtml;
+}
+
+// Enhanced lap selection with stars
+let selectedLaps = {}; // Track selected laps per driver
+
+function selectLapForTelemetry(driverCode, lapNumber, element) {
+    // Clear previous selection for this driver
+    const previousSelected = document.querySelector(`.lap-time[data-driver="${driverCode}"] .lap-star[style*="inline"]`);
+    if (previousSelected) {
+        previousSelected.style.display = 'none';
+        delete selectedLaps[driverCode];
+    }
+    
+    // Show star for new selection
+    const star = element.querySelector('.lap-star');
+    if (star) {
+        star.style.display = 'inline';
+        selectedLaps[driverCode] = lapNumber;
+    }
+    
+    // Load telemetry data for this lap
+    loadTelemetryData(driverCode, lapNumber);
+    
+    // Update lap info display
+    updateSelectedLapInfo(driverCode, lapNumber);
+}
+
+function updateSelectedLapInfo(driverCode, lapNumber) {
+    const lapInfoContent = document.getElementById('lapInfoContent');
+    if (lapInfoContent) {
+        lapInfoContent.innerHTML = `
+            <strong>Driver:</strong> ${driverCode} | 
+            <strong>Lap:</strong> ${lapNumber} | 
+            <span class="text-warning">⭐ Selected for analysis</span>
+        `;
+    }
 }
 
 function loadFuelData() {
