@@ -168,6 +168,8 @@ F-lap is a revolutionary Flask-based web application that provides professional-
    - **Multi-Year Race Data Caching**: Implemented race data caching across multiple years for improved performance
    - **Real-Time Data Display**: Performance Insights section now shows authentic fastest lap times with tire compounds, lap numbers, and stint information
    - **FastF1 API Integration**: New `/api/fastest-laps` endpoint provides real driver lap time data with fallback support
+   - **Sample Data Completely Removed**: All manual/placeholder data removed from Advanced Performance Metrics - shows nothing if real data unavailable
+   - **Zero Tolerance Policy**: Only authentic FastF1 telemetry data displayed, no fallback to sample information
 
 ✅ **Technical Issues Resolved** - Fixed all critical system problems:
    - **Template Syntax Error**: Fixed Jinja2 filter error (`tojsonfilter` → `tojson`) preventing performance insights page loading

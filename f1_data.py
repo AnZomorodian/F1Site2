@@ -1032,41 +1032,41 @@ class F1DataService:
                 session.load(telemetry=False, weather=False, messages=False)
             except Exception as e:
                 self.logger.warning(f"Could not load real F1 data: {e}")
-                return self._generate_sample_performance_metrics()
+                return {'success': False, 'error': f'Could not load F1 data: {str(e)}', 'metrics': {}}
             
             # Get all laps for analysis
             laps = session.laps
             
             if laps.empty:
-                return self._generate_sample_performance_metrics()
+                return {'success': True, 'metrics': {}, 'message': 'No lap data available for this session'}
             
             # Calculate session-wide metrics
             metrics = {}
             
-            # 1. Lap Record (Fastest lap in session)
-            fastest_lap = laps.pick_fastest()
-            if fastest_lap is not None and not fastest_lap.empty:
-                fastest_time_val = fastest_lap['LapTime'].iloc[0]
-                if hasattr(fastest_time_val, 'total_seconds'):
-                    fastest_time = fastest_time_val.total_seconds()
-                else:
-                    fastest_time = float(fastest_time_val)
-                fastest_driver = fastest_lap['Driver'].iloc[0] if 'Driver' in fastest_lap.columns else 'Unknown'
-                
-                if hasattr(fastest_time, 'total_seconds'):
-                    time_seconds = fastest_time.total_seconds()
-                else:
-                    time_seconds = float(fastest_time) if fastest_time else 0
-                
-                minutes = int(time_seconds // 60)
-                seconds = time_seconds % 60
-                metrics['lap_record'] = {
-                    'time': f"{minutes}:{seconds:.3f}",
-                    'driver': fastest_driver,
-                    'raw_time': time_seconds
-                }
-            else:
-                metrics['lap_record'] = {'time': '1:24.567', 'driver': 'VER', 'raw_time': 84.567}
+            # 1. Lap Record (Fastest lap in session) - only if real data exists
+            try:
+                fastest_lap = laps.pick_fastest()
+                if fastest_lap is not None and not fastest_lap.empty:
+                    fastest_time_val = fastest_lap['LapTime']
+                    
+                    # Handle Timedelta object properly
+                    if hasattr(fastest_time_val, 'total_seconds'):
+                        time_seconds = fastest_time_val.total_seconds()
+                    else:
+                        time_seconds = float(fastest_time_val) if fastest_time_val else 0
+                    
+                    fastest_driver = fastest_lap['Driver'] if 'Driver' in fastest_lap else 'Unknown'
+                    
+                    if time_seconds > 0:
+                        minutes = int(time_seconds // 60)
+                        seconds = time_seconds % 60
+                        metrics['lap_record'] = {
+                            'time': f"{minutes}:{seconds:.3f}",
+                            'driver': str(fastest_driver),
+                            'raw_time': time_seconds
+                        }
+            except Exception as e:
+                self.logger.error(f"Error getting lap record: {e}")
             
             # 2. Sector Best (Theoretical best lap from best sectors)
             try:
@@ -1220,12 +1220,10 @@ class F1DataService:
                             'compound': best_compound,
                             'raw_efficiency': efficiency
                         }
-                    else:
-                        metrics['tyre_efficiency'] = {'efficiency': '85.5%', 'compound': 'SOFT', 'raw_efficiency': 85.5}
-                else:
-                    metrics['tyre_efficiency'] = {'efficiency': '85.5%', 'compound': 'SOFT', 'raw_efficiency': 85.5}
+                    # If no tyre data available, don't add this metric
             except Exception:
-                metrics['tyre_efficiency'] = {'efficiency': '85.5%', 'compound': 'SOFT', 'raw_efficiency': 85.5}
+                # If tyre analysis fails, don't add this metric
+                pass
             
             # 6. Strongest Sector Analysis
             try:
@@ -1253,10 +1251,10 @@ class F1DataService:
                         'advantage': f"+{abs(advantage):.3f}s",
                         'raw_advantage': abs(advantage)
                     }
-                else:
-                    metrics['strongest_sector'] = {'sector': 'S2', 'advantage': '+0.123s', 'raw_advantage': 0.123}
+                # If no sector data available, don't add this metric
             except Exception:
-                metrics['strongest_sector'] = {'sector': 'S2', 'advantage': '+0.123s', 'raw_advantage': 0.123}
+                # If sector analysis fails, don't add this metric
+                pass
             
             # 7. Track Position Analysis
             try:
@@ -1277,12 +1275,10 @@ class F1DataService:
                             'change': f"+{random.randint(-3, 5)} from practice",
                             'raw_position': best_position
                         }
-                    else:
-                        metrics['track_position'] = {'position': 'P8', 'change': '+2 from practice', 'raw_position': 8}
-                else:
-                    metrics['track_position'] = {'position': 'P8', 'change': '+2 from practice', 'raw_position': 8}
+                    # If no position data available, don't add this metric
             except Exception:
-                metrics['track_position'] = {'position': 'P8', 'change': '+2 from practice', 'raw_position': 8}
+                # If position analysis fails, don't add this metric
+                pass
             
             # 8. Gap Analysis
             try:
@@ -1309,20 +1305,18 @@ class F1DataService:
                             'trend': 'Improving' if gap < 0.5 else 'Stable',
                             'raw_gap': gap
                         }
-                    else:
-                        metrics['gap_analysis'] = {'gap': '+0.234s', 'trend': 'Stable', 'raw_gap': 0.234}
-                else:
-                    metrics['gap_analysis'] = {'gap': '+0.234s', 'trend': 'Stable', 'raw_gap': 0.234}
+                    # If no gap data available, don't add this metric
             except Exception:
-                metrics['gap_analysis'] = {'gap': '+0.234s', 'trend': 'Stable', 'raw_gap': 0.234}
+                # If gap analysis fails, don't add this metric
+                pass
             
             return metrics
             
         except Exception as e:
             self.logger.error(f"Error calculating performance metrics: {e}")
-            return self._generate_sample_performance_metrics()
+            return {'success': False, 'error': f'Error calculating performance metrics: {str(e)}', 'metrics': {}}
     
-    def _generate_sample_performance_metrics(self) -> Dict:
+    def _generate_sample_performance_metrics_REMOVED(self) -> Dict:
         """Generate realistic sample performance metrics"""
         return {
             'lap_record': {
