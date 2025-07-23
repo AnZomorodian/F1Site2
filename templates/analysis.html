@@ -413,52 +413,39 @@
                                     </div>
                                 </div>
 
-                                <!-- Real-Time Analytics Dashboard -->
+                                <!-- Enhanced Combined Overview Chart -->
                                 <div class="chart-row mb-4">
-                                    <div class="professional-chart-card analytics-dashboard">
+                                    <div class="professional-chart-card combined-overview">
                                         <div class="chart-header-pro">
                                             <div class="chart-info">
-                                                <h5 class="chart-title-pro">Real-Time Analytics Dashboard</h5>
-                                                <p class="chart-desc">Live performance monitoring and comparative analysis</p>
+                                                <h5 class="chart-title-pro">Combined Telemetry Overview</h5>
+                                                <p class="chart-desc">Multi-axis visualization with speed, throttle, and brake correlation</p>
                                             </div>
                                             <div class="chart-controls">
-                                                <button class="btn-pro btn-refresh" onclick="refreshAnalytics()" id="refreshAnalyticsBtn">
-                                                    <i class="fas fa-sync"></i> Refresh
+                                                <button class="btn-pro btn-zoom" onclick="enlargeChart('combinedChart')">
+                                                    <i class="fas fa-search-plus"></i>
                                                 </button>
-                                                <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('analyticsChart')">
+                                                <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('combinedChart')">
                                                     <i class="fas fa-expand-arrows-alt"></i>
                                                 </button>
                                             </div>
                                         </div>
-                                        <div class="chart-body-pro analytics-visualization">
-                                            <div class="row">
-                                                <div class="col-lg-8">
-                                                    <canvas id="analyticsChart" class="telemetry-chart-large"></canvas>
+                                        <div class="chart-body-pro">
+                                            <canvas id="combinedChart" class="telemetry-chart-large"></canvas>
+                                        </div>
+                                        <div class="chart-legend-pro">
+                                            <div class="legend-items">
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background: #28a745;"></div>
+                                                    <span>Speed (km/h)</span>
                                                 </div>
-                                                <div class="col-lg-4">
-                                                    <div class="analytics-stats">
-                                                        <div class="stat-card">
-                                                            <div class="stat-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                                            <div class="stat-data">
-                                                                <span class="stat-value" id="avgSpeedStat">--</span>
-                                                                <span class="stat-label">Avg Speed</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="stat-card">
-                                                            <div class="stat-icon"><i class="fas fa-stopwatch"></i></div>
-                                                            <div class="stat-data">
-                                                                <span class="stat-value" id="lapConsistency">--</span>
-                                                                <span class="stat-label">Consistency</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="stat-card">
-                                                            <div class="stat-icon"><i class="fas fa-bolt"></i></div>
-                                                            <div class="stat-data">
-                                                                <span class="stat-value" id="powerEfficiency">--</span>
-                                                                <span class="stat-label">Efficiency</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background: #007bff;"></div>
+                                                    <span>Throttle (%)</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background: #dc3545;"></div>
+                                                    <span>Brake (%)</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -490,41 +477,59 @@
                                 </div>
                             </div>
 
-                            <!-- Weather and Fuel Data -->
+                            <!-- Enhanced Weather and Fuel Data -->
                             <div class="row mt-4">
                                 <div class="col-lg-6">
-                                    <div class="card bg-dark border-secondary">
-                                        <div class="card-header">
-                                            <h5 class="mb-0">
-                                                <i class="fas fa-cloud-sun me-2 text-primary"></i>
-                                                Weather Conditions
-                                            </h5>
+                                    <div class="professional-chart-card weather-card">
+                                        <div class="chart-header-pro">
+                                            <div class="chart-info">
+                                                <h5 class="chart-title-pro">
+                                                    <i class="fas fa-cloud-sun me-2 text-primary"></i>
+                                                    Live Weather Conditions
+                                                </h5>
+                                                <p class="chart-desc">Real-time track and atmospheric data from FastF1</p>
+                                            </div>
+                                            <div class="chart-controls">
+                                                <button class="btn-pro btn-refresh" onclick="loadRealWeatherData()" id="weatherRefreshBtn">
+                                                    <i class="fas fa-sync"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div class="card-body">
-                                            <div id="weatherData">
-                                                <div class="text-center py-3">
-                                                    <div class="spinner-border text-primary" role="status">
+                                        <div class="chart-body-pro">
+                                            <div id="weatherData" class="weather-display">
+                                                <div class="text-center py-4">
+                                                    <div class="spinner-border text-primary mb-3" role="status">
                                                         <span class="visually-hidden">Loading weather data...</span>
                                                     </div>
+                                                    <p class="text-muted">Fetching live weather conditions...</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
-                                    <div class="card bg-dark border-secondary">
-                                        <div class="card-header">
-                                            <h5 class="mb-0">
-                                                <i class="fas fa-gas-pump me-2 text-warning"></i>
-                                                Fuel Analysis
-                                            </h5>
+                                    <div class="professional-chart-card fuel-card">
+                                        <div class="chart-header-pro">
+                                            <div class="chart-info">
+                                                <h5 class="chart-title-pro">
+                                                    <i class="fas fa-gas-pump me-2 text-warning"></i>
+                                                    Fuel Consumption Analysis
+                                                </h5>
+                                                <p class="chart-desc">Real-time fuel efficiency calculations based on telemetry</p>
+                                            </div>
+                                            <div class="chart-controls">
+                                                <button class="btn-pro btn-refresh" onclick="loadRealFuelData()" id="fuelRefreshBtn">
+                                                    <i class="fas fa-sync"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div class="card-body">
-                                            <div id="fuelData">
-                                                <div class="text-center py-3">
-                                                    <div class="spinner-border text-warning" role="status">
-                                                        <span class="visually-hidden">Loading fuel data...</span>
+                                        <div class="chart-body-pro">
+                                            <div id="fuelData" class="fuel-display">
+                                                <div class="text-center py-4">
+                                                    <div class="spinner-border text-warning mb-3" role="status">
+                                                        <span class="visually-hidden">Analyzing fuel consumption...</span>
                                                     </div>
+                                                    <p class="text-muted">Calculating fuel efficiency metrics...</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -532,56 +537,110 @@
                                 </div>
                             </div>
 
-                            <!-- Performance Metrics Data -->
+                            <!-- Enhanced Performance Metrics Dashboard -->
                             <div class="row mt-4">
                                 <div class="col-12">
-                                    <div class="card bg-dark border-secondary">
-                                        <div class="card-header">
-                                            <h5 class="mb-0">
-                                                <i class="fas fa-tachometer-alt me-2 text-info"></i>
-                                                Performance Metrics
-                                            </h5>
+                                    <div class="professional-chart-card performance-metrics-card">
+                                        <div class="chart-header-pro">
+                                            <div class="chart-info">
+                                                <h5 class="chart-title-pro">
+                                                    <i class="fas fa-tachometer-alt me-2 text-info"></i>
+                                                    Advanced Performance Metrics
+                                                </h5>
+                                                <p class="chart-desc">Real-time session analysis with comparative statistics</p>
+                                            </div>
+                                            <div class="chart-controls">
+                                                <button class="btn-pro btn-refresh" onclick="loadPerformanceMetrics()" id="metricsRefreshBtn">
+                                                    <i class="fas fa-sync"></i> Refresh
+                                                </button>
+                                                <button class="btn-pro btn-export" onclick="exportMetrics()">
+                                                    <i class="fas fa-download"></i> Export
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div class="card-body">
-                                            <div class="row" id="performanceMetricsData">
-                                                <div class="col-lg-3 col-md-6 mb-3">
-                                                    <div class="metric-card">
-                                                        <div class="metric-header">
-                                                            <i class="fas fa-flag-checkered text-success"></i>
-                                                            <span>Lap Record</span>
-                                                        </div>
-                                                        <div class="metric-value" id="lapRecord">--</div>
-                                                        <div class="metric-label">Fastest Lap</div>
+                                        <div class="chart-body-pro">
+                                            <div class="performance-grid" id="performanceMetricsData">
+                                                <div class="performance-metric-card lap-record">
+                                                    <div class="metric-icon">
+                                                        <i class="fas fa-racing-flag"></i>
+                                                    </div>
+                                                    <div class="metric-content">
+                                                        <div class="metric-value" id="lapRecord">--:---.---</div>
+                                                        <div class="metric-label">Session Best</div>
+                                                        <div class="metric-driver" id="lapRecordDriver">---</div>
+                                                    </div>
+                                                    <div class="metric-trend">
+                                                        <i class="fas fa-arrow-up trend-icon"></i>
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-3 col-md-6 mb-3">
-                                                    <div class="metric-card">
-                                                        <div class="metric-header">
-                                                            <i class="fas fa-stopwatch text-warning"></i>
-                                                            <span>Sector Best</span>
-                                                        </div>
-                                                        <div class="metric-value" id="sectorBest">--</div>
-                                                        <div class="metric-label">Best Combined</div>
+
+                                                <div class="performance-metric-card sector-best">
+                                                    <div class="metric-icon">
+                                                        <i class="fas fa-stopwatch"></i>
+                                                    </div>
+                                                    <div class="metric-content">
+                                                        <div class="metric-value" id="sectorBest">--:---.---</div>
+                                                        <div class="metric-label">Theoretical Best</div>
+                                                        <div class="metric-sub" id="sectorBreakdown">S1: -- S2: -- S3: --</div>
+                                                    </div>
+                                                    <div class="metric-trend">
+                                                        <i class="fas fa-chart-line trend-icon"></i>
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-3 col-md-6 mb-3">
-                                                    <div class="metric-card">
-                                                        <div class="metric-header">
-                                                            <i class="fas fa-chart-line text-primary"></i>
-                                                            <span>Consistency</span>
-                                                        </div>
-                                                        <div class="metric-value" id="consistency">--</div>
-                                                        <div class="metric-label">Lap Variance</div>
+
+                                                <div class="performance-metric-card consistency">
+                                                    <div class="metric-icon">
+                                                        <i class="fas fa-chart-bar"></i>
+                                                    </div>
+                                                    <div class="metric-content">
+                                                        <div class="metric-value" id="consistency">--.-%</div>
+                                                        <div class="metric-label">Consistency Score</div>
+                                                        <div class="metric-sub" id="consistencyDetails">Std Dev: ---</div>
+                                                    </div>
+                                                    <div class="metric-trend">
+                                                        <i class="fas fa-equals trend-icon"></i>
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-3 col-md-6 mb-3">
-                                                    <div class="metric-card">
-                                                        <div class="metric-header">
-                                                            <i class="fas fa-bolt text-danger"></i>
-                                                            <span>Top Speed</span>
-                                                        </div>
-                                                        <div class="metric-value" id="topSpeed">--</div>
-                                                        <div class="metric-label">Max Recorded</div>
+
+                                                <div class="performance-metric-card top-speed">
+                                                    <div class="metric-icon">
+                                                        <i class="fas fa-bolt"></i>
+                                                    </div>
+                                                    <div class="metric-content">
+                                                        <div class="metric-value" id="topSpeed">--- km/h</div>
+                                                        <div class="metric-label">Maximum Speed</div>
+                                                        <div class="metric-driver" id="topSpeedDriver">---</div>
+                                                    </div>
+                                                    <div class="metric-trend">
+                                                        <i class="fas fa-rocket trend-icon"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div class="performance-metric-card tyre-performance">
+                                                    <div class="metric-icon">
+                                                        <i class="fas fa-circle"></i>
+                                                    </div>
+                                                    <div class="metric-content">
+                                                        <div class="metric-value" id="tyrePerformance">---%</div>
+                                                        <div class="metric-label">Tyre Efficiency</div>
+                                                        <div class="metric-sub" id="tyreCompound">Compound: ---</div>
+                                                    </div>
+                                                    <div class="metric-trend">
+                                                        <i class="fas fa-tire trend-icon"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div class="performance-metric-card sector-analysis">
+                                                    <div class="metric-icon">
+                                                        <i class="fas fa-road"></i>
+                                                    </div>
+                                                    <div class="metric-content">
+                                                        <div class="metric-value" id="sectorStrength">S--</div>
+                                                        <div class="metric-label">Strongest Sector</div>
+                                                        <div class="metric-sub" id="sectorAdvantage">+-.--- advantage</div>
+                                                    </div>
+                                                    <div class="metric-trend">
+                                                        <i class="fas fa-trophy trend-icon"></i>
                                                     </div>
                                                 </div>
                                             </div>
@@ -715,95 +774,194 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+
+
     function displayWeatherData(weatherData) {
         const weatherContainer = document.getElementById('weatherData');
         
-        let weatherHtml = '<div class="weather-grid">';
+        let weatherHtml = '<div class="professional-weather-grid">';
         
-        if (weatherData.air_temperature) {
+        // Air Temperature
+        if (weatherData.air_temperature !== null && weatherData.air_temperature !== undefined) {
             weatherHtml += `
-                <div class="weather-item">
-                    <div class="weather-icon"><i class="fas fa-thermometer-half"></i></div>
-                    <div class="weather-value">${weatherData.air_temperature}°C</div>
-                    <div class="weather-label">Air Temp</div>
+                <div class="weather-metric-card air-temp">
+                    <div class="weather-icon">
+                        <i class="fas fa-thermometer-half"></i>
+                    </div>
+                    <div class="weather-content">
+                        <div class="weather-value">${Math.round(weatherData.air_temperature)}°C</div>
+                        <div class="weather-label">Air Temperature</div>
+                    </div>
                 </div>`;
         }
         
-        if (weatherData.track_temperature) {
+        // Track Temperature
+        if (weatherData.track_temperature !== null && weatherData.track_temperature !== undefined) {
             weatherHtml += `
-                <div class="weather-item">
-                    <div class="weather-icon"><i class="fas fa-road"></i></div>
-                    <div class="weather-value">${weatherData.track_temperature}°C</div>
-                    <div class="weather-label">Track Temp</div>
+                <div class="weather-metric-card track-temp">
+                    <div class="weather-icon">
+                        <i class="fas fa-road"></i>
+                    </div>
+                    <div class="weather-content">
+                        <div class="weather-value">${Math.round(weatherData.track_temperature)}°C</div>
+                        <div class="weather-label">Track Temperature</div>
+                    </div>
                 </div>`;
         }
         
-        if (weatherData.humidity) {
+        // Humidity
+        if (weatherData.humidity !== null && weatherData.humidity !== undefined) {
             weatherHtml += `
-                <div class="weather-item">
-                    <div class="weather-icon"><i class="fas fa-tint"></i></div>
-                    <div class="weather-value">${weatherData.humidity}%</div>
-                    <div class="weather-label">Humidity</div>
+                <div class="weather-metric-card humidity">
+                    <div class="weather-icon">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <div class="weather-content">
+                        <div class="weather-value">${Math.round(weatherData.humidity)}%</div>
+                        <div class="weather-label">Humidity</div>
+                    </div>
                 </div>`;
         }
         
-        if (weatherData.wind_speed) {
+        // Wind Speed
+        if (weatherData.wind_speed !== null && weatherData.wind_speed !== undefined) {
             weatherHtml += `
-                <div class="weather-item">
-                    <div class="weather-icon"><i class="fas fa-wind"></i></div>
-                    <div class="weather-value">${weatherData.wind_speed}km/h</div>
-                    <div class="weather-label">Wind Speed</div>
+                <div class="weather-metric-card wind">
+                    <div class="weather-icon">
+                        <i class="fas fa-wind"></i>
+                    </div>
+                    <div class="weather-content">
+                        <div class="weather-value">${Math.round(weatherData.wind_speed)}</div>
+                        <div class="weather-label">Wind (km/h)</div>
+                    </div>
                 </div>`;
         }
         
+        // Rainfall Indicator
         if (weatherData.rainfall) {
             weatherHtml += `
-                <div class="weather-item rain-indicator">
-                    <div class="weather-icon"><i class="fas fa-cloud-rain"></i></div>
-                    <div class="weather-value">Rain</div>
-                    <div class="weather-label">Condition</div>
+                <div class="weather-metric-card rain active">
+                    <div class="weather-icon">
+                        <i class="fas fa-cloud-rain"></i>
+                    </div>
+                    <div class="weather-content">
+                        <div class="weather-value">RAIN</div>
+                        <div class="weather-label">Wet Conditions</div>
+                    </div>
+                </div>`;
+        } else {
+            weatherHtml += `
+                <div class="weather-metric-card dry">
+                    <div class="weather-icon">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <div class="weather-content">
+                        <div class="weather-value">DRY</div>
+                        <div class="weather-label">Track Conditions</div>
+                    </div>
+                </div>`;
+        }
+        
+        // Pressure (if available)
+        if (weatherData.pressure !== null && weatherData.pressure !== undefined) {
+            weatherHtml += `
+                <div class="weather-metric-card pressure">
+                    <div class="weather-icon">
+                        <i class="fas fa-gauge"></i>
+                    </div>
+                    <div class="weather-content">
+                        <div class="weather-value">${Math.round(weatherData.pressure)}</div>
+                        <div class="weather-label">Pressure (mbar)</div>
+                    </div>
                 </div>`;
         }
         
         weatherHtml += '</div>';
+        
+        // Add timestamp if available
+        if (weatherData.time) {
+            const timestamp = new Date(weatherData.time).toLocaleTimeString();
+            weatherHtml += `<div class="weather-timestamp">Last updated: ${timestamp}</div>`;
+        }
+        
         weatherContainer.innerHTML = weatherHtml;
     }
 
     function displayFuelData(fuelData) {
         const fuelContainer = document.getElementById('fuelData');
         
-        let fuelHtml = '<div class="fuel-analysis-grid">';
+        if (!fuelData || Object.keys(fuelData).length === 0) {
+            fuelContainer.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fas fa-info-circle text-muted mb-2"></i>
+                    <p class="text-muted">Select drivers to view fuel analysis</p>
+                </div>`;
+            return;
+        }
+        
+        let fuelHtml = '<div class="professional-fuel-grid">';
         
         for (const [driverCode, analysis] of Object.entries(fuelData)) {
-            const efficiency = analysis.efficiency_rating || 0;
-            const fuelUsed = analysis.estimated_fuel_used || 0;
-            const fuelPerLap = analysis.fuel_per_lap || 0;
+            const efficiency = Math.round(analysis.efficiency_rating || 0);
+            const fuelUsed = (analysis.estimated_fuel_used || 0).toFixed(1);
+            const fuelPerLap = (analysis.fuel_per_lap || 0).toFixed(2);
+            const totalLaps = analysis.total_laps || 0;
             
             fuelHtml += `
-                <div class="fuel-driver-card">
-                    <div class="fuel-driver-header">
-                        <span class="driver-code">${driverCode}</span>
-                        <span class="efficiency-badge" style="background-color: ${getEfficiencyColor(efficiency)}">${efficiency}%</span>
+                <div class="fuel-metric-card">
+                    <div class="fuel-header">
+                        <div class="driver-badge">${driverCode}</div>
+                        <div class="efficiency-indicator ${getEfficiencyClass(efficiency)}">
+                            <div class="efficiency-ring">
+                                <div class="efficiency-fill" style="--efficiency: ${efficiency}%"></div>
+                                <span class="efficiency-text">${efficiency}%</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="fuel-metrics">
-                        <div class="fuel-metric">
-                            <span class="metric-value">${fuelUsed}kg</span>
-                            <span class="metric-label">Total Fuel</span>
+                        <div class="fuel-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-gas-pump"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">${fuelUsed}kg</div>
+                                <div class="stat-label">Total Consumed</div>
+                            </div>
                         </div>
-                        <div class="fuel-metric">
-                            <span class="metric-value">${fuelPerLap}kg</span>
-                            <span class="metric-label">Per Lap</span>
+                        <div class="fuel-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">${fuelPerLap}kg</div>
+                                <div class="stat-label">Per Lap Average</div>
+                            </div>
                         </div>
-                        <div class="fuel-metric">
-                            <span class="metric-value">${analysis.total_laps || 0}</span>
-                            <span class="metric-label">Laps</span>
+                        <div class="fuel-stat">
+                            <div class="stat-icon">
+                                <i class="fas fa-flag-checkered"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value">${totalLaps}</div>
+                                <div class="stat-label">Completed Laps</div>
+                            </div>
                         </div>
+                    </div>
+                    <div class="fuel-efficiency-bar">
+                        <div class="efficiency-progress" style="width: ${efficiency}%; background-color: ${getEfficiencyColor(efficiency)}"></div>
                     </div>
                 </div>`;
         }
         
         fuelHtml += '</div>';
         fuelContainer.innerHTML = fuelHtml;
+    }
+
+    function getEfficiencyClass(efficiency) {
+        if (efficiency >= 80) return 'excellent';
+        if (efficiency >= 60) return 'good';
+        if (efficiency >= 40) return 'average';
+        return 'poor';
     }
 
     function getEfficiencyColor(efficiency) {

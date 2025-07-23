@@ -515,7 +515,7 @@ class F1DataService:
                         'pressure': float(weather.get('Pressure', 0)) if pd.notna(weather.get('Pressure')) else None,
                         'wind_speed': float(weather.get('WindSpeed', 0)) if pd.notna(weather.get('WindSpeed')) else None,
                         'wind_direction': float(weather.get('WindDirection', 0)) if pd.notna(weather.get('WindDirection')) else None,
-                        'rainfall': weather.get('Rainfall', False) if pd.notna(weather.get('Rainfall')) else False,
+                        'rainfall': bool(weather.get('Rainfall', False)) if pd.notna(weather.get('Rainfall')) else False,
                         'time': weather.get('Time').isoformat() if pd.notna(weather.get('Time')) else None
                     }
                 }
@@ -532,7 +532,7 @@ class F1DataService:
                         'pressure': weather.get('Pressure'),
                         'wind_speed': weather.get('WindSpeed'),
                         'wind_direction': weather.get('WindDirection'),
-                        'rainfall': weather.get('Rainfall', False),
+                        'rainfall': bool(weather.get('Rainfall', False)),
                         'time': datetime.now().isoformat()
                     }
                 }
