@@ -554,3 +554,48 @@ def generate_custom_insights_engine(session_info, drivers):
                 'recommendation': 'Practice threshold braking and smooth throttle application for optimal performance gains.'
             }
         ]
+
+
+@app.route('/api/sessions/<int:year>/<int:round_number>')
+def get_available_sessions(year, round_number):
+    """API endpoint to get available sessions for a specific Grand Prix"""
+    try:
+        sessions = f1_service.get_session_info(year, round_number)
+        
+        # Convert to list format with proper session names
+        session_list = []
+        session_order = ['FP1', 'FP2', 'FP3', 'SQ', 'S', 'Q', 'R']
+        
+        for session_type in session_order:
+            if session_type in sessions:
+                session_info = sessions[session_type]
+                session_list.append({
+                    'value': session_type,
+                    'name': session_info.session_name,
+                    'available': True
+                })
+        
+        # If no sessions found, return default sessions
+        if not session_list:
+            default_sessions = [
+                {'value': 'FP1', 'name': 'Practice 1', 'available': False},
+                {'value': 'FP2', 'name': 'Practice 2', 'available': False},
+                {'value': 'FP3', 'name': 'Practice 3', 'available': False},
+                {'value': 'Q', 'name': 'Qualifying', 'available': False},
+                {'value': 'R', 'name': 'Race', 'available': True}
+            ]
+            return jsonify(default_sessions)
+        
+        return jsonify(session_list)
+        
+    except Exception as e:
+        logger.error(f"Error getting sessions for {year} round {round_number}: {e}")
+        # Return basic sessions as fallback
+        return jsonify([
+            {'value': 'FP1', 'name': 'Practice 1', 'available': False},
+            {'value': 'FP2', 'name': 'Practice 2', 'available': False},
+            {'value': 'FP3', 'name': 'Practice 3', 'available': False},
+            {'value': 'Q', 'name': 'Qualifying', 'available': False},
+            {'value': 'R', 'name': 'Race', 'available': True}
+        ])
+

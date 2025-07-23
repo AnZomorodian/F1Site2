@@ -33,6 +33,20 @@ body {
     margin-bottom: 2rem;
 }
 
+.hero-stats .stat-item {
+    padding: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.hero-stats .stat-item:hover {
+    transform: translateY(-5px);
+}
+
+.hero-stats .stat-item i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
 /* Cards */
 .card {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);

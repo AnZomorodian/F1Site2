@@ -67,9 +67,101 @@ class F1TelemetryApp {
 
     initializeHomePageData() {
         const yearSelect = document.getElementById('yearSelect');
+        const roundSelect = document.getElementById('roundSelect');
+        
         if (yearSelect) {
             // Load initial schedule
             this.loadScheduleForYear(yearSelect.value);
+            
+            // Add event listener for year changes
+            yearSelect.addEventListener('change', () => {
+                this.loadScheduleForYear(yearSelect.value);
+                roundSelect.value = '';
+                this.clearSessions();
+            });
+        }
+        
+        if (roundSelect) {
+            // Add event listener for round changes
+            roundSelect.addEventListener('change', () => {
+                if (roundSelect.value && yearSelect.value) {
+                    this.loadSessionsForRound(yearSelect.value, roundSelect.value);
+                } else {
+                    this.clearSessions();
+                }
+            });
+        }
+    }
+
+    loadSessionsForRound(year, round) {
+        const sessionSelect = document.getElementById('sessionSelect');
+        if (!sessionSelect) return;
+        
+        // Show loading state
+        sessionSelect.innerHTML = '<option value="">Loading sessions...</option>';
+        sessionSelect.disabled = true;
+        
+        fetch(`/api/sessions/${year}/${round}`)
+            .then(response => response.json())
+            .then(sessions => {
+                sessionSelect.innerHTML = '<option value="">Select a session...</option>';
+                
+                sessions.forEach(session => {
+                    const option = document.createElement('option');
+                    option.value = session.value;
+                    option.textContent = session.name;
+                    option.disabled = !session.available;
+                    
+                    if (session.value === 'R' && session.available) {
+                        option.selected = true;
+                    }
+                    
+                    sessionSelect.appendChild(option);
+                });
+                
+                sessionSelect.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error loading sessions:', error);
+                this.loadDefaultSessions();
+            });
+    }
+    
+    loadDefaultSessions() {
+        const sessionSelect = document.getElementById('sessionSelect');
+        if (!sessionSelect) return;
+        
+        const defaultSessions = [
+            {value: 'FP1', name: 'Practice 1', available: false},
+            {value: 'FP2', name: 'Practice 2', available: false},
+            {value: 'FP3', name: 'Practice 3', available: false},
+            {value: 'Q', name: 'Qualifying', available: false},
+            {value: 'R', name: 'Race', available: true}
+        ];
+        
+        sessionSelect.innerHTML = '<option value="">Select a session...</option>';
+        
+        defaultSessions.forEach(session => {
+            const option = document.createElement('option');
+            option.value = session.value;
+            option.textContent = session.name;
+            option.disabled = !session.available;
+            
+            if (session.value === 'R') {
+                option.selected = true;
+            }
+            
+            sessionSelect.appendChild(option);
+        });
+        
+        sessionSelect.disabled = false;
+    }
+    
+    clearSessions() {
+        const sessionSelect = document.getElementById('sessionSelect');
+        if (sessionSelect) {
+            sessionSelect.innerHTML = '<option value="">Select a Grand Prix first...</option>';
+            sessionSelect.disabled = true;
         }
     }
 

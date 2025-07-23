@@ -7,6 +7,11 @@ F-lap is a revolutionary Flask-based web application that provides professional-
 ## Recent Major Updates (July 2025)
 
 ✓ **Migration Complete** - Successfully migrated from Replit Agent to standard Replit environment (July 23, 2025)
+✓ **Logo Integration** - Added Lapla speedometer logo to navbar and homepage, removed flag icons as requested
+✓ **Contact Links Updated** - Changed contact information to clickable links hiding actual addresses (deepinkteamsup@gmail.com, github.com/AnZomorodian, discord.gg/NbTDTRhu, t.me/ArtinZomorodian)  
+✓ **Footer Copyright Updated** - Changed to "© 2025 Lapla Platform • Official Sources • Free, Fast, Secure"
+✓ **Dynamic Session Loading** - Sessions now load dynamically based on selected Grand Prix via new API endpoint
+✓ **Enhanced Main Page** - Added hero stats section with Live Telemetry, Driver Compare, AI Insights, and Export Data features
 ✓ **Template Issues Fixed** - Resolved Jinja2 template syntax errors in analysis.html causing page load failures
 ✓ **Environment Setup** - All dependencies installed and configured for Replit compatibility  
 ✓ **Security Compliance** - Application follows robust security practices with proper client/server separation
