@@ -1054,13 +1054,15 @@ function updateSelectedLapAnalysis() {
     const noLapsDiv = document.getElementById('noLapsSelected');
     
     if (drivers.length === 0) {
-        noLapsDiv.style.display = 'block';
-        document.getElementById('driver1LapInfo').style.display = 'none';
-        document.getElementById('driver2LapInfo').style.display = 'none';
+        if (noLapsDiv) noLapsDiv.style.display = 'block';
+        const d1 = document.getElementById('driver1LapInfo');
+        const d2 = document.getElementById('driver2LapInfo'); 
+        if (d1) d1.style.display = 'none';
+        if (d2) d2.style.display = 'none';
         return;
     }
     
-    noLapsDiv.style.display = 'none';
+    if (noLapsDiv) noLapsDiv.style.display = 'none';
     
     drivers.forEach((driver, index) => {
         const driverIndex = index + 1;
@@ -1072,16 +1074,25 @@ function updateSelectedLapAnalysis() {
             const lapElement = document.querySelector(`.lap-time[data-driver="${driver}"]`);
             const driverColor = lapElement ? lapElement.style.color : '#fff';
             
-            document.getElementById(`driver${driverIndex}Color`).style.backgroundColor = driverColor;
-            document.getElementById(`driver${driverIndex}Name`).textContent = driver;
-            document.getElementById(`driver${driverIndex}LapNumber`).textContent = `Lap ${selectedLaps[driver]}`;
+            const colorDiv = document.getElementById(`driver${driverIndex}Color`);
+            const nameDiv = document.getElementById(`driver${driverIndex}Name`);
+            const lapDiv = document.getElementById(`driver${driverIndex}LapNumber`);
+            
+            if (colorDiv) colorDiv.style.backgroundColor = driverColor;
+            if (nameDiv) nameDiv.textContent = driver;
+            if (lapDiv) lapDiv.textContent = `Lap ${selectedLaps[driver]}`;
             
             const data = selectedDriversData[driver];
             if (data) {
-                document.getElementById(`driver${driverIndex}LapTime`).textContent = formatLapTime(data.lapTime) || '--';
-                document.getElementById(`driver${driverIndex}MaxSpeed`).textContent = data.maxSpeed ? `${data.maxSpeed.toFixed(1)} km/h` : '--';
-                document.getElementById(`driver${driverIndex}MaxBrake`).textContent = data.maxBrake ? `${data.maxBrake.toFixed(1)}%` : '--';
-                document.getElementById(`driver${driverIndex}MaxGear`).textContent = data.maxGear || '--';
+                const timeDiv = document.getElementById(`driver${driverIndex}LapTime`);
+                const speedDiv = document.getElementById(`driver${driverIndex}MaxSpeed`);
+                const brakeDiv = document.getElementById(`driver${driverIndex}MaxBrake`);
+                const gearDiv = document.getElementById(`driver${driverIndex}MaxGear`);
+                
+                if (timeDiv) timeDiv.textContent = formatLapTime(data.lapTime) || '--';
+                if (speedDiv) speedDiv.textContent = data.maxSpeed ? `${data.maxSpeed.toFixed(1)} km/h` : '--';
+                if (brakeDiv) brakeDiv.textContent = data.maxBrake ? `${data.maxBrake.toFixed(1)}%` : '--';
+                if (gearDiv) gearDiv.textContent = data.maxGear || '--';
             }
         }
     });
