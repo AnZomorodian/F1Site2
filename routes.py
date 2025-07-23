@@ -60,12 +60,21 @@ def analysis():
                 for driver_code in driver_codes:
                     lap_data[driver_code] = f1_service.generate_sample_lap_data(driver_code)
         
+        # Format lap times for display
+        def format_lap_time(seconds):
+            if not seconds or seconds <= 0:
+                return None, None
+            minutes = int(seconds // 60)
+            remaining_seconds = seconds % 60
+            return minutes, remaining_seconds
+        
         return render_template('analysis.html',
                              session=current_session,
                              sessions=sessions,
                              drivers=drivers,
                              selected_drivers=driver_codes,
-                             lap_data=lap_data)
+                             lap_data=lap_data,
+                             format_lap_time=format_lap_time)
     except Exception as e:
         logger.error(f"Error loading analysis page: {e}")
         return redirect(url_for('index'))

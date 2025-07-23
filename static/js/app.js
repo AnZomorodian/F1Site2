@@ -257,10 +257,21 @@ class F1TelemetryApp {
         const round = this.getCurrentRound();
         const session = this.getCurrentSessionType();
         
+        console.log('Loading telemetry data:', { year, round, session, driver, lap });
+        
+        if (!year || !round || !session) {
+            console.error('Missing session data:', { year, round, session });
+            this.showError('Missing session information. Please refresh the page.');
+            return;
+        }
+        
         try {
             this.showLoadingSpinner();
             
-            const response = await fetch(`/api/telemetry/${year}/${round}/${session}/${driver}/${lap}`);
+            const url = `/api/telemetry/${year}/${round}/${session}/${driver}/${lap}`;
+            console.log('Fetching telemetry from:', url);
+            
+            const response = await fetch(url);
             const data = await response.json();
             
             if (data.success) {
@@ -300,18 +311,68 @@ class F1TelemetryApp {
 
     // Utility methods
     getCurrentYear() {
+        // Try multiple ways to get the year
         const sessionData = document.querySelector('[data-session-year]');
-        return sessionData ? sessionData.dataset.sessionYear : null;
+        if (sessionData && sessionData.dataset.sessionYear) {
+            return sessionData.dataset.sessionYear;
+        }
+        
+        // Fallback: check if it's in the page URL or form
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('year')) {
+            return urlParams.get('year');
+        }
+        
+        // Another fallback: check if there's session info in the page
+        const sessionInfo = document.querySelector('.session-info');
+        if (sessionInfo && sessionInfo.dataset.year) {
+            return sessionInfo.dataset.year;
+        }
+        
+        return null;
     }
 
     getCurrentRound() {
+        // Try multiple ways to get the round
         const sessionData = document.querySelector('[data-session-round]');
-        return sessionData ? sessionData.dataset.sessionRound : null;
+        if (sessionData && sessionData.dataset.sessionRound) {
+            return sessionData.dataset.sessionRound;
+        }
+        
+        // Fallback: check if it's in the page URL or form
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('round')) {
+            return urlParams.get('round');
+        }
+        
+        // Another fallback: check if there's session info in the page
+        const sessionInfo = document.querySelector('.session-info');
+        if (sessionInfo && sessionInfo.dataset.round) {
+            return sessionInfo.dataset.round;
+        }
+        
+        return null;
     }
 
     getCurrentSessionType() {
         const sessionSelect = document.getElementById('sessionTypeSelect');
-        return sessionSelect ? sessionSelect.value : null;
+        if (sessionSelect && sessionSelect.value) {
+            return sessionSelect.value;
+        }
+        
+        // Fallback: check URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('session')) {
+            return urlParams.get('session');
+        }
+        
+        // Another fallback: check if there's session info in the page
+        const sessionInfo = document.querySelector('.session-info');
+        if (sessionInfo && sessionInfo.dataset.session) {
+            return sessionInfo.dataset.session;
+        }
+        
+        return null;
     }
 
     showError(message) {

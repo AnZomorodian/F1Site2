@@ -7,6 +7,13 @@
 {% endblock %}
 
 {% block content %}
+<!-- Session data for JavaScript -->
+<div class="session-info d-none" 
+     data-year="{{ session.year }}" 
+     data-round="{{ session.round_number }}" 
+     data-session="{{ session.session_type }}">
+</div>
+
 <!-- Session Header -->
 <div class="row mb-4">
     <div class="col-12">
@@ -305,21 +312,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const sessionTypeSelect = document.getElementById('sessionTypeSelect');
     const updateButton = document.getElementById('updateAnalysis');
     const lapTimes = document.querySelectorAll('.lap-time');
-    
+
     // Session type change handler
     if (sessionTypeSelect) {
         sessionTypeSelect.addEventListener('change', function() {
             updateAnalysisView();
         });
     }
-    
+
     // Update analysis button handler
     if (updateButton) {
         updateButton.addEventListener('click', function() {
             updateAnalysisView();
         });
     }
-    
+
     // Lap time click handlers
     lapTimes.forEach(lapTime => {
         lapTime.addEventListener('click', function() {
@@ -328,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loadTelemetryData(driver, lap);
         });
     });
-    
+
     // Load initial data
     loadWeatherData();
     setTimeout(() => {
@@ -340,9 +347,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function toggleDriverSelection(driverCode) {
     const checkbox = document.getElementById(`driver_${driverCode}`);
     const gridItem = checkbox.closest('.driver-grid-item');
-    
+
     checkbox.checked = !checkbox.checked;
-    
+
     if (checkbox.checked) {
         gridItem.classList.add('selected');
     } else {
@@ -354,31 +361,31 @@ function updateAnalysisView() {
     const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
         .map(cb => cb.value);
     const sessionType = document.getElementById('sessionTypeSelect').value;
-    
+
     if (selectedDrivers.length === 0) {
         alert('Please select at least one driver');
         return;
     }
-    
+
     const params = new URLSearchParams({
         year: {{ session.year }},
         round: {{ session.round_number }},
         session: sessionType
     });
-    
+
     selectedDrivers.forEach(driver => {
         params.append('drivers', driver);
     });
-    
+
     window.location.href = `{{ url_for('analysis') }}?${params.toString()}`;
 }
 
 function loadTelemetryData(driver, lap) {
     const url = `/api/telemetry/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}/${driver}/${lap}`;
-    
+
     document.getElementById('telemetryMessage').style.display = 'none';
     document.getElementById('telemetryCharts').style.display = 'block';
-    
+
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -395,7 +402,7 @@ function loadTelemetryData(driver, lap) {
 
 function loadWeatherData() {
     const url = `/api/weather/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}`;
-    
+
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -441,14 +448,14 @@ function displayWeatherData(weather) {
             </div>
         </div>
     `;
-    
+
     document.getElementById('weatherData').innerHTML = weatherHtml;
 }
 
 function loadFuelData() {
     const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
         .map(cb => cb.value);
-    
+
     if (selectedDrivers.length === 0) {
         document.getElementById('fuelData').innerHTML = `
             <div class="alert alert-info">
@@ -458,10 +465,10 @@ function loadFuelData() {
         `;
         return;
     }
-    
+
     const url = `/api/fuel/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?` + 
                 selectedDrivers.map(d => `drivers=${d}`).join('&');
-    
+
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -505,14 +512,14 @@ function displayFuelData(fuelData) {
             </div>
         </div>
     `).join('');
-    
+
     document.getElementById('fuelData').innerHTML = fuelHtml;
 }
 
 function refreshInsights() {
     const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
         .map(cb => cb.value);
-    
+
     if (selectedDrivers.length === 0) {
         document.getElementById('performanceInsights').innerHTML = `
             <div class="alert alert-info">
@@ -522,17 +529,17 @@ function refreshInsights() {
         `;
         return;
     }
-    
+
     document.getElementById('performanceInsights').innerHTML = `
         <div class="text-center text-muted py-4">
             <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
             <p>Generating AI-powered performance insights...</p>
         </div>
     `;
-    
+
     const url = `/api/insights/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?` + 
                 selectedDrivers.map(d => `drivers=${d}`).join('&');
-    
+
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -564,22 +571,22 @@ function displayInsights(insights) {
             </div>
         </div>
     `;
-    
+
     document.getElementById('performanceInsights').innerHTML = insightsHtml;
 }
 
 function exportData(format) {
     const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
         .map(cb => cb.value);
-    
+
     if (selectedDrivers.length === 0) {
         alert('Please select at least one driver to export data');
         return;
     }
-    
+
     const url = `/api/export/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?format=${format}&` + 
                 selectedDrivers.map(d => `drivers=${d}`).join('&');
-    
+
     window.open(url, '_blank');
 }
 </script>

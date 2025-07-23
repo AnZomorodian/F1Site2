@@ -199,7 +199,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div id="telemetryCharts" style="display: none;">
                             <!-- Lap Information Header -->
                             <div class="row mb-4">
@@ -226,7 +226,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Enhanced Charts Grid -->
                             <div class="row">
                                 <div class="col-12 mb-4">
@@ -241,7 +241,7 @@
                                         <canvas id="speedChart"></canvas>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-lg-6 mb-4">
                                     <div class="chart-container" data-chart="throttle">
                                         <div class="chart-header">
@@ -254,7 +254,7 @@
                                         <canvas id="throttleBrakeChart"></canvas>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-lg-6 mb-4">
                                     <div class="chart-container" data-chart="gear">
                                         <div class="chart-header">
@@ -267,7 +267,7 @@
                                         <canvas id="gearChart"></canvas>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-12 mb-4">
                                     <div class="chart-container" data-chart="track">
                                         <div class="chart-header">
@@ -281,7 +281,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Performance Insights -->
                             <div class="row">
                                 <div class="col-12">
@@ -308,7 +308,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Weather and Fuel Data -->
                             <div class="row mt-4">
                                 <div class="col-lg-6">
@@ -364,17 +364,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const sessionTypeSelect = document.getElementById('sessionTypeSelect');
     const updateButton = document.getElementById('updateAnalysis');
     const lapTimes = document.querySelectorAll('.lap-time');
-    
+
     // Session type change handler
     sessionTypeSelect.addEventListener('change', function() {
         updateAnalysisView();
     });
-    
+
     // Update analysis button handler
     updateButton.addEventListener('click', function() {
         updateAnalysisView();
     });
-    
+
     // Lap time click handlers
     lapTimes.forEach(lapTime => {
         lapTime.addEventListener('click', function() {
@@ -383,36 +383,36 @@ document.addEventListener('DOMContentLoaded', function() {
             loadTelemetryData(driver, lap);
         });
     });
-    
+
     function updateAnalysisView() {
         const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
             .map(cb => cb.value);
         const sessionType = sessionTypeSelect.value;
-        
+
         if (selectedDrivers.length === 0) {
             alert('Please select at least one driver');
             return;
         }
-        
+
         const params = new URLSearchParams({
             year: {{ session.year }},
             round: {{ session.round_number }},
             session: sessionType
         });
-        
+
         selectedDrivers.forEach(driver => {
             params.append('drivers', driver);
         });
-        
+
         window.location.href = `{{ url_for('analysis') }}?${params.toString()}`;
     }
-    
+
     function loadTelemetryData(driver, lap) {
         const url = `/api/telemetry/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}/${driver}/${lap}`;
-        
+
         document.getElementById('telemetryMessage').style.display = 'none';
         document.getElementById('telemetryCharts').style.display = 'block';
-        
+
         fetch(url)
             .then(response => response.json())
             .then(data => {
@@ -432,22 +432,22 @@ document.addEventListener('DOMContentLoaded', function() {
 function toggleDriverSelection(driverCode) {
     const checkbox = document.getElementById(`driver_${driverCode}`);
     const gridItem = checkbox.closest('.driver-grid-item');
-    
+
     checkbox.checked = !checkbox.checked;
-    
+
     if (checkbox.checked) {
         gridItem.classList.add('selected');
     } else {
         gridItem.classList.remove('selected');
     }
-    
+
     updateDriverCount();
 }
 
 function updateDriverCount() {
     const selectedCount = document.querySelectorAll('.driver-checkbox:checked').length;
     const compareBtn = document.getElementById('compareDriversBtn');
-    
+
     if (selectedCount === 2) {
         compareBtn.classList.remove('btn-outline-danger');
         compareBtn.classList.add('btn-danger');
@@ -463,30 +463,30 @@ function updateDriverCount() {
 function exportData(format) {
     const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
         .map(cb => cb.value);
-    
+
     if (selectedDrivers.length === 0) {
         alert('Please select at least one driver to export data');
         return;
     }
-    
+
     const url = `/api/export/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?format=${format}&` + 
                 selectedDrivers.map(d => `drivers=${d}`).join('&');
-    
+
     window.open(url, '_blank');
 }
 
 function toggleDriverComparison() {
     const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
         .map(cb => cb.value);
-    
+
     if (selectedDrivers.length < 2) {
         alert('Please select at least 2 drivers for comparison');
         return;
     }
-    
+
     const url = `/api/compare/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?type=performance&` + 
                 selectedDrivers.map(d => `drivers=${d}`).join('&');
-    
+
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -539,13 +539,13 @@ function showComparisonModal(comparisonData) {
             </div>
         </div>
     `;
-    
+
     // Remove existing modal
     const existingModal = document.getElementById('comparisonModal');
     if (existingModal) {
         existingModal.remove();
     }
-    
+
     // Add new modal
     document.body.insertAdjacentHTML('beforeend', modalHtml);
     const modal = new bootstrap.Modal(document.getElementById('comparisonModal'));
@@ -555,12 +555,12 @@ function showComparisonModal(comparisonData) {
 function refreshInsights() {
     const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
         .map(cb => cb.value);
-    
+
     if (selectedDrivers.length === 0) {
         alert('Please select at least one driver for insights');
         return;
     }
-    
+
     document.getElementById('aiInsightsRow').innerHTML = `
         <div class="col-12">
             <div class="text-center py-3">
@@ -571,10 +571,10 @@ function refreshInsights() {
             </div>
         </div>
     `;
-    
+
     const url = `/api/insights/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?` + 
                 selectedDrivers.map(d => `drivers=${d}`).join('&');
-    
+
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -606,9 +606,9 @@ function refreshInsights() {
 
 function displayAIInsights(insightsData) {
     const insights = insightsData.ai_insights || insightsData.fallback_insights;
-    
+
     let insightsHtml = '';
-    
+
     if (insights.performance_analysis) {
         insightsHtml += `
             <div class="col-12 mb-3">
@@ -625,7 +625,7 @@ function displayAIInsights(insightsData) {
             </div>
         `;
     }
-    
+
     if (insights.strategic_insights) {
         insightsHtml += `
             <div class="col-12 mb-3">
@@ -640,7 +640,7 @@ function displayAIInsights(insightsData) {
             </div>
         `;
     }
-    
+
     if (insights.key_findings) {
         insightsHtml += `
             <div class="col-12">
@@ -655,7 +655,7 @@ function displayAIInsights(insightsData) {
             </div>
         `;
     }
-    
+
     document.getElementById('aiInsightsRow').innerHTML = insightsHtml || `
         <div class="col-12">
             <div class="alert alert-info">
@@ -737,14 +737,14 @@ function displayWeatherData(weather) {
             </div>
         </div>
     `;
-    
+
     document.getElementById('weatherData').innerHTML = weatherHtml;
 }
 
 function loadFuelData() {
     const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
         .map(cb => cb.value);
-    
+
     if (selectedDrivers.length === 0) {
         document.getElementById('fuelData').innerHTML = `
             <div class="alert alert-info">
@@ -754,10 +754,10 @@ function loadFuelData() {
         `;
         return;
     }
-    
+
     const url = `/api/fuel/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?` + 
                 selectedDrivers.map(d => `drivers=${d}`).join('&');
-    
+
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -801,7 +801,7 @@ function displayFuelData(fuelData) {
             </div>
         </div>
     `).join('');
-    
+
     document.getElementById('fuelData').innerHTML = fuelHtml;
 }
 
@@ -814,7 +814,52 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 1000);
 });
 </script>
-{% endblock %}
+
+<!-- Enlarged Chart Modal -->
+<div class="modal fade" id="chartModal" tabindex="-1" aria-labelledby="chartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-danger" id="chartModalLabel">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Enlarged View
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="enlarged-chart-container">
+                    <canvas id="enlargedChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Driver Comparison Modal -->
+<div class="modal fade" id="comparisonModal" tabindex="-1" aria-labelledby="comparisonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-danger" id="comparisonModalLabel">
+                    <i class="fas fa-layer-group me-2"></i>
+                    Driver Comparison
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="comparisonContent">
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-info-circle fa-3x mb-3"></i>
+                        <p>Select two drivers and click on their lap times to compare telemetry data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
         compareBtn.classList.remove('btn-danger');
         compareBtn.classList.add('btn-outline-danger');
         compareBtn.innerHTML = '<i class="fas fa-layer-group me-1"></i> Compare Mode';
@@ -825,18 +870,18 @@ document.addEventListener('DOMContentLoaded', function() {
 function enlargeChart(chartId) {
     const originalChart = document.getElementById(chartId);
     const modal = new bootstrap.Modal(document.getElementById('chartModal'));
-    const enlargedCanvas = document.getElementById('enlargedChart');
+    conste enlargedCanvas = document.getElementById('enlargedChart');
     const modalTitle = document.getElementById('chartModalLabel');
-    
+
     // Update modal title
     const chartContainer = originalChart.closest('.chart-container');
     const chartTitle = chartContainer.querySelector('.chart-title').textContent;
     modalTitle.innerHTML = `<i class="fas fa-expand me-2"></i> ${chartTitle} - Enlarged View`;
-    
+
     // Clone chart configuration for enlarged view
     if (window.chartManager && window.chartManager.charts[chartId]) {
         const originalConfig = window.chartManager.charts[chartId].config;
-        
+
         // Create enlarged chart with bigger dimensions
         const enlargedChart = new Chart(enlargedCanvas, {
             ...originalConfig,
@@ -879,22 +924,22 @@ function enlargeChart(chartId) {
                 }
             }
         });
-        
+
         // Store reference for cleanup
         window.enlargedChartInstance = enlargedChart;
     }
-    
+
     modal.show();
 }
 
 function toggleDriverComparison() {
     const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'));
-    
+
     if (selectedDrivers.length !== 2) {
         alert('Please select exactly 2 drivers for comparison');
         return;
     }
-    
+
     const modal = new bootstrap.Modal(document.getElementById('comparisonModal'));
     modal.show();
 }
@@ -902,7 +947,7 @@ function toggleDriverComparison() {
 function toggleEnlargedView() {
     const telemetryCharts = document.getElementById('telemetryCharts');
     const isEnlarged = telemetryCharts.classList.contains('enlarged-view');
-    
+
     if (isEnlarged) {
         telemetryCharts.classList.remove('enlarged-view');
         document.getElementById('enlargeViewBtn').innerHTML = '<i class="fas fa-expand me-1"></i> Enlarge View';
