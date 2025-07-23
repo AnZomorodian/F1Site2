@@ -154,6 +154,91 @@ class F1DataService:
             DriverInfo('STR', 'Lance Stroll', 'Aston Martin', '#358C75')
         ]
     
+    def generate_sample_lap_data(self, driver_code: str, lap_count: int = 30) -> List[LapData]:
+        """Generate sample lap data for demonstration purposes"""
+        import random
+        
+        laps = []
+        base_time = 75.0  # Base lap time in seconds
+        
+        for lap_num in range(1, lap_count + 1):
+            # Add some variance to lap times
+            variance = random.uniform(-2.0, 3.0)
+            lap_time = base_time + variance
+            
+            # Simulate sector times
+            sector_1 = lap_time * 0.3 + random.uniform(-0.5, 0.5)
+            sector_2 = lap_time * 0.4 + random.uniform(-0.5, 0.5)
+            sector_3 = lap_time * 0.3 + random.uniform(-0.5, 0.5)
+            
+            # Determine if it's a personal best (simple logic)
+            is_pb = lap_num > 5 and variance < -1.5
+            
+            laps.append(LapData(
+                lap_number=lap_num,
+                lap_time=lap_time,
+                sector_1_time=sector_1,
+                sector_2_time=sector_2,
+                sector_3_time=sector_3,
+                is_personal_best=is_pb,
+                compound='MEDIUM' if lap_num < 15 else 'HARD',
+                tyre_life=lap_num if lap_num < 15 else lap_num - 15
+            ))
+        
+        return laps
+    
+    def generate_sample_telemetry(self, driver_code: str, lap_number: int) -> Optional[TelemetryData]:
+        """Generate sample telemetry data for demonstration"""
+        import numpy as np
+        
+        # Generate distance points (0 to ~5000m for a typical F1 track)
+        distance = np.linspace(0, 5000, 500).tolist()
+        
+        # Generate realistic speed profile
+        track_sections = len(distance)
+        speed = []
+        throttle = []
+        brake = []
+        gear = []
+        
+        for i, d in enumerate(distance):
+            # Create speed profile with straights and corners
+            progress = i / track_sections
+            
+            # Base speed with corners and straights
+            if 0.1 < progress < 0.3 or 0.6 < progress < 0.8:  # Straights
+                base_speed = 280 + np.sin(progress * 4 * np.pi) * 50
+                throttle_val = 95 + np.random.uniform(-5, 5)
+                brake_val = 0
+                gear_val = min(8, max(6, int(base_speed / 40)))
+            else:  # Corners
+                base_speed = 120 + np.sin(progress * 8 * np.pi) * 40
+                throttle_val = 60 + np.random.uniform(-10, 15)
+                brake_val = max(0, 70 - throttle_val + np.random.uniform(-10, 10))
+                gear_val = min(6, max(3, int(base_speed / 30)))
+            
+            speed.append(max(50, base_speed + np.random.uniform(-10, 10)))
+            throttle.append(max(0, min(100, throttle_val)))
+            brake.append(max(0, min(100, brake_val)))
+            gear.append(gear_val)
+        
+        # Generate time data
+        time_data = [i * 0.1 for i in range(len(distance))]
+        
+        # DRS zones (simplified)
+        drs = [1 if 0.1 < (i / track_sections) < 0.25 or 0.65 < (i / track_sections) < 0.8 
+               else 0 for i in range(len(distance))]
+        
+        return TelemetryData(
+            distance=distance,
+            speed=speed,
+            throttle=throttle,
+            brake=brake,
+            gear=gear,
+            drs=drs,
+            time=time_data
+        )
+    
     def get_lap_data(self, year: int, round_number: int, session_type: str, driver_codes: List[str]) -> Dict[str, List[LapData]]:
         """Get lap data for specified drivers"""
         try:

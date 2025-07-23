@@ -70,11 +70,103 @@ class F1TelemetryCharts {
         // Destroy existing charts
         this.destroyAllCharts();
 
+        // Update lap information header
+        this.updateLapHeader(driver, lap, telemetryData);
+
+        // Calculate performance insights
+        this.generatePerformanceInsights(telemetryData);
+
         // Render individual charts
         await this.renderSpeedChart(telemetryData, driver, lap);
         await this.renderThrottleBrakeChart(telemetryData, driver, lap);
         await this.renderGearChart(telemetryData, driver, lap);
         await this.renderTrackMap(telemetryData, driver, lap);
+    }
+
+    updateLapHeader(driver, lap, telemetryData) {
+        const lapInfoElement = document.getElementById('currentLapInfo');
+        const lapDetailsElement = document.getElementById('currentLapDetails');
+        const maxSpeedElement = document.getElementById('maxSpeed');
+        const avgSpeedElement = document.getElementById('avgSpeed');
+
+        if (lapInfoElement) {
+            lapInfoElement.textContent = `${driver} - Lap ${lap}`;
+        }
+
+        if (lapDetailsElement) {
+            lapDetailsElement.textContent = `Analyzing telemetry data for detailed performance metrics`;
+        }
+
+        if (telemetryData.speed && telemetryData.speed.length > 0) {
+            const maxSpeed = Math.max(...telemetryData.speed);
+            const avgSpeed = telemetryData.speed.reduce((a, b) => a + b, 0) / telemetryData.speed.length;
+
+            if (maxSpeedElement) {
+                maxSpeedElement.textContent = `${maxSpeed.toFixed(1)} km/h`;
+            }
+
+            if (avgSpeedElement) {
+                avgSpeedElement.textContent = `${avgSpeed.toFixed(1)} km/h`;
+            }
+        }
+    }
+
+    generatePerformanceInsights(telemetryData) {
+        if (!telemetryData.speed || !telemetryData.throttle || !telemetryData.brake) {
+            return;
+        }
+
+        // Speed Analysis
+        const maxSpeed = Math.max(...telemetryData.speed);
+        const avgSpeed = telemetryData.speed.reduce((a, b) => a + b, 0) / telemetryData.speed.length;
+        const speedVariance = this.calculateVariance(telemetryData.speed);
+        
+        let speedInsight = `Peak speed: ${maxSpeed.toFixed(1)} km/h. `;
+        if (speedVariance < 500) {
+            speedInsight += "Consistent speed profile with minimal variance.";
+        } else {
+            speedInsight += "High speed variance indicates aggressive driving style.";
+        }
+
+        // Braking Analysis
+        const brakeApplications = telemetryData.brake.filter(b => b > 10).length;
+        const maxBrake = Math.max(...telemetryData.brake);
+        const avgThrottle = telemetryData.throttle.reduce((a, b) => a + b, 0) / telemetryData.throttle.length;
+
+        let brakeInsight = `${brakeApplications} significant braking points detected. `;
+        if (maxBrake > 80) {
+            brakeInsight += "Heavy braking suggests late braking technique.";
+        } else {
+            brakeInsight += "Smooth braking profile indicates early braking strategy.";
+        }
+
+        // Efficiency Analysis
+        const throttleEfficiency = avgThrottle / 100;
+        const speedEfficiency = avgSpeed / maxSpeed;
+        
+        let efficiencyInsight = `Throttle efficiency: ${(throttleEfficiency * 100).toFixed(1)}%. `;
+        if (speedEfficiency > 0.7) {
+            efficiencyInsight += "High speed maintenance throughout the lap.";
+        } else {
+            efficiencyInsight += "Significant speed variations, room for improvement.";
+        }
+
+        // Update insight elements
+        this.updateInsightElement('speedInsight', speedInsight);
+        this.updateInsightElement('brakeInsight', brakeInsight);
+        this.updateInsightElement('efficiencyInsight', efficiencyInsight);
+    }
+
+    calculateVariance(data) {
+        const mean = data.reduce((a, b) => a + b, 0) / data.length;
+        return data.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / data.length;
+    }
+
+    updateInsightElement(elementId, text) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = text;
+        }
     }
 
     async renderSpeedChart(data, driver, lap) {

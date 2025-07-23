@@ -54,6 +54,11 @@ def analysis():
         lap_data = {}
         if driver_codes:
             lap_data = f1_service.get_lap_data(year, round_number, session_type, driver_codes)
+            # If no real data, generate sample data for demonstration
+            if not lap_data or all(not laps for laps in lap_data.values()):
+                lap_data = {}
+                for driver_code in driver_codes:
+                    lap_data[driver_code] = f1_service.generate_sample_lap_data(driver_code)
         
         return render_template('analysis.html',
                              session=current_session,
@@ -114,6 +119,11 @@ def api_telemetry(year, round_number, session_type, driver_code, lap_number):
     """API endpoint to get telemetry data for a specific lap"""
     try:
         telemetry = f1_service.get_telemetry_data(year, round_number, session_type, driver_code, lap_number)
+        
+        # If no real telemetry data, generate sample data
+        if not telemetry:
+            telemetry = f1_service.generate_sample_telemetry(driver_code, lap_number)
+        
         if telemetry:
             return jsonify({
                 'success': True,

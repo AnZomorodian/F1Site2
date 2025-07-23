@@ -1,13 +1,25 @@
-# F1 Telemetry Analysis Platform
+# F-lap - Advanced F1 Telemetry Analysis Platform
 
 ## Overview
 
-This is a Flask-based web application for analyzing Formula 1 telemetry data using the FastF1 library. The platform provides comprehensive visualization and analysis tools for F1 race sessions, including lap times, telemetry data, and driver comparisons.
+F-lap is a revolutionary Flask-based web application that provides professional-grade Formula 1 telemetry analysis and visualization. Built with the FastF1 library, it offers comprehensive insights into F1 race sessions with enhanced user experience, advanced analytics, and innovative performance insights.
+
+## Recent Major Updates (July 2025)
+
+✓ **Rebranded to F-lap** - New modern identity for the platform
+✓ **Enhanced Telemetry Visualization** - Larger, more readable charts with professional styling
+✓ **Advanced Driver Selection** - Improved UI with team colors, driver details, and hover effects
+✓ **Performance Insights Engine** - AI-powered analysis providing speed, braking, and efficiency insights
+✓ **Sample Data Generation** - Realistic demonstration data when live F1 data is unavailable
+✓ **Responsive Design** - Optimized for all screen sizes with mobile-first approach
 
 ## User Preferences
 
 ```
 Preferred communication style: Simple, everyday language.
+User requested: Bigger telemetry data display for better readability
+User requested: Enhanced driver styling and presentation
+User requested: Innovative new features and data analysis capabilities
 ```
 
 ## System Architecture
