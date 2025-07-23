@@ -675,6 +675,208 @@ function updateHint() {
     }, 300);
 }
 
+// Load driver fastest laps data
+function loadFastestLapsData() {
+    const year = document.getElementById('seasonSelect').value;
+    const round = document.getElementById('roundSelect').value;
+    const session = document.getElementById('sessionSelect').value;
+    
+    if (!year || !round || !session) return;
+    
+    const fastestLapsUrl = `/api/fastest-laps/${year}/${round}/${session}?drivers=VER&drivers=LEC&drivers=HAM&drivers=RUS&drivers=NOR&drivers=PIA`;
+    
+    fetch(fastestLapsUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayFastestLapsData(data.data);
+            } else {
+                displayFastestLapsError(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Fastest laps data error:', error);
+            displayFastestLapsError('Failed to load fastest lap data');
+        });
+}
+
+function displayFastestLapsData(fastestLapsData) {
+    const container = document.getElementById('fastestLapsData');
+    
+    let html = '<div class="fastest-laps-grid">';
+    
+    Object.entries(fastestLapsData).forEach(([driverCode, driverData]) => {
+        html += `
+            <div class="driver-fastest-laps-card">
+                <div class="driver-header">
+                    <span class="driver-code">${driverCode}</span>
+                    <span class="fastest-time">${driverData.fastest_time}</span>
+                </div>
+                <div class="lap-times-list">`;
+        
+        driverData.fastest_laps.slice(0, 5).forEach((lap, index) => {
+            html += `
+                <div class="lap-time-item">
+                    <span class="lap-position">${index + 1}.</span>
+                    <span class="lap-time">${lap.time}</span>
+                    <span class="lap-compound compound-${lap.compound.toLowerCase()}">${lap.compound}</span>
+                    <span class="lap-number">L${lap.lap_number}</span>
+                </div>`;
+        });
+        
+        html += `
+                </div>
+                <div class="total-laps">
+                    <small class="text-muted">Total Laps: ${driverData.total_laps}</small>
+                </div>
+            </div>`;
+    });
+    
+    html += '</div>';
+    
+    // Add styling for fastest laps display
+    html += `
+    <style>
+    .fastest-laps-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .driver-fastest-laps-card {
+        background: linear-gradient(145deg, #2d3748, #1a202c);
+        border: 1px solid #4a5568;
+        border-radius: 8px;
+        padding: 1rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .driver-fastest-laps-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 255, 65, 0.1);
+    }
+    
+    .driver-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #4a5568;
+    }
+    
+    .driver-code {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #00ff41;
+    }
+    
+    .fastest-time {
+        font-weight: bold;
+        color: #ffd700;
+        font-size: 1rem;
+    }
+    
+    .lap-times-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .lap-time-item {
+        display: grid;
+        grid-template-columns: 20px 1fr auto auto;
+        gap: 0.5rem;
+        align-items: center;
+        padding: 0.25rem;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+    
+    .lap-time-item:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .lap-position {
+        font-size: 0.8rem;
+        color: #a0aec0;
+    }
+    
+    .lap-time {
+        font-family: monospace;
+        font-size: 0.9rem;
+        color: #e2e8f0;
+    }
+    
+    .lap-compound {
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-weight: bold;
+    }
+    
+    .compound-soft {
+        background-color: #ff3333;
+        color: white;
+    }
+    
+    .compound-medium {
+        background-color: #ffd700;
+        color: black;
+    }
+    
+    .compound-hard {
+        background-color: #ffffff;
+        color: black;
+    }
+    
+    .lap-number {
+        font-size: 0.75rem;
+        color: #a0aec0;
+    }
+    
+    .total-laps {
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid #4a5568;
+        text-align: center;
+    }
+    </style>`;
+    
+    container.innerHTML = html;
+    
+    // Hide loading animation and show data
+    document.getElementById('fastestLapsLoadingAnimation').style.display = 'none';
+    document.getElementById('fastestLapsData').style.display = 'block';
+    
+    // Auto-hide after 2 seconds (remove if you want persistent display)
+    setTimeout(() => {
+        document.getElementById('fastestLapsLoadingAnimation').style.display = 'none';
+    }, 2000);
+}
+
+function displayFastestLapsError(error) {
+    const errorContainer = document.getElementById('fastestLapsError');
+    errorContainer.innerHTML = `
+        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+        <p>Unable to load fastest lap data</p>
+        <small>${error}</small>
+    `;
+    
+    document.getElementById('fastestLapsLoadingAnimation').style.display = 'none';
+    document.getElementById('fastestLapsError').style.display = 'block';
+}
+
+function refreshFastestLaps() {
+    document.getElementById('fastestLapsData').style.display = 'none';
+    document.getElementById('fastestLapsError').style.display = 'none';
+    document.getElementById('fastestLapsLoadingAnimation').style.display = 'block';
+    
+    loadFastestLapsData();
+}
+
 // PDF Export Functionality
 function exportPerformanceData(format) {
     const year = document.getElementById('seasonSelect').value;

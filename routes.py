@@ -652,6 +652,17 @@ def performance_insights_data(year, round_number, session_type):
         logger.error(f"Error generating performance insights: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/fastest-laps/<int:year>/<int:round_number>/<session_type>')
+def api_fastest_laps(year, round_number, session_type):
+    """API endpoint for driver fastest laps"""
+    try:
+        selected_drivers = request.args.getlist('drivers')
+        fastest_laps = f1_service.get_driver_fastest_laps(year, round_number, session_type, selected_drivers)
+        return jsonify(fastest_laps)
+    except Exception as e:
+        app.logger.error(f"Error in fastest laps API: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 def generate_performance_insights_data(session_info, drivers, year, round_number, session_type):
     """Generate comprehensive performance insights data"""
     try:
