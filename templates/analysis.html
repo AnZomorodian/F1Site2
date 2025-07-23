@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}F1 Analysis - {{ session.grand_prix_name }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='js/charts.js') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Session Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-dark border-danger">
+            <div class="card-header bg-danger text-white">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="mb-0">
+                            <i class="fas fa-flag-checkered me-2"></i>
+                            {{ session.grand_prix_name }} - {{ session.session_name }}
+                        </h2>
+                        <small>{{ session.year }} • {{ session.circuit_name }}</small>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-light">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Session Selection -->
+<div class="row mb-4">
+    <div class="col-lg-3">
+        <div class="card bg-dark border-secondary">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>
+                    Session Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Session Type Selector -->
+                <div class="mb-3">
+                    <label class="form-label">Session Type</label>
+                    <select class="form-select" id="sessionTypeSelect">
+                        {% for key, session_info in sessions.items() %}
+                        <option value="{{ key }}" {% if key == session.session_type %}selected{% endif %}>
+                            {{ session_info.session_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Driver Selection -->
+                <div class="mb-3">
+                    <label class="form-label">Drivers</label>
+                    <div id="driverSelection" class="driver-selection">
+                        {% for driver in drivers %}
+                        <div class="form-check">
+                            <input class="form-check-input driver-checkbox" type="checkbox" 
+                                   value="{{ driver.driver_code }}" id="driver_{{ driver.driver_code }}"
+                                   {% if driver.driver_code in selected_drivers %}checked{% endif %}
+                                   data-color="{{ driver.team_color }}">
+                            <label class="form-check-label" for="driver_{{ driver.driver_code }}">
+                                <span class="driver-color-box" style="background-color: {{ driver.team_color }}"></span>
+                                {{ driver.driver_code }} - {{ driver.driver_name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button class="btn btn-danger w-100" id="updateAnalysis">
+                    <i class="fas fa-sync me-1"></i>
+                    Update Analysis
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <!-- Lap Times Table -->
+        {% if lap_data %}
+        <div class="card bg-dark border-secondary mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>
+                    Lap Times Comparison
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th>Lap</th>
+                                {% for driver_code in selected_drivers %}
+                                <th style="color: {{ drivers | selectattr('driver_code', 'equalto', driver_code) | map(attribute='team_color') | first }}">
+                                    {{ driver_code }}
+                                </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set max_laps = lap_data.values() | map('length') | max %}
+                            {% for lap_num in range(1, max_laps + 1) %}
+                            <tr>
+                                <td class="fw-bold">{{ lap_num }}</td>
+                                {% for driver_code in selected_drivers %}
+                                <td>
+                                    {% set driver_laps = lap_data.get(driver_code, []) %}
+                                    {% set lap = driver_laps | selectattr('lap_number', 'equalto', lap_num) | first %}
+                                    {% if lap and lap.lap_time %}
+                                        {% set minutes = (lap.lap_time // 60) | int %}
+                                        {% set seconds = lap.lap_time % 60 %}
+                                        <span class="lap-time" data-driver="{{ driver_code }}" data-lap="{{ lap_num }}" 
+                                              data-time="{{ lap.lap_time }}" style="cursor: pointer;">
+                                            {{ "%d:%06.3f" | format(minutes, seconds) }}
+                                        </span>
+                                        {% if lap.is_personal_best %}
+                                        <i class="fas fa-star text-warning ms-1" title="Personal Best"></i>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Telemetry Charts -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-area me-2"></i>
+                            Telemetry Data
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="telemetryMessage" class="text-center text-muted py-5">
+                            <i class="fas fa-info-circle fa-3x mb-3"></i>
+                            <p>Click on a lap time in the table above to view telemetry data</p>
+                        </div>
+                        <div id="telemetryCharts" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <canvas id="speedChart"></canvas>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <canvas id="throttleBrakeChart"></canvas>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <canvas id="gearChart"></canvas>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <canvas id="trackMapChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sessionTypeSelect = document.getElementById('sessionTypeSelect');
+    const updateButton = document.getElementById('updateAnalysis');
+    const lapTimes = document.querySelectorAll('.lap-time');
+    
+    // Session type change handler
+    sessionTypeSelect.addEventListener('change', function() {
+        updateAnalysisView();
+    });
+    
+    // Update analysis button handler
+    updateButton.addEventListener('click', function() {
+        updateAnalysisView();
+    });
+    
+    // Lap time click handlers
+    lapTimes.forEach(lapTime => {
+        lapTime.addEventListener('click', function() {
+            const driver = this.dataset.driver;
+            const lap = this.dataset.lap;
+            loadTelemetryData(driver, lap);
+        });
+    });
+    
+    function updateAnalysisView() {
+        const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
+            .map(cb => cb.value);
+        const sessionType = sessionTypeSelect.value;
+        
+        if (selectedDrivers.length === 0) {
+            alert('Please select at least one driver');
+            return;
+        }
+        
+        const params = new URLSearchParams({
+            year: {{ session.year }},
+            round: {{ session.round_number }},
+            session: sessionType
+        });
+        
+        selectedDrivers.forEach(driver => {
+            params.append('drivers', driver);
+        });
+        
+        window.location.href = `{{ url_for('analysis') }}?${params.toString()}`;
+    }
+    
+    function loadTelemetryData(driver, lap) {
+        const url = `/api/telemetry/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}/${driver}/${lap}`;
+        
+        document.getElementById('telemetryMessage').style.display = 'none';
+        document.getElementById('telemetryCharts').style.display = 'block';
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    renderTelemetryCharts(data.data, driver, lap);
+                } else {
+                    console.error('Error loading telemetry:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+});
+</script>
+{% endblock %}

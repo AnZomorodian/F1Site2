@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}F1 Telemetry Analysis - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="hero-section text-center mb-5">
+            <h1 class="display-4 fw-bold text-danger mb-3">
+                <i class="fas fa-flag-checkered me-3"></i>
+                Formula 1 Telemetry Analysis
+            </h1>
+            <p class="lead text-light">
+                Professional-grade F1 data analysis and visualization platform
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card bg-dark border-secondary">
+            <div class="card-header bg-danger text-white">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-search me-2"></i>
+                    Select Session
+                </h3>
+            </div>
+            <div class="card-body">
+                <form id="sessionForm" action="{{ url_for('analysis') }}" method="GET">
+                    <div class="row g-3">
+                        <!-- Year Selection -->
+                        <div class="col-md-4">
+                            <label for="yearSelect" class="form-label">
+                                <i class="fas fa-calendar me-1"></i>
+                                Season Year
+                            </label>
+                            <select class="form-select" id="yearSelect" name="year" required>
+                                {% for year in years %}
+                                <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>
+                                    {{ year }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Round Selection -->
+                        <div class="col-md-4">
+                            <label for="roundSelect" class="form-label">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                Grand Prix
+                            </label>
+                            <select class="form-select" id="roundSelect" name="round" required>
+                                <option value="">Select a Grand Prix...</option>
+                                {% for race in schedule %}
+                                <option value="{{ race.round_number }}">
+                                    {{ race.grand_prix_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Session Selection -->
+                        <div class="col-md-4">
+                            <label for="sessionSelect" class="form-label">
+                                <i class="fas fa-clock me-1"></i>
+                                Session
+                            </label>
+                            <select class="form-select" id="sessionSelect" name="session" required>
+                                <option value="">Select a session...</option>
+                                <option value="FP1">Practice 1</option>
+                                <option value="FP2">Practice 2</option>
+                                <option value="FP3">Practice 3</option>
+                                <option value="Q">Qualifying</option>
+                                <option value="R" selected>Race</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-danger btn-lg px-5">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Analyze Session
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4 text-light">
+            <i class="fas fa-star me-2"></i>
+            Features
+        </h2>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card bg-dark border-secondary h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-3x text-danger mb-3"></i>
+                <h5 class="card-title">Telemetry Analysis</h5>
+                <p class="card-text text-muted">
+                    Analyze speed, throttle, brake, and gear data with interactive charts
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card bg-dark border-secondary h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-danger mb-3"></i>
+                <h5 class="card-title">Driver Comparison</h5>
+                <p class="card-text text-muted">
+                    Compare multiple drivers' performance side by side
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card bg-dark border-secondary h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-route fa-3x text-danger mb-3"></i>
+                <h5 class="card-title">Track Visualization</h5>
+                <p class="card-text text-muted">
+                    Interactive track maps with telemetry overlay
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const yearSelect = document.getElementById('yearSelect');
+    const roundSelect = document.getElementById('roundSelect');
+    
+    yearSelect.addEventListener('change', function() {
+        const year = this.value;
+        if (year) {
+            loadSchedule(year);
+        }
+    });
+    
+    function loadSchedule(year) {
+        fetch(`/api/schedule/${year}`)
+            .then(response => response.json())
+            .then(data => {
+                roundSelect.innerHTML = '<option value="">Select a Grand Prix...</option>';
+                if (data.success) {
+                    data.data.forEach(race => {
+                        const option = document.createElement('option');
+                        option.value = race.round_number;
+                        option.textContent = race.grand_prix_name;
+                        roundSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading schedule:', error);
+            });
+    }
+});
+</script>
+{% endblock %}
