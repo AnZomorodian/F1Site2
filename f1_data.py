@@ -1046,7 +1046,11 @@ class F1DataService:
             # 1. Lap Record (Fastest lap in session)
             fastest_lap = laps.pick_fastest()
             if fastest_lap is not None and not fastest_lap.empty:
-                fastest_time = fastest_lap['LapTime'].iloc[0] if hasattr(fastest_lap['LapTime'].iloc[0], 'total_seconds') else fastest_lap['LapTime'].iloc[0]
+                fastest_time_val = fastest_lap['LapTime'].iloc[0]
+                if hasattr(fastest_time_val, 'total_seconds'):
+                    fastest_time = fastest_time_val.total_seconds()
+                else:
+                    fastest_time = float(fastest_time_val)
                 fastest_driver = fastest_lap['Driver'].iloc[0] if 'Driver' in fastest_lap.columns else 'Unknown'
                 
                 if hasattr(fastest_time, 'total_seconds'):

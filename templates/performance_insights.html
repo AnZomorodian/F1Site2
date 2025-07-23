@@ -61,6 +61,13 @@
                     <label for="sessionSelect" class="form-label">Session</label>
                     <select class="form-select" id="sessionSelect">
                         <option value="">Select Session</option>
+                        <option value="FP1">Free Practice 1</option>
+                        <option value="FP2">Free Practice 2</option>
+                        <option value="FP3">Free Practice 3</option>
+                        <option value="SQ">Sprint Qualifying</option>
+                        <option value="S">Sprint</option>
+                        <option value="Q">Qualifying</option>
+                        <option value="R">Race</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -73,12 +80,26 @@
     </div>
 </div>
 
-<!-- Loading Animation -->
-<div id="loadingInsights" class="text-center py-5" style="display: none;">
-    <div class="spinner-border text-primary mb-3" role="status">
-        <span class="visually-hidden">Loading...</span>
+<!-- Enhanced Loading Animation with F1 Hints -->
+<div id="loadingInsights" class="loading-modal" style="display: none;">
+    <div class="loading-overlay">
+        <div class="loading-content">
+            <div class="f1-loader">
+                <div class="f1-car"></div>
+                <div class="track-line"></div>
+            </div>
+            <h4 class="loading-title">Analyzing Performance Data</h4>
+            <div class="loading-hint-container">
+                <div id="loadingHint" class="loading-hint">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                    <span id="hintText">Loading performance insights...</span>
+                </div>
+            </div>
+            <div class="loading-progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
     </div>
-    <p class="text-muted">Analyzing performance data...</p>
 </div>
 
 <!-- Performance Insights Display -->
@@ -277,11 +298,267 @@
 .confidence-stars {
     color: #ffd700;
 }
+
+/* Enhanced Loading Animations */
+.loading-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-overlay {
+    text-align: center;
+    color: white;
+}
+
+.loading-content {
+    max-width: 500px;
+    padding: 2rem;
+}
+
+.f1-loader {
+    position: relative;
+    width: 200px;
+    height: 60px;
+    margin: 0 auto 2rem;
+}
+
+.f1-car {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    width: 40px;
+    height: 20px;
+    background: linear-gradient(45deg, #ed1131, #ff6b6b);
+    border-radius: 10px;
+    animation: f1Drive 3s linear infinite;
+}
+
+.f1-car::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 10px;
+    width: 20px;
+    height: 10px;
+    background: #333;
+    border-radius: 5px;
+}
+
+.track-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        #ed1131 0%, #ed1131 25%, 
+        transparent 25%, transparent 50%,
+        #ed1131 50%, #ed1131 75%,
+        transparent 75%, transparent 100%);
+    background-size: 40px 4px;
+    animation: trackMove 1s linear infinite;
+}
+
+@keyframes f1Drive {
+    0% { left: -40px; }
+    100% { left: 200px; }
+}
+
+@keyframes trackMove {
+    0% { background-position-x: 0; }
+    100% { background-position-x: 40px; }
+}
+
+.loading-title {
+    color: #ed1131;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.loading-hint-container {
+    background: rgba(237, 17, 49, 0.1);
+    border: 1px solid rgba(237, 17, 49, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-hint {
+    font-size: 1.1rem;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.loading-progress {
+    width: 100%;
+    height: 6px;
+    background: #333;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ed1131, #ff6b6b, #ed1131);
+    background-size: 200% 100%;
+    border-radius: 3px;
+    width: 0%;
+    animation: progressFill 4s ease-in-out infinite, gradientMove 2s linear infinite;
+}
+
+@keyframes progressFill {
+    0%, 100% { width: 0%; }
+    50% { width: 100%; }
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
 </style>
 
 <script>
 let currentYear = {{ current_year }};
-let currentSchedule = {{ schedule | tojsonfilter }};
+let currentSchedule = {{ schedule | tojson }};
+
+// 100 F1 Performance Hints for Loading
+const f1Hints = [
+    "DRS (Drag Reduction System) can provide up to 10-15 km/h speed advantage on straights",
+    "F1 drivers experience up to 6G forces during heavy braking at high speeds",
+    "Modern F1 cars generate enough downforce to drive upside down at 180 km/h",
+    "F1 engines rev up to 15,000 RPM and produce around 1000 horsepower",
+    "Brake discs can reach temperatures of 1000°C during heavy braking",
+    "Tire pressure changes by 1-2 PSI during a stint due to heat buildup",
+    "F1 steering wheels have over 25 buttons and switches for various controls",
+    "Cars can lose 0.5-1 second per lap when stuck in dirty air behind another car",
+    "ERS (Energy Recovery System) provides an additional 160 horsepower for 33 seconds per lap",
+    "F1 cars accelerate from 0-100 km/h in approximately 2.6 seconds",
+    
+    "Gear ratios are optimized specifically for each track layout and characteristics",
+    "Advanced telemetry systems monitor over 300 sensors throughout the car",
+    "Pit stop tire changes can be completed in under 3 seconds by professional crews",
+    "F1 drivers can lose 3-4 kg of body weight during a single race session",
+    "Cars consume approximately 110 kg of fuel during a full race distance",
+    "Suspension settings are adjusted in increments as small as 1mm for optimal performance",
+    "F1 engines are precision-engineered to last exactly 7 race weekends",
+    "Aerodynamic efficiency is measured in L/D ratios, with higher values being better",
+    "Track temperature affects tire grip levels and degradation rates significantly",
+    "F1 cars use carbon fiber monocoques that weigh only around 80-100 kg",
+    
+    "Brake-by-wire systems allow precise control over brake balance during corners",
+    "Tire compounds are color-coded: soft (red), medium (yellow), hard (white)",
+    "F1 drivers' reaction times are typically 0.2 seconds, faster than average humans",
+    "Cars generate approximately 5000 data points per second during track sessions",
+    "Optimal racing lines minimize distance while maximizing corner exit speeds",
+    "F1 teams employ hundreds of engineers and data analysts for performance optimization",
+    "Wind tunnel testing is limited to 320 runs per year to control development costs",
+    "Gear changes in modern F1 cars take approximately 50 milliseconds",
+    "Racing fuel is specially formulated for maximum energy density and efficiency",
+    "F1 drivers train extensively on simulators that cost millions of dollars",
+    
+    "Tire degradation follows predictable patterns that teams model for strategy",
+    "F1 cars have no traditional differential - they use electronic torque vectoring",
+    "Radio communications between drivers and teams are encrypted for security",
+    "Carbon brakes provide consistent performance but require high temperatures to work effectively",
+    "F1 drivers experience rapid directional G-force changes of up to 5G in corners",
+    "Advanced CFD simulations require supercomputers to model aerodynamic flow",
+    "F1 engines are hybrid power units combining internal combustion with electric motors",
+    "Tire warmers are used to bring tires to optimal operating temperature before sessions",
+    "F1 safety cars are high-performance vehicles capable of maintaining competitive speeds",
+    "Drivers' heart rates can exceed 180 BPM during intense racing situations",
+    
+    "Ground effect aerodynamics create a vacuum under the car for increased downforce",
+    "F1 teams use predictive algorithms to optimize fuel load and tire strategy",
+    "Steering feedback systems provide drivers with precise road surface information",
+    "F1 cars can brake from 300 km/h to 80 km/h in approximately 4 seconds",
+    "Race engineers monitor real-time telemetry to advise drivers on optimal techniques",
+    "F1 gearboxes must last 6 consecutive race events to comply with regulations",
+    "Aerodynamic balance affects car handling - too much rear downforce causes understeer",
+    "F1 drivers use specific breathing techniques to maintain focus during races",
+    "Team radios allow real-time communication of track conditions and strategy updates",
+    "F1 cars use advanced materials like titanium and carbon fiber for weight reduction",
+    
+    "Qualifying sessions determine grid positions through elimination-style time attacks",
+    "F1 power units include sophisticated energy recovery systems from braking and exhaust",
+    "Drivers adjust brake balance throughout sessions as fuel load decreases",
+    "F1 teams analyze driver inputs at millisecond precision for performance optimization",
+    "Track evolution means lap times typically improve throughout practice sessions",
+    "F1 hydraulic systems operate at extremely high pressures for precise control",
+    "Teams use machine learning to predict optimal tire change timing during races",
+    "F1 drivers' physical fitness rivals that of Olympic athletes in specific areas",
+    "Aerodynamic updates can provide tenths of seconds improvement per lap",
+    "F1 cars use semi-automatic gearboxes with paddle shifters behind the steering wheel",
+    
+    "Race strategy involves complex calculations of tire degradation and fuel consumption",
+    "F1 engineers use advanced simulation software to test setup changes virtually",
+    "Drivers practice emergency procedures extensively, including fire evacuation protocols",
+    "F1 teams have dedicated meteorologists to predict weather conditions accurately",
+    "Cooling systems must balance engine temperature with aerodynamic efficiency",
+    "F1 drivers undergo intensive mental training to maintain concentration under pressure",
+    "Teams analyze competitor telemetry data to identify performance advantages",
+    "F1 cars have sophisticated traction control systems integrated into the ECU",
+    "Safety systems including HANS devices protect drivers from severe head injuries",
+    "F1 engineers optimize wing angles to balance downforce and drag for each circuit",
+    
+    "Tire pressure monitoring systems provide real-time data on tire performance",
+    "F1 drivers use specialized racing suits with integrated cooling systems",
+    "Teams employ biomechanical analysis to optimize driver positioning and ergonomics",
+    "F1 power steering systems are tuned to provide optimal feedback and assistance",
+    "Race weekend schedules are precisely timed to maximize track evolution benefits",
+    "F1 teams use advanced composites in bodywork for optimal strength-to-weight ratios",
+    "Drivers practice specific techniques for different weather conditions extensively",
+    "F1 engines use advanced lubrication systems to minimize friction losses",
+    "Teams analyze video footage frame-by-frame to identify racing line improvements",
+    "F1 cars have redundant safety systems to protect against multiple failure modes",
+    
+    "Race control monitors all cars simultaneously using advanced tracking technology",
+    "F1 drivers develop muscle memory for track layouts through extensive practice",
+    "Teams use computational fluid dynamics to design optimal aerodynamic packages",
+    "F1 regulations strictly control development areas to maintain competitive balance",
+    "Drivers work closely with sports psychologists to optimize mental performance",
+    "F1 teams employ specialized mechanics for each car subsystem",
+    "Advanced data logging systems capture every aspect of car and driver performance",
+    "F1 circuits are designed with specific safety features including gravel traps",
+    "Teams use high-speed cameras to analyze suspension behavior in real-time",
+    "F1 drivers must maintain precise racing lines while managing tire temperatures",
+    
+    "Pit wall engineers coordinate strategy decisions using real-time race data",
+    "F1 cars use active aerodynamics that adjust automatically based on speed",
+    "Driver coaching involves detailed analysis of telemetry data and video footage",
+    "F1 teams have dedicated personnel for tire temperature and pressure monitoring",
+    "Race engineers calculate optimal fuel loads considering multiple strategy scenarios",
+    "F1 drivers practice emergency procedures including rapid car evacuation",
+    "Teams use advanced materials testing to ensure component reliability under stress",
+    "F1 cars have sophisticated electronic systems managing power distribution",
+    "Drivers undergo regular medical assessments to ensure peak physical condition",
+    "F1 teams analyze microscopic tire wear patterns to understand performance degradation",
+    
+    "Circuit characteristics determine optimal car setup including suspension geometry",
+    "F1 drivers train their peripheral vision to monitor multiple cars simultaneously",
+    "Teams use predictive modeling to anticipate component failure risks",
+    "F1 cars have advanced fire suppression systems activated by driver controls",
+    "Race strategy meetings involve detailed analysis of historical performance data",
+    "F1 drivers practice specific techniques for overtaking in different track sections",
+    "Teams monitor brake disc thickness to ensure safety margins throughout sessions",
+    "F1 engines are designed to operate at maximum efficiency within specific RPM ranges",
+    "Drivers work with nutritionists to optimize energy levels during long race sessions",
+    "F1 teams use advanced simulation to test setup changes without track time"
+];
+
+let currentHintIndex = 0;
 
 function loadRaces() {
     const seasonSelect = document.getElementById('seasonSelect');
@@ -343,23 +620,261 @@ function generateInsights() {
         return;
     }
     
-    // Show loading
-    document.getElementById('loadingInsights').style.display = 'block';
+    // Show enhanced loading with hints
+    showEnhancedLoading();
     document.getElementById('insightsContainer').style.display = 'none';
     
     // Fetch insights data
     fetch(`/api/performance-insights/${year}/${round}/${session}`)
         .then(response => response.json())
         .then(data => {
-            displayInsights(data);
-            document.getElementById('loadingInsights').style.display = 'none';
-            document.getElementById('insightsContainer').style.display = 'block';
+            setTimeout(() => {
+                hideEnhancedLoading();
+                displayInsights(data.data);
+                document.getElementById('insightsContainer').style.display = 'block';
+            }, 3000); // Show loading for at least 3 seconds
         })
         .catch(error => {
             console.error('Error fetching insights:', error);
-            document.getElementById('loadingInsights').style.display = 'none';
+            hideEnhancedLoading();
             alert('Error loading performance insights');
         });
+}
+
+function showEnhancedLoading() {
+    document.getElementById('loadingInsights').style.display = 'flex';
+    currentHintIndex = 0;
+    startHintRotation();
+}
+
+function hideEnhancedLoading() {
+    document.getElementById('loadingInsights').style.display = 'none';
+    if (window.hintInterval) {
+        clearInterval(window.hintInterval);
+    }
+}
+
+function startHintRotation() {
+    // Show first hint immediately
+    updateHint();
+    
+    // Rotate hints every 2 seconds
+    window.hintInterval = setInterval(() => {
+        currentHintIndex = (currentHintIndex + 1) % f1Hints.length;
+        updateHint();
+    }, 2000);
+}
+
+function updateHint() {
+    const hintElement = document.getElementById('hintText');
+    hintElement.style.opacity = '0';
+    
+    setTimeout(() => {
+        hintElement.textContent = f1Hints[currentHintIndex];
+        hintElement.style.opacity = '1';
+    }, 300);
+}
+
+// PDF Export Functionality
+function exportPerformanceData(format) {
+    const year = document.getElementById('seasonSelect').value;
+    const round = document.getElementById('roundSelect').value;
+    const session = document.getElementById('sessionSelect').value;
+    
+    if (!year || !round || !session) {
+        alert('Please select a session first before exporting');
+        return;
+    }
+    
+    if (format === 'pdf') {
+        exportToPDF();
+    } else if (format === 'excel') {
+        exportToExcel();
+    } else if (format === 'csv') {
+        exportToCSV();
+    }
+}
+
+function exportToPDF() {
+    // Generate PDF using browser's print functionality
+    const printWindow = window.open('', '_blank');
+    const currentData = getCurrentInsightsData();
+    
+    const pdfContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Lapla Performance Report</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { text-align: center; border-bottom: 2px solid #ed1131; padding-bottom: 20px; margin-bottom: 30px; }
+            .logo { color: #ed1131; font-size: 24px; font-weight: bold; }
+            .section { margin-bottom: 30px; }
+            .section-title { color: #ed1131; font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+            .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+            .metric-card { border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+            .metric-title { font-weight: bold; color: #333; }
+            .metric-value { font-size: 18px; color: #ed1131; font-weight: bold; }
+            .driver-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            .driver-table th, .driver-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            .driver-table th { background-color: #f5f5f5; }
+            .insight-item { margin-bottom: 15px; padding: 10px; border-left: 4px solid #ed1131; background-color: #f9f9f9; }
+            .footer { text-align: center; margin-top: 40px; font-size: 12px; color: #666; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="logo">Lapla - Advanced F1 Telemetry Analysis</div>
+            <h2>Performance Insights Report</h2>
+            <p>Generated on ${new Date().toLocaleDateString()} • ${document.getElementById('seasonSelect').value} Season</p>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Race Overview</div>
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-title">Total Drivers</div>
+                    <div class="metric-value">${currentData?.race_overview?.total_drivers || 'N/A'}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Total Laps</div>
+                    <div class="metric-value">${currentData?.race_overview?.total_laps || 'N/A'}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Fastest Lap</div>
+                    <div class="metric-value">${currentData?.race_overview?.fastest_lap_time || 'N/A'}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Track Temperature</div>
+                    <div class="metric-value">${currentData?.race_overview?.track_temperature || 'N/A'}°C</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Performance Metrics</div>
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-title">Lap Record</div>
+                    <div class="metric-value">${currentData?.performance_metrics?.lap_record || 'N/A'}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Sector Best</div>
+                    <div class="metric-value">${currentData?.performance_metrics?.sector_best || 'N/A'}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Top Speed</div>
+                    <div class="metric-value">${currentData?.performance_metrics?.top_speed || 'N/A'}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Consistency</div>
+                    <div class="metric-value">${currentData?.performance_metrics?.consistency || 'N/A'}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Strategic Insights</div>
+            ${currentData?.strategic_insights?.map(insight => `
+                <div class="insight-item">
+                    <strong>${insight.title}</strong><br>
+                    ${insight.description}
+                    <br><small>Confidence: ${insight.confidence}/5 stars</small>
+                </div>
+            `).join('') || '<p>No insights available</p>'}
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 Lapla Platform • Advanced F1 Telemetry Analysis • Generated ${new Date().toLocaleString()}</p>
+        </div>
+    </body>
+    </html>`;
+    
+    printWindow.document.write(pdfContent);
+    printWindow.document.close();
+    printWindow.focus();
+    
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 1000);
+}
+
+function exportToExcel() {
+    const currentData = getCurrentInsightsData();
+    if (!currentData) {
+        alert('No data available to export');
+        return;
+    }
+    
+    // Create CSV content for Excel compatibility
+    let csvContent = "Lapla Performance Analysis Report\n";
+    csvContent += `Generated: ${new Date().toLocaleString()}\n\n`;
+    
+    // Race Overview
+    csvContent += "RACE OVERVIEW\n";
+    csvContent += "Metric,Value\n";
+    csvContent += `Total Drivers,${currentData.race_overview?.total_drivers || 'N/A'}\n`;
+    csvContent += `Total Laps,${currentData.race_overview?.total_laps || 'N/A'}\n`;
+    csvContent += `Fastest Lap,${currentData.race_overview?.fastest_lap_time || 'N/A'}\n`;
+    csvContent += `Track Temperature,${currentData.race_overview?.track_temperature || 'N/A'}°C\n\n`;
+    
+    // Performance Metrics
+    csvContent += "PERFORMANCE METRICS\n";
+    csvContent += "Metric,Value\n";
+    csvContent += `Lap Record,${currentData.performance_metrics?.lap_record || 'N/A'}\n`;
+    csvContent += `Sector Best,${currentData.performance_metrics?.sector_best || 'N/A'}\n`;
+    csvContent += `Top Speed,${currentData.performance_metrics?.top_speed || 'N/A'}\n`;
+    csvContent += `Consistency,${currentData.performance_metrics?.consistency || 'N/A'}\n\n`;
+    
+    // Strategic Insights
+    csvContent += "STRATEGIC INSIGHTS\n";
+    csvContent += "Title,Description,Confidence\n";
+    currentData.strategic_insights?.forEach(insight => {
+        csvContent += `"${insight.title}","${insight.description}",${insight.confidence}/5\n`;
+    });
+    
+    downloadFile(csvContent, `Lapla_Performance_Report_${Date.now()}.csv`, 'text/csv');
+}
+
+function exportToCSV() {
+    const currentData = getCurrentInsightsData();
+    if (!currentData) {
+        alert('No data available to export');
+        return;
+    }
+    
+    // Create simplified CSV for data analysis
+    let csvContent = "Type,Metric,Value\n";
+    
+    // Race Overview data
+    Object.entries(currentData.race_overview || {}).forEach(([key, value]) => {
+        csvContent += `Race Overview,${key},${value}\n`;
+    });
+    
+    // Performance Metrics data
+    Object.entries(currentData.performance_metrics || {}).forEach(([key, value]) => {
+        csvContent += `Performance Metrics,${key},${value}\n`;
+    });
+    
+    downloadFile(csvContent, `Lapla_Data_Export_${Date.now()}.csv`, 'text/csv');
+}
+
+function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+function getCurrentInsightsData() {
+    // Return the current insights data from the page
+    return window.currentInsightsData || null;
 }
 
 function displayInsights(data) {
