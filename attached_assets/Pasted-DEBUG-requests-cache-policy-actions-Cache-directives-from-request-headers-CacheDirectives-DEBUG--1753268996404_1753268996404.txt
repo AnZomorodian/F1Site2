@@ -1,0 +1,21 @@
+DEBUG:requests_cache.policy.actions:Cache directives from request headers: CacheDirectives()
+DEBUG:requests_cache.policy.actions:Pre-read cache checks: Passed
+DEBUG:requests_cache.policy.actions:Post-read cache actions: CacheActions(expire_after=datetime.timedelta(seconds=43200), send_request=True)
+DEBUG:urllib3.connectionpool:Resetting dropped connection: livetiming.formula1.com
+DEBUG:urllib3.connectionpool:https://livetiming.formula1.com:443 "GET /static/2025/2025-04-06_Japanese_Grand_Prix/2025-04-06_Race/RaceControlMessages.jsonStream HTTP/1.1" 200 4049
+DEBUG:requests_cache.policy.actions:Cache directives from response headers: CacheDirectives(max_age=3600, etag='"93e9465c5c691633caa797c63e0657e6"', last_modified='Sun, 06 Apr 2025 06:47:52 GMT')
+DEBUG:charset_normalizer:Encoding detection: utf_8 is most likely the one.
+DEBUG:requests_cache.policy.actions:Pre-write cache checks: Passed
+DEBUG:charset_normalizer:Encoding detection: utf_8 is most likely the one.
+req            INFO     Data has been written to cache!
+INFO:fastf1.fastf1.req:Data has been written to cache!
+core           INFO     Finished loading data for 20 drivers: ['1', '4', '81', '16', '63', '12', '44', '6', '23', '87', '14', '22', '10', '55', '7', '27', '30', '31', '5', '18']
+INFO:fastf1.fastf1.core:Finished loading data for 20 drivers: ['1', '4', '81', '16', '63', '12', '44', '6', '23', '87', '14', '22', '10', '55', '7', '27', '30', '31', '5', '18']
+ERROR:routes:Error loading analysis page: Encountered unknown tag 'endblock'.
+INFO:werkzeug:10.82.4.45 - - [23/Jul/2025 11:09:38] "GET /analysis?year=2025&round=3&session=R HTTP/1.1" 302 -
+DEBUG:requests_cache.policy.actions:Cache directives from request headers: CacheDirectives()
+DEBUG:requests_cache.policy.actions:Pre-read cache checks: Passed
+DEBUG:requests_cache.policy.actions:Post-read cache actions: CacheActions(expire_after=datetime.timedelta(seconds=43200))
+INFO:werkzeug:10.82.4.45 - - [23/Jul/2025 11:09:39] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:10.82.4.45 - - [23/Jul/2025 11:09:39] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:10.82.4.45 - - [23/Jul/2025 11:09:40] "GET /static/js/app.js HTTP/1.1" 304 -
