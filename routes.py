@@ -263,11 +263,11 @@ def api_performance_insights(year, round_number, session_type):
         logger.error(f"Error generating performance insights: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/api/weather/<int:year>/<int:round_number>')
-def api_weather_data(year, round_number):
+@app.route('/api/weather/<int:year>/<int:round_number>/<session_type>')
+def api_weather_data(year, round_number, session_type):
     """API endpoint for weather data"""
     try:
-        weather_data = f1_service.get_weather_data(year, round_number)
+        weather_data = f1_service.get_weather_data(year, round_number, session_type)
         return jsonify({
             'success': True,
             'data': weather_data

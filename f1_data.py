@@ -538,7 +538,7 @@ class F1DataService:
         
         return insights
     
-    def get_weather_data(self, year: int, round_number: int) -> Dict:
+    def get_weather_data(self, year: int, round_number: int, session_type: str = None) -> Dict:
         """Get weather data for the race weekend"""
         try:
             # Generate realistic weather data (FastF1 has limited weather data access)

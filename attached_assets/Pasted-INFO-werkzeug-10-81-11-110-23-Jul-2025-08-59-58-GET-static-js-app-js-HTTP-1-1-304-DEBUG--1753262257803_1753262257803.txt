@@ -1,0 +1,21 @@
+INFO:werkzeug:10.81.11.110 - - [23/Jul/2025 08:59:58] "GET /static/js/app.js HTTP/1.1" 304 -
+DEBUG:requests_cache.policy.actions:Cache directives from request headers: CacheDirectives()
+DEBUG:requests_cache.policy.actions:Pre-read cache checks: Passed
+DEBUG:requests_cache.policy.actions:Post-read cache actions: CacheActions(expire_after=datetime.timedelta(seconds=43200), send_request=True)
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): raw.githubusercontent.com:443
+DEBUG:urllib3.connectionpool:https://raw.githubusercontent.com:443 "GET /theOehrly/f1schedule/master/schedule_2024.json HTTP/1.1" 304 0
+DEBUG:requests_cache.policy.actions:Cache directives from response headers: CacheDirectives(expires='Wed, 23 Jul 2025 09:09:59 GMT', max_age=300, etag='W/"36fddfd3cb164f8a5fef382bcf8537dbaf85b29dcc703d0d4e123278da624720"')
+DEBUG:requests_cache.policy.actions:Pre-write cache checks: disabled status
+DEBUG:requests_cache.policy.actions:Response for URL https://raw.githubusercontent.com/theOehrly/f1schedule/master/schedule_2024.json has not been modified
+INFO:werkzeug:10.81.11.110 - - [23/Jul/2025 09:04:59] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:10.81.2.121 - - [23/Jul/2025 09:05:01] "GET /static/css/style.css HTTP/1.1" 304 -
+INFO:werkzeug:10.81.2.121 - - [23/Jul/2025 09:05:01] "GET /static/js/app.js HTTP/1.1" 304 -
+INFO:werkzeug:10.81.9.128 - - [23/Jul/2025 09:05:02] "GET /static/js/app.js HTTP/1.1" 304 -
+DEBUG:requests_cache.policy.actions:Cache directives from request headers: CacheDirectives()
+DEBUG:requests_cache.policy.actions:Pre-read cache checks: Passed
+DEBUG:requests_cache.policy.actions:Post-read cache actions: CacheActions(expire_after=datetime.timedelta(seconds=43200), send_request=True)
+logger      WARNING     Failed to load schedule from FastF1 backend!
+WARNING:fastf1.fastf1.events:Failed to load schedule from FastF1 backend!
+DEBUG:fastf1.fastf1.events:Traceback for failure in FastF1 schedule
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen

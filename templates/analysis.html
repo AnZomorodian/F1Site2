@@ -3,7 +3,7 @@
 {% block title %}F1 Analysis - {{ session.grand_prix_name }}{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='js/charts.js') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -123,20 +123,14 @@
                                 <td class="fw-bold">{{ lap_num }}</td>
                                 {% for driver_code in selected_drivers %}
                                 <td>
-                                    {% set driver_laps = lap_data.get(driver_code, []) %}
-                                    {% set lap = driver_laps | selectattr('lap_number', 'equalto', lap_num) | first %}
-                                    {% if lap and lap.lap_time %}
-                                        {% set minutes = (lap.lap_time // 60) | int %}
-                                        {% set seconds = lap.lap_time % 60 %}
-                                        <span class="lap-time" data-driver="{{ driver_code }}" data-lap="{{ lap_num }}" 
-                                              data-time="{{ lap.lap_time }}" style="cursor: pointer;">
-                                            {{ "%d:%06.3f" | format(minutes, seconds) }}
-                                        </span>
-                                        {% if lap.is_personal_best %}
-                                        <i class="fas fa-star text-warning ms-1" title="Personal Best"></i>
-                                        {% endif %}
+                                    {% if lap_data[driver_code] and lap_num <= lap_data[driver_code]|length %}
+                                    {% set lap = lap_data[driver_code][lap_num-1] %}
+                                    <span class="lap-time" data-driver="{{ driver_code }}" data-lap="{{ lap_num }}"
+                                          style="color: {{ drivers | selectattr('driver_code', 'equalto', driver_code) | map(attribute='team_color') | first }}">
+                                        {{ lap.lap_time }}
+                                    </span>
                                     {% else %}
-                                        <span class="text-muted">N/A</span>
+                                    -
                                     {% endif %}
                                 </td>
                                 {% endfor %}
@@ -149,208 +143,153 @@
         </div>
         {% endif %}
 
-        <!-- Enhanced Telemetry Analytics -->
-        <div class="row">
-            <div class="col-12">
+        <!-- Weather and Performance Data -->
+        <div class="row mb-4">
+            <div class="col-md-6">
                 <div class="card bg-dark border-secondary">
-                    <div class="card-header bg-gradient">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h4 class="mb-0">
-                                <i class="fas fa-chart-line me-2"></i>
-                                Advanced Telemetry Analytics
-                            </h4>
-                            <div class="telemetry-controls">
-                                <button class="btn btn-outline-danger btn-sm" id="compareDriversBtn" onclick="toggleDriverComparison()">
-                                    <i class="fas fa-layer-group me-1"></i>
-                                    Compare Mode
-                                </button>
-                                <button class="btn btn-outline-success btn-sm" id="enlargeViewBtn" onclick="toggleEnlargedView()">
-                                    <i class="fas fa-expand me-1"></i>
-                                    Enlarge View
-                                </button>
-                                <div class="dropdown d-inline">
-                                    <button class="btn btn-outline-info btn-sm dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown">
-                                        <i class="fas fa-download me-1"></i>
-                                        Export
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-dark">
-                                        <li><a class="dropdown-item" href="#" onclick="exportData('json')">
-                                            <i class="fas fa-file-code me-2"></i>Export as JSON
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="exportData('csv')">
-                                            <i class="fas fa-file-csv me-2"></i>Export as CSV
-                                        </a></li>
-                                    </ul>
-                                </div>
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-cloud-sun me-2"></i>
+                            Weather Conditions
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="weatherData">
+                            <div class="text-center text-muted py-3">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Loading weather data...
                             </div>
                         </div>
                     </div>
-                    <div class="card-body p-4">
-                        <div id="telemetryMessage" class="text-center text-muted py-5">
-                            <div class="mb-4">
-                                <i class="fas fa-rocket fa-4x text-danger mb-3"></i>
-                                <h3 class="text-light">Ready for Analysis</h3>
-                                <p class="lead">Click on any lap time to unlock detailed telemetry insights</p>
-                                <div class="mt-4">
-                                    <span class="badge bg-danger me-2">Speed Analysis</span>
-                                    <span class="badge bg-info me-2">Throttle & Brake</span>
-                                    <span class="badge bg-warning me-2">Gear Selection</span>
-                                    <span class="badge bg-success">Track Position</span>
-                                </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-gas-pump me-2"></i>
+                            Fuel Analysis
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="fuelData">
+                            <div class="text-center text-muted py-3">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Loading fuel data...
                             </div>
                         </div>
-                        
-                        <div id="telemetryCharts" style="display: none;">
-                            <!-- Lap Information Header -->
-                            <div class="row mb-4">
-                                <div class="col-12">
-                                    <div class="telemetry-header p-3 rounded">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-8">
-                                                <h4 id="currentLapInfo" class="text-danger mb-1"></h4>
-                                                <p id="currentLapDetails" class="text-muted mb-0"></p>
-                                            </div>
-                                            <div class="col-md-4 text-end">
-                                                <div class="lap-stats">
-                                                    <div class="stat-item">
-                                                        <span class="stat-label">Max Speed</span>
-                                                        <span id="maxSpeed" class="stat-value">--</span>
-                                                    </div>
-                                                    <div class="stat-item">
-                                                        <span class="stat-label">Avg Speed</span>
-                                                        <span id="avgSpeed" class="stat-value">--</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Enhanced Charts Grid -->
-                            <div class="row">
-                                <div class="col-12 mb-4">
-                                    <div class="chart-container" data-chart="speed">
-                                        <div class="chart-header">
-                                            <div class="chart-title">Speed Profile</div>
-                                            <div class="chart-subtitle">Track distance vs speed analysis</div>
-                                            <button class="btn btn-sm btn-outline-light chart-expand-btn" onclick="enlargeChart('speedChart')">
-                                                <i class="fas fa-expand"></i>
-                                            </button>
-                                        </div>
-                                        <canvas id="speedChart"></canvas>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-6 mb-4">
-                                    <div class="chart-container" data-chart="throttle">
-                                        <div class="chart-header">
-                                            <div class="chart-title">Throttle & Brake</div>
-                                            <div class="chart-subtitle">Pedal input analysis</div>
-                                            <button class="btn btn-sm btn-outline-light chart-expand-btn" onclick="enlargeChart('throttleBrakeChart')">
-                                                <i class="fas fa-expand"></i>
-                                            </button>
-                                        </div>
-                                        <canvas id="throttleBrakeChart"></canvas>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-lg-6 mb-4">
-                                    <div class="chart-container" data-chart="gear">
-                                        <div class="chart-header">
-                                            <div class="chart-title">Gear Selection</div>
-                                            <div class="chart-subtitle">Transmission strategy</div>
-                                            <button class="btn btn-sm btn-outline-light chart-expand-btn" onclick="enlargeChart('gearChart')">
-                                                <i class="fas fa-expand"></i>
-                                            </button>
-                                        </div>
-                                        <canvas id="gearChart"></canvas>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-12 mb-4">
-                                    <div class="chart-container" data-chart="track">
-                                        <div class="chart-header">
-                                            <div class="chart-title">Track Visualization</div>
-                                            <div class="chart-subtitle">Circuit layout with speed mapping</div>
-                                            <button class="btn btn-sm btn-outline-light chart-expand-btn" onclick="enlargeChart('trackMapChart')">
-                                                <i class="fas fa-expand"></i>
-                                            </button>
-                                        </div>
-                                        <canvas id="trackMapChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Performance Insights -->
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="performance-insights p-4 rounded">
-                                        <h5 class="text-danger mb-3">
-                                            <i class="fas fa-brain me-2"></i>
-                                            AI Performance Insights
-                                            <button class="btn btn-sm btn-outline-danger ms-2" onclick="refreshInsights()">
-                                                <i class="fas fa-sync"></i> Refresh
-                                            </button>
-                                        </h5>
-                                        <div id="insightsContent">
-                                            <div class="row" id="aiInsightsRow">
-                                                <div class="col-12">
-                                                    <div class="text-center py-3">
-                                                        <div class="spinner-border text-danger" role="status">
-                                                            <span class="visually-hidden">Loading insights...</span>
-                                                        </div>
-                                                        <p class="mt-2 text-muted">Generating AI-powered performance analysis...</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Weather and Fuel Data -->
-                            <div class="row mt-4">
-                                <div class="col-lg-6">
-                                    <div class="card bg-dark border-secondary">
-                                        <div class="card-header">
-                                            <h5 class="mb-0">
-                                                <i class="fas fa-cloud-sun me-2 text-primary"></i>
-                                                Weather Conditions
-                                            </h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <div id="weatherData">
-                                                <div class="text-center py-3">
-                                                    <div class="spinner-border text-primary" role="status">
-                                                        <span class="visually-hidden">Loading weather data...</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6">
-                                    <div class="card bg-dark border-secondary">
-                                        <div class="card-header">
-                                            <h5 class="mb-0">
-                                                <i class="fas fa-gas-pump me-2 text-warning"></i>
-                                                Fuel Analysis
-                                            </h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <div id="fuelData">
-                                                <div class="text-center py-3">
-                                                    <div class="spinner-border text-warning" role="status">
-                                                        <span class="visually-hidden">Loading fuel data...</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Performance Insights -->
+        <div class="card bg-dark border-secondary mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-brain me-2"></i>
+                    AI Performance Insights
+                </h5>
+                <button class="btn btn-sm btn-outline-danger" onclick="refreshInsights()">
+                    <i class="fas fa-sync me-1"></i>
+                    Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="performanceInsights">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                        <p>Generating AI-powered performance insights...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export and Compare Tools -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-download me-2"></i>
+                            Export Data
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="dropdown">
+                            <button class="btn btn-danger dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-file-export me-2"></i>
+                                Export Analysis
+                            </button>
+                            <ul class="dropdown-menu w-100">
+                                <li><a class="dropdown-item" href="#" onclick="exportData('json')">
+                                    <i class="fas fa-file-code me-2"></i>Export as JSON
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportData('csv')">
+                                    <i class="fas fa-file-csv me-2"></i>Export as CSV
+                                </a></li>
+                            </ul>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-balance-scale me-2"></i>
+                            Compare Drivers
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#comparisonModal">
+                            <i class="fas fa-chart-line me-2"></i>
+                            View Comparison
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Telemetry Section -->
+        <div class="card bg-dark border-secondary">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Telemetry Data
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="telemetryMessage" class="text-center text-muted py-5">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <p>Click on any lap time above to view detailed telemetry data</p>
+                </div>
+                <div id="telemetryCharts" style="display: none;">
+                    <canvas id="telemetryChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comparison Modal -->
+<div class="modal fade" id="comparisonModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-balance-scale me-2"></i>
+                    Driver Comparison
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="comparisonContent">
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-info-circle fa-3x mb-3"></i>
+                        <p>Select two drivers and click on their lap times to compare telemetry data</p>
                     </div>
                 </div>
             </div>
@@ -360,20 +299,26 @@
 
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script>
+// Initialize page when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    // Get elements
     const sessionTypeSelect = document.getElementById('sessionTypeSelect');
     const updateButton = document.getElementById('updateAnalysis');
     const lapTimes = document.querySelectorAll('.lap-time');
     
     // Session type change handler
-    sessionTypeSelect.addEventListener('change', function() {
-        updateAnalysisView();
-    });
+    if (sessionTypeSelect) {
+        sessionTypeSelect.addEventListener('change', function() {
+            updateAnalysisView();
+        });
+    }
     
     // Update analysis button handler
-    updateButton.addEventListener('click', function() {
-        updateAnalysisView();
-    });
+    if (updateButton) {
+        updateButton.addEventListener('click', function() {
+            updateAnalysisView();
+        });
+    }
     
     // Lap time click handlers
     lapTimes.forEach(lapTime => {
@@ -384,51 +329,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    function updateAnalysisView() {
-        const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
-            .map(cb => cb.value);
-        const sessionType = sessionTypeSelect.value;
-        
-        if (selectedDrivers.length === 0) {
-            alert('Please select at least one driver');
-            return;
-        }
-        
-        const params = new URLSearchParams({
-            year: {{ session.year }},
-            round: {{ session.round_number }},
-            session: sessionType
-        });
-        
-        selectedDrivers.forEach(driver => {
-            params.append('drivers', driver);
-        });
-        
-        window.location.href = `{{ url_for('analysis') }}?${params.toString()}`;
-    }
-    
-    function loadTelemetryData(driver, lap) {
-        const url = `/api/telemetry/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}/${driver}/${lap}`;
-        
-        document.getElementById('telemetryMessage').style.display = 'none';
-        document.getElementById('telemetryCharts').style.display = 'block';
-        
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    renderTelemetryCharts(data.data, driver, lap);
-                } else {
-                    console.error('Error loading telemetry:', data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
+    // Load initial data
+    loadWeatherData();
+    setTimeout(() => {
+        loadFuelData();
+        refreshInsights();
+    }, 1000);
 });
 
-// Driver selection functions
 function toggleDriverSelection(driverCode) {
     const checkbox = document.getElementById(`driver_${driverCode}`);
     const gridItem = checkbox.closest('.driver-grid-item');
@@ -440,234 +348,55 @@ function toggleDriverSelection(driverCode) {
     } else {
         gridItem.classList.remove('selected');
     }
-    
-    updateDriverCount();
 }
 
-function updateDriverCount() {
-    const selectedCount = document.querySelectorAll('.driver-checkbox:checked').length;
-    const compareBtn = document.getElementById('compareDriversBtn');
-    
-    if (selectedCount === 2) {
-        compareBtn.classList.remove('btn-outline-danger');
-        compareBtn.classList.add('btn-danger');
-        compareBtn.innerHTML = '<i class="fas fa-layer-group me-1"></i> Compare Ready';
-    } else {
-        compareBtn.classList.remove('btn-danger');
-        compareBtn.classList.add('btn-outline-danger');
-        compareBtn.innerHTML = '<i class="fas fa-layer-group me-1"></i> Compare Mode';
-    }
-}
-
-// Enhanced functionality
-function exportData(format) {
+function updateAnalysisView() {
     const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
         .map(cb => cb.value);
+    const sessionType = document.getElementById('sessionTypeSelect').value;
     
     if (selectedDrivers.length === 0) {
-        alert('Please select at least one driver to export data');
+        alert('Please select at least one driver');
         return;
     }
     
-    const url = `/api/export/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?format=${format}&` + 
-                selectedDrivers.map(d => `drivers=${d}`).join('&');
+    const params = new URLSearchParams({
+        year: {{ session.year }},
+        round: {{ session.round_number }},
+        session: sessionType
+    });
     
-    window.open(url, '_blank');
+    selectedDrivers.forEach(driver => {
+        params.append('drivers', driver);
+    });
+    
+    window.location.href = `{{ url_for('analysis') }}?${params.toString()}`;
 }
 
-function toggleDriverComparison() {
-    const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
-        .map(cb => cb.value);
+function loadTelemetryData(driver, lap) {
+    const url = `/api/telemetry/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}/${driver}/${lap}`;
     
-    if (selectedDrivers.length < 2) {
-        alert('Please select at least 2 drivers for comparison');
-        return;
-    }
-    
-    const url = `/api/compare/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?type=performance&` + 
-                selectedDrivers.map(d => `drivers=${d}`).join('&');
+    document.getElementById('telemetryMessage').style.display = 'none';
+    document.getElementById('telemetryCharts').style.display = 'block';
     
     fetch(url)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showComparisonModal(data.data);
+                renderTelemetryCharts(data.data, driver, lap);
             } else {
-                alert('Error loading comparison data: ' + data.error);
+                console.error('Error loading telemetry:', data.error);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Failed to load comparison data');
         });
-}
-
-function showComparisonModal(comparisonData) {
-    // Create and show comparison modal
-    const modalHtml = `
-        <div class="modal fade" id="comparisonModal" tabindex="-1">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content bg-dark">
-                    <div class="modal-header border-secondary">
-                        <h5 class="modal-title text-danger">
-                            <i class="fas fa-layer-group me-2"></i>Driver Comparison
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            ${comparisonData.drivers.map(driver => `
-                                <div class="col-md-6">
-                                    <div class="card bg-secondary h-100">
-                                        <div class="card-header">
-                                            <h6 class="mb-0">${driver}</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            ${comparisonData.metrics[driver] ? Object.entries(comparisonData.metrics[driver]).map(([key, value]) => `
-                                                <div class="d-flex justify-content-between">
-                                                    <span>${key.replace('_', ' ').toUpperCase()}:</span>
-                                                    <strong>${typeof value === 'number' ? value.toFixed(3) : value}</strong>
-                                                </div>
-                                            `).join('') : '<p>No data available</p>'}
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Remove existing modal
-    const existingModal = document.getElementById('comparisonModal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-    
-    // Add new modal
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-    const modal = new bootstrap.Modal(document.getElementById('comparisonModal'));
-    modal.show();
-}
-
-function refreshInsights() {
-    const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
-        .map(cb => cb.value);
-    
-    if (selectedDrivers.length === 0) {
-        alert('Please select at least one driver for insights');
-        return;
-    }
-    
-    document.getElementById('aiInsightsRow').innerHTML = `
-        <div class="col-12">
-            <div class="text-center py-3">
-                <div class="spinner-border text-danger" role="status">
-                    <span class="visually-hidden">Generating insights...</span>
-                </div>
-                <p class="mt-2 text-muted">AI is analyzing performance data...</p>
-            </div>
-        </div>
-    `;
-    
-    const url = `/api/insights/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?` + 
-                selectedDrivers.map(d => `drivers=${d}`).join('&');
-    
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                displayAIInsights(data.data);
-            } else {
-                document.getElementById('aiInsightsRow').innerHTML = `
-                    <div class="col-12">
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            ${data.error || 'Failed to generate insights'}
-                        </div>
-                    </div>
-                `;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            document.getElementById('aiInsightsRow').innerHTML = `
-                <div class="col-12">
-                    <div class="alert alert-danger">
-                        <i class="fas fa-times me-2"></i>
-                        Failed to load insights
-                    </div>
-                </div>
-            `;
-        });
-}
-
-function displayAIInsights(insightsData) {
-    const insights = insightsData.ai_insights || insightsData.fallback_insights;
-    
-    let insightsHtml = '';
-    
-    if (insights.performance_analysis) {
-        insightsHtml += `
-            <div class="col-12 mb-3">
-                <h6 class="text-info"><i class="fas fa-chart-line me-2"></i>Performance Analysis</h6>
-                <div class="row">
-                    ${Object.entries(insights.performance_analysis).map(([driver, analysis]) => `
-                        <div class="col-md-6">
-                            <div class="alert alert-info">
-                                <strong>${driver}:</strong> ${analysis}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-    }
-    
-    if (insights.strategic_insights) {
-        insightsHtml += `
-            <div class="col-12 mb-3">
-                <h6 class="text-warning"><i class="fas fa-chess me-2"></i>Strategic Insights</h6>
-                <ul class="list-group list-group-flush">
-                    ${insights.strategic_insights.map(insight => `
-                        <li class="list-group-item bg-transparent border-0 text-light">
-                            <i class="fas fa-arrow-right me-2 text-warning"></i>${insight}
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-        `;
-    }
-    
-    if (insights.key_findings) {
-        insightsHtml += `
-            <div class="col-12">
-                <h6 class="text-success"><i class="fas fa-key me-2"></i>Key Findings</h6>
-                <ul class="list-group list-group-flush">
-                    ${insights.key_findings.map(finding => `
-                        <li class="list-group-item bg-transparent border-0 text-light">
-                            <i class="fas fa-check me-2 text-success"></i>${finding}
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-        `;
-    }
-    
-    document.getElementById('aiInsightsRow').innerHTML = insightsHtml || `
-        <div class="col-12">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>
-                No specific insights available for the selected drivers.
-            </div>
-        </div>
-    `;
 }
 
 function loadWeatherData() {
-    fetch(`/api/weather/{{ session.year }}/{{ session.round_number }}`)
+    const url = `/api/weather/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}`;
+    
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -682,57 +411,32 @@ function loadWeatherData() {
             }
         })
         .catch(error => {
-            console.error('Error loading weather:', error);
+            console.error('Error loading weather data:', error);
         });
 }
 
 function displayWeatherData(weather) {
     const weatherHtml = `
-        <div class="row">
-            <div class="col-6">
-                <div class="weather-item">
-                    <i class="fas fa-thermometer-half text-danger"></i>
-                    <div>
-                        <strong>Air Temp</strong>
-                        <span>${weather.air_temperature}°C</span>
-                    </div>
-                </div>
-                <div class="weather-item">
-                    <i class="fas fa-road text-warning"></i>
-                    <div>
-                        <strong>Track Temp</strong>
-                        <span>${weather.track_temperature}°C</span>
-                    </div>
-                </div>
-                <div class="weather-item">
-                    <i class="fas fa-tint text-info"></i>
-                    <div>
-                        <strong>Humidity</strong>
-                        <span>${weather.humidity}%</span>
-                    </div>
+        <div class="weather-grid">
+            <div class="weather-item">
+                <i class="fas fa-thermometer-half text-danger"></i>
+                <div>
+                    <strong>Temperature</strong>
+                    <span>${weather.air_temperature}°C</span>
                 </div>
             </div>
-            <div class="col-6">
-                <div class="weather-item">
-                    <i class="fas fa-wind text-primary"></i>
-                    <div>
-                        <strong>Wind</strong>
-                        <span>${weather.wind_speed} km/h ${weather.wind_direction}</span>
-                    </div>
+            <div class="weather-item">
+                <i class="fas fa-tint text-info"></i>
+                <div>
+                    <strong>Humidity</strong>
+                    <span>${weather.humidity}%</span>
                 </div>
-                <div class="weather-item">
-                    <i class="fas fa-eye text-success"></i>
-                    <div>
-                        <strong>Conditions</strong>
-                        <span>${weather.conditions}</span>
-                    </div>
-                </div>
-                <div class="weather-item">
-                    <i class="fas fa-compress-arrows-alt text-secondary"></i>
-                    <div>
-                        <strong>Pressure</strong>
-                        <span>${weather.pressure} hPa</span>
-                    </div>
+            </div>
+            <div class="weather-item">
+                <i class="fas fa-wind text-success"></i>
+                <div>
+                    <strong>Wind Speed</strong>
+                    <span>${weather.wind_speed} km/h</span>
                 </div>
             </div>
         </div>
@@ -805,162 +509,78 @@ function displayFuelData(fuelData) {
     document.getElementById('fuelData').innerHTML = fuelHtml;
 }
 
-// Load additional data on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadWeatherData();
-    setTimeout(() => {
-        loadFuelData();
-        refreshInsights();
-    }, 1000);
-});
-</script>
-{% endblock %}
-        compareBtn.classList.remove('btn-danger');
-        compareBtn.classList.add('btn-outline-danger');
-        compareBtn.innerHTML = '<i class="fas fa-layer-group me-1"></i> Compare Mode';
-    }
-}
-
-// Chart enlargement functions
-function enlargeChart(chartId) {
-    const originalChart = document.getElementById(chartId);
-    const modal = new bootstrap.Modal(document.getElementById('chartModal'));
-    const enlargedCanvas = document.getElementById('enlargedChart');
-    const modalTitle = document.getElementById('chartModalLabel');
+function refreshInsights() {
+    const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
+        .map(cb => cb.value);
     
-    // Update modal title
-    const chartContainer = originalChart.closest('.chart-container');
-    const chartTitle = chartContainer.querySelector('.chart-title').textContent;
-    modalTitle.innerHTML = `<i class="fas fa-expand me-2"></i> ${chartTitle} - Enlarged View`;
-    
-    // Clone chart configuration for enlarged view
-    if (window.chartManager && window.chartManager.charts[chartId]) {
-        const originalConfig = window.chartManager.charts[chartId].config;
-        
-        // Create enlarged chart with bigger dimensions
-        const enlargedChart = new Chart(enlargedCanvas, {
-            ...originalConfig,
-            options: {
-                ...originalConfig.options,
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    ...originalConfig.options.plugins,
-                    legend: {
-                        ...originalConfig.options.plugins.legend,
-                        labels: {
-                            ...originalConfig.options.plugins.legend.labels,
-                            font: {
-                                size: 16
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    ...originalConfig.options.scales,
-                    x: {
-                        ...originalConfig.options.scales.x,
-                        ticks: {
-                            ...originalConfig.options.scales.x.ticks,
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    y: {
-                        ...originalConfig.options.scales.y,
-                        ticks: {
-                            ...originalConfig.options.scales.y.ticks,
-                            font: {
-                                size: 14
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Store reference for cleanup
-        window.enlargedChartInstance = enlargedChart;
-    }
-    
-    modal.show();
-}
-
-function toggleDriverComparison() {
-    const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'));
-    
-    if (selectedDrivers.length !== 2) {
-        alert('Please select exactly 2 drivers for comparison');
+    if (selectedDrivers.length === 0) {
+        document.getElementById('performanceInsights').innerHTML = `
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Select drivers to generate AI performance insights
+            </div>
+        `;
         return;
     }
     
-    const modal = new bootstrap.Modal(document.getElementById('comparisonModal'));
-    modal.show();
-}
-
-function toggleEnlargedView() {
-    const telemetryCharts = document.getElementById('telemetryCharts');
-    const isEnlarged = telemetryCharts.classList.contains('enlarged-view');
+    document.getElementById('performanceInsights').innerHTML = `
+        <div class="text-center text-muted py-4">
+            <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+            <p>Generating AI-powered performance insights...</p>
+        </div>
+    `;
     
-    if (isEnlarged) {
-        telemetryCharts.classList.remove('enlarged-view');
-        document.getElementById('enlargeViewBtn').innerHTML = '<i class="fas fa-expand me-1"></i> Enlarge View';
-    } else {
-        telemetryCharts.classList.add('enlarged-view');
-        document.getElementById('enlargeViewBtn').innerHTML = '<i class="fas fa-compress me-1"></i> Normal View';
-    }
+    const url = `/api/insights/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?` + 
+                selectedDrivers.map(d => `drivers=${d}`).join('&');
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayInsights(data.data);
+            } else {
+                document.getElementById('performanceInsights').innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Unable to generate insights at this time
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading insights:', error);
+        });
 }
 
-// Cleanup enlarged chart when modal closes
-document.getElementById('chartModal').addEventListener('hidden.bs.modal', function() {
-    if (window.enlargedChartInstance) {
-        window.enlargedChartInstance.destroy();
-        window.enlargedChartInstance = null;
+function displayInsights(insights) {
+    const insightsHtml = `
+        <div class="insights-content">
+            <h6 class="text-danger mb-3">
+                <i class="fas fa-lightbulb me-2"></i>
+                Key Performance Insights
+            </h6>
+            <div class="insights-text">
+                ${insights.analysis.replace(/\n/g, '<br>')}
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('performanceInsights').innerHTML = insightsHtml;
+}
+
+function exportData(format) {
+    const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (selectedDrivers.length === 0) {
+        alert('Please select at least one driver to export data');
+        return;
     }
-});
+    
+    const url = `/api/export/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?format=${format}&` + 
+                selectedDrivers.map(d => `drivers=${d}`).join('&');
+    
+    window.open(url, '_blank');
+}
 </script>
 {% endblock %}
-
-<!-- Enlarged Chart Modal -->
-<div class="modal fade" id="chartModal" tabindex="-1" aria-labelledby="chartModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content bg-dark">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title text-danger" id="chartModalLabel">
-                    <i class="fas fa-chart-line me-2"></i>
-                    Enlarged View
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div class="enlarged-chart-container">
-                    <canvas id="enlargedChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Driver Comparison Modal -->
-<div class="modal fade" id="comparisonModal" tabindex="-1" aria-labelledby="comparisonModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content bg-dark">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title text-danger" id="comparisonModalLabel">
-                    <i class="fas fa-layer-group me-2"></i>
-                    Driver Comparison
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div id="comparisonContent">
-                    <div class="text-center text-muted py-5">
-                        <i class="fas fa-info-circle fa-3x mb-3"></i>
-                        <p>Select two drivers and click on their lap times to compare telemetry data</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
