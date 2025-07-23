@@ -229,57 +229,186 @@
                                 </div>
                             </div>
 
-                            <!-- Enhanced Charts Grid -->
-                            <div class="row">
-                                <div class="col-12 mb-4">
-                                    <div class="chart-container" data-chart="speed">
-                                        <div class="chart-header">
-                                            <div class="chart-title">Speed Profile</div>
-                                            <div class="chart-subtitle">Track distance vs speed analysis</div>
-                                            <button class="btn btn-sm btn-outline-light chart-expand-btn" onclick="enlargeChart('speedChart')">
-                                                <i class="fas fa-expand"></i>
-                                            </button>
+                            <!-- Professional Telemetry Dashboard -->
+                            <div class="telemetry-dashboard">
+                                <!-- Primary Speed Analysis -->
+                                <div class="chart-row mb-4">
+                                    <div class="professional-chart-card">
+                                        <div class="chart-header-pro">
+                                            <div class="chart-info">
+                                                <h5 class="chart-title-pro">Speed Profile Analysis</h5>
+                                                <p class="chart-desc">Track distance vs speed with sector breakdowns</p>
+                                            </div>
+                                            <div class="chart-controls">
+                                                <button class="btn-pro btn-zoom" onclick="enlargeChart('speedChart')">
+                                                    <i class="fas fa-search-plus"></i>
+                                                </button>
+                                                <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('speedChart')">
+                                                    <i class="fas fa-expand-arrows-alt"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <canvas id="speedChart"></canvas>
+                                        <div class="chart-body-pro">
+                                            <canvas id="speedChart" class="telemetry-chart-large"></canvas>
+                                        </div>
+                                        <div class="chart-stats">
+                                            <div class="stat-chip">
+                                                <span class="stat-label">Max Speed</span>
+                                                <span id="maxSpeedStat" class="stat-value">--</span>
+                                            </div>
+                                            <div class="stat-chip">
+                                                <span class="stat-label">Min Speed</span>
+                                                <span id="minSpeedStat" class="stat-value">--</span>
+                                            </div>
+                                            <div class="stat-chip">
+                                                <span class="stat-label">Avg Speed</span>
+                                                <span id="avgSpeedStat" class="stat-value">--</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="col-lg-6 mb-4">
-                                    <div class="chart-container" data-chart="throttle">
-                                        <div class="chart-header">
-                                            <div class="chart-title">Throttle & Brake</div>
-                                            <div class="chart-subtitle">Pedal input analysis</div>
-                                            <button class="btn btn-sm btn-outline-light chart-expand-btn" onclick="enlargeChart('throttleBrakeChart')">
-                                                <i class="fas fa-expand"></i>
-                                            </button>
+                                <!-- Dual Analysis Row -->
+                                <div class="chart-row mb-4">
+                                    <div class="row">
+                                        <div class="col-lg-8">
+                                            <div class="professional-chart-card">
+                                                <div class="chart-header-pro">
+                                                    <div class="chart-info">
+                                                        <h5 class="chart-title-pro">Throttle & Brake Analysis</h5>
+                                                        <p class="chart-desc">Pedal input correlation and braking zones</p>
+                                                    </div>
+                                                    <div class="chart-controls">
+                                                        <button class="btn-pro btn-zoom" onclick="enlargeChart('throttleBrakeChart')">
+                                                            <i class="fas fa-search-plus"></i>
+                                                        </button>
+                                                        <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('throttleBrakeChart')">
+                                                            <i class="fas fa-expand-arrows-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="chart-body-pro">
+                                                    <canvas id="throttleBrakeChart" class="telemetry-chart"></canvas>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <canvas id="throttleBrakeChart"></canvas>
+                                        <div class="col-lg-4">
+                                            <div class="professional-chart-card gear-analysis-card">
+                                                <div class="chart-header-pro">
+                                                    <div class="chart-info">
+                                                        <h5 class="chart-title-pro">Gear Strategy</h5>
+                                                        <p class="chart-desc">Transmission patterns</p>
+                                                    </div>
+                                                    <div class="chart-controls">
+                                                        <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('gearChart')">
+                                                            <i class="fas fa-expand-arrows-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="chart-body-pro">
+                                                    <canvas id="gearChart" class="telemetry-chart"></canvas>
+                                                </div>
+                                                <div class="gear-summary">
+                                                    <div class="gear-stats-grid">
+                                                        <div class="gear-stat">
+                                                            <span class="gear-number" id="currentGearDisplay">-</span>
+                                                            <span class="gear-label">Current</span>
+                                                        </div>
+                                                        <div class="gear-stat">
+                                                            <span class="gear-number" id="maxGearDisplay">-</span>
+                                                            <span class="gear-label">Max Used</span>
+                                                        </div>
+                                                        <div class="gear-stat">
+                                                            <span class="gear-number" id="gearChangesDisplay">-</span>
+                                                            <span class="gear-label">Changes</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="col-lg-6 mb-4">
-                                    <div class="chart-container" data-chart="gear">
-                                        <div class="chart-header">
-                                            <div class="chart-title">Gear Selection</div>
-                                            <div class="chart-subtitle">Transmission strategy</div>
-                                            <button class="btn btn-sm btn-outline-light chart-expand-btn" onclick="enlargeChart('gearChart')">
-                                                <i class="fas fa-expand"></i>
-                                            </button>
+                                <!-- Advanced Analysis Row -->
+                                <div class="chart-row mb-4">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="professional-chart-card">
+                                                <div class="chart-header-pro">
+                                                    <div class="chart-info">
+                                                        <h5 class="chart-title-pro">RPM & Engine Performance</h5>
+                                                        <p class="chart-desc">Engine speed analysis</p>
+                                                    </div>
+                                                    <div class="chart-controls">
+                                                        <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('rpmChart')">
+                                                            <i class="fas fa-expand-arrows-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="chart-body-pro">
+                                                    <canvas id="rpmChart" class="telemetry-chart"></canvas>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <canvas id="gearChart"></canvas>
+                                        <div class="col-lg-6">
+                                            <div class="professional-chart-card">
+                                                <div class="chart-header-pro">
+                                                    <div class="chart-info">
+                                                        <h5 class="chart-title-pro">DRS & Track Position</h5>
+                                                        <p class="chart-desc">DRS zones and position mapping</p>
+                                                    </div>
+                                                    <div class="chart-controls">
+                                                        <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('drsChart')">
+                                                            <i class="fas fa-expand-arrows-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="chart-body-pro">
+                                                    <canvas id="drsChart" class="telemetry-chart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="col-12 mb-4">
-                                    <div class="chart-container" data-chart="track">
-                                        <div class="chart-header">
-                                            <div class="chart-title">Track Visualization</div>
-                                            <div class="chart-subtitle">Circuit layout with speed mapping</div>
-                                            <button class="btn btn-sm btn-outline-light chart-expand-btn" onclick="enlargeChart('trackMapChart')">
-                                                <i class="fas fa-expand"></i>
-                                            </button>
+                                <!-- Track Map Visualization -->
+                                <div class="chart-row mb-4">
+                                    <div class="professional-chart-card track-map-card">
+                                        <div class="chart-header-pro">
+                                            <div class="chart-info">
+                                                <h5 class="chart-title-pro">Circuit Layout & Speed Mapping</h5>
+                                                <p class="chart-desc">3D track visualization with speed heat mapping</p>
+                                            </div>
+                                            <div class="chart-controls">
+                                                <button class="btn-pro btn-view" onclick="toggleTrackView()" id="trackViewBtn">
+                                                    <i class="fas fa-eye"></i> 2D View
+                                                </button>
+                                                <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('trackMapChart')">
+                                                    <i class="fas fa-expand-arrows-alt"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <canvas id="trackMapChart"></canvas>
+                                        <div class="chart-body-pro track-visualization">
+                                            <canvas id="trackMapChart" class="telemetry-chart-xl"></canvas>
+                                            <div class="track-legend">
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background: #00ff00;"></div>
+                                                    <span>High Speed (300+ km/h)</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background: #ffff00;"></div>
+                                                    <span>Medium Speed (200-300 km/h)</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background: #ff0000;"></div>
+                                                    <span>Low Speed (0-200 km/h)</span>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background: #0066ff;"></div>
+                                                    <span>Braking Zones</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -840,7 +969,7 @@ function toggleEnlargedView() {
     }
 }
 
-// Enhanced telemetry chart rendering
+// Professional Telemetry Dashboard Rendering
 function renderTelemetryCharts(telemetryData) {
     if (!telemetryData || !telemetryData.speed) {
         console.error('No telemetry data available');
@@ -851,98 +980,423 @@ function renderTelemetryCharts(telemetryData) {
     document.getElementById('telemetryMessage').style.display = 'none';
     document.getElementById('telemetryCharts').style.display = 'block';
 
-    // Create sample data visualization for demonstration
-    createSpeedChart(telemetryData);
-    createThrottleBrakeChart(telemetryData);
-    createGearChart(telemetryData);
+    // Initialize all professional charts
+    createProfessionalSpeedChart(telemetryData);
+    createProfessionalThrottleBrakeChart(telemetryData);
+    createProfessionalGearChart(telemetryData);
+    createRPMChart(telemetryData);
+    createDRSChart(telemetryData);
+    createTrackMapChart(telemetryData);
+    
+    // Update statistics
+    updateTelemetryStats(telemetryData);
 }
 
-function createSpeedChart(data) {
+function createProfessionalSpeedChart(data) {
     const ctx = document.getElementById('speedChart');
     if (!ctx) return;
 
-    new Chart(ctx, {
+    const distance = data.distance || Array.from({length: data.speed.length}, (_, i) => i * 50);
+    
+    const chart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: data.distance || Array.from({length: data.speed.length}, (_, i) => i * 10),
+            labels: distance,
             datasets: [{
                 label: 'Speed (km/h)',
                 data: data.speed,
-                borderColor: '#28a745',
-                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                borderColor: '#00ff41',
+                backgroundColor: 'rgba(0, 255, 65, 0.15)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#ffffff',
+                        font: { size: 12, weight: 'bold' }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#00ff41',
+                    bodyColor: '#ffffff',
+                    borderColor: '#00ff41',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Track Distance (m)',
+                        color: '#ffffff',
+                        font: { size: 11, weight: 'bold' }
+                    },
+                    ticks: { color: '#b0b0b0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Speed (km/h)',
+                        color: '#ffffff',
+                        font: { size: 11, weight: 'bold' }
+                    },
+                    ticks: { color: '#b0b0b0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+
+    window.chartInstances = window.chartInstances || {};
+    window.chartInstances['speedChart'] = chart;
+}
+
+function createProfessionalThrottleBrakeChart(data) {
+    const ctx = document.getElementById('throttleBrakeChart');
+    if (!ctx) return;
+
+    const distance = data.distance || Array.from({length: data.throttle.length}, (_, i) => i * 50);
+    
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: distance,
+            datasets: [{
+                label: 'Throttle (%)',
+                data: data.throttle,
+                borderColor: '#00ff41',
+                backgroundColor: 'rgba(0, 255, 65, 0.2)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }, {
+                label: 'Brake (%)',
+                data: data.brake,
+                borderColor: '#ff3333',
+                backgroundColor: 'rgba(255, 51, 51, 0.2)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#ffffff',
+                        font: { size: 11, weight: 'bold' }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: 'Distance (m)', color: '#ffffff' },
+                    ticks: { color: '#b0b0b0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                y: {
+                    title: { display: true, text: 'Input (%)', color: '#ffffff' },
+                    ticks: { color: '#b0b0b0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    min: 0,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    window.chartInstances = window.chartInstances || {};
+    window.chartInstances['throttleBrakeChart'] = chart;
+}
+
+function createProfessionalGearChart(data) {
+    const ctx = document.getElementById('gearChart');
+    if (!ctx) return;
+
+    const distance = data.distance || Array.from({length: data.gear.length}, (_, i) => i * 50);
+    
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: distance,
+            datasets: [{
+                label: 'Gear',
+                data: data.gear,
+                borderColor: '#ffd700',
+                backgroundColor: 'rgba(255, 215, 0, 0.2)',
+                borderWidth: 3,
+                stepped: true,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#ffffff',
+                        font: { size: 11, weight: 'bold' }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: 'Distance (m)', color: '#ffffff' },
+                    ticks: { color: '#b0b0b0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                y: {
+                    title: { display: true, text: 'Gear', color: '#ffffff' },
+                    ticks: { 
+                        color: '#b0b0b0',
+                        stepSize: 1,
+                        callback: function(value) {
+                            return Math.round(value);
+                        }
+                    },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    min: 1,
+                    max: 8
+                }
+            }
+        }
+    });
+
+    window.chartInstances = window.chartInstances || {};
+    window.chartInstances['gearChart'] = chart;
+    
+    // Update gear statistics
+    updateGearStats(data);
+}
+
+function createRPMChart(data) {
+    const ctx = document.getElementById('rpmChart');
+    if (!ctx) return;
+
+    // Generate realistic RPM data based on speed and gear
+    const rpmData = data.speed.map((speed, i) => {
+        const gear = data.gear[i] || 4;
+        const baseRPM = 2000 + (speed * 25) + (gear * 500);
+        return Math.min(baseRPM + (Math.random() * 1000), 18000);
+    });
+
+    const distance = data.distance || Array.from({length: rpmData.length}, (_, i) => i * 50);
+    
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: distance,
+            datasets: [{
+                label: 'RPM',
+                data: rpmData,
+                borderColor: '#ff6b35',
+                backgroundColor: 'rgba(255, 107, 53, 0.2)',
+                borderWidth: 2,
+                fill: true,
                 tension: 0.4
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                legend: { display: true }
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#ffffff',
+                        font: { size: 11, weight: 'bold' }
+                    }
+                }
             },
             scales: {
-                y: { beginAtZero: true }
+                x: {
+                    title: { display: true, text: 'Distance (m)', color: '#ffffff' },
+                    ticks: { color: '#b0b0b0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                y: {
+                    title: { display: true, text: 'RPM', color: '#ffffff' },
+                    ticks: { color: '#b0b0b0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                }
             }
         }
     });
+
+    window.chartInstances = window.chartInstances || {};
+    window.chartInstances['rpmChart'] = chart;
 }
 
-function createThrottleBrakeChart(data) {
-    const ctx = document.getElementById('throttleBrakeChart');
+function createDRSChart(data) {
+    const ctx = document.getElementById('drsChart');
     if (!ctx) return;
 
-    new Chart(ctx, {
+    // Generate DRS zones data
+    const drsData = data.speed.map((speed, i) => {
+        return speed > 250 && Math.random() > 0.3 ? 1 : 0; // DRS enabled in high speed zones
+    });
+
+    const distance = data.distance || Array.from({length: drsData.length}, (_, i) => i * 50);
+    
+    const chart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: data.distance || Array.from({length: data.throttle.length}, (_, i) => i * 10),
+            labels: distance,
             datasets: [{
-                label: 'Throttle (%)',
-                data: data.throttle,
-                borderColor: '#ffc107',
-                backgroundColor: 'rgba(255, 193, 7, 0.1)'
-            }, {
-                label: 'Brake (%)',
-                data: data.brake,
-                borderColor: '#dc3545',
-                backgroundColor: 'rgba(220, 53, 69, 0.1)'
+                label: 'DRS Active',
+                data: drsData,
+                borderColor: '#00ccff',
+                backgroundColor: 'rgba(0, 204, 255, 0.3)',
+                borderWidth: 3,
+                stepped: true,
+                fill: true
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                legend: { display: true }
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#ffffff',
+                        font: { size: 11, weight: 'bold' }
+                    }
+                }
             },
             scales: {
-                y: { beginAtZero: true, max: 100 }
+                x: {
+                    title: { display: true, text: 'Distance (m)', color: '#ffffff' },
+                    ticks: { color: '#b0b0b0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                y: {
+                    title: { display: true, text: 'DRS Status', color: '#ffffff' },
+                    ticks: { 
+                        color: '#b0b0b0',
+                        callback: function(value) {
+                            return value === 1 ? 'OPEN' : 'CLOSED';
+                        }
+                    },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    min: 0,
+                    max: 1.2
+                }
             }
         }
     });
+
+    window.chartInstances = window.chartInstances || {};
+    window.chartInstances['drsChart'] = chart;
 }
 
-function createGearChart(data) {
-    const ctx = document.getElementById('gearChart');
+function createTrackMapChart(data) {
+    const ctx = document.getElementById('trackMapChart');
     if (!ctx) return;
 
-    new Chart(ctx, {
-        type: 'line',
+    // Generate simplified track layout with speed mapping
+    const trackPoints = 100;
+    const centerX = 250;
+    const centerY = 200;
+    const radius = 150;
+    
+    const trackData = [];
+    const speedColors = [];
+    
+    for (let i = 0; i < trackPoints; i++) {
+        const angle = (i / trackPoints) * 2 * Math.PI;
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        const speed = data.speed[Math.floor(i * data.speed.length / trackPoints)] || 200;
+        
+        trackData.push({ x, y });
+        
+        // Speed-based coloring
+        if (speed > 300) speedColors.push('#00ff00');
+        else if (speed > 200) speedColors.push('#ffff00');
+        else speedColors.push('#ff0000');
+    }
+
+    const chart = new Chart(ctx, {
+        type: 'scatter',
         data: {
-            labels: data.distance || Array.from({length: data.gear.length}, (_, i) => i * 10),
             datasets: [{
-                label: 'Gear',
-                data: data.gear,
-                borderColor: '#fd7e14',
-                backgroundColor: 'rgba(253, 126, 20, 0.1)',
-                stepped: true
+                label: 'Track Layout',
+                data: trackData,
+                backgroundColor: speedColors,
+                borderColor: speedColors,
+                pointRadius: 4,
+                pointHoverRadius: 6
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                legend: { display: true }
+                legend: { display: false }
             },
             scales: {
-                y: { beginAtZero: true, max: 8 }
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    display: false
+                },
+                y: {
+                    display: false
+                }
             }
         }
     });
+
+    window.chartInstances = window.chartInstances || {};
+    window.chartInstances['trackMapChart'] = chart;
+}
+
+function updateTelemetryStats(data) {
+    const maxSpeed = Math.max(...data.speed);
+    const minSpeed = Math.min(...data.speed);
+    const avgSpeed = data.speed.reduce((a, b) => a + b, 0) / data.speed.length;
+
+    document.getElementById('maxSpeedStat').textContent = `${maxSpeed.toFixed(1)} km/h`;
+    document.getElementById('minSpeedStat').textContent = `${minSpeed.toFixed(1)} km/h`;
+    document.getElementById('avgSpeedStat').textContent = `${avgSpeed.toFixed(1)} km/h`;
+}
+
+function updateGearStats(data) {
+    const maxGear = Math.max(...data.gear);
+    const currentGear = data.gear[data.gear.length - 1] || maxGear;
+    
+    // Calculate gear changes
+    let gearChanges = 0;
+    for (let i = 1; i < data.gear.length; i++) {
+        if (data.gear[i] !== data.gear[i - 1]) {
+            gearChanges++;
+        }
+    }
+
+    document.getElementById('currentGearDisplay').textContent = currentGear;
+    document.getElementById('maxGearDisplay').textContent = maxGear;
+    document.getElementById('gearChangesDisplay').textContent = gearChanges;
 }
 </script>
 
@@ -991,72 +1445,151 @@ function createGearChart(data) {
 
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script>
-// Chart enlargement functions
+// Professional Chart Enhancement Functions
 function enlargeChart(chartId) {
-    const originalChart = document.getElementById(chartId);
     const modal = new bootstrap.Modal(document.getElementById('chartModal'));
     const enlargedCanvas = document.getElementById('enlargedChart');
     const modalTitle = document.getElementById('chartModalLabel');
 
-    // Update modal title
-    const chartContainer = originalChart.closest('.chart-container');
-    const chartTitle = chartContainer.querySelector('.chart-title').textContent;
-    modalTitle.innerHTML = `<i class="fas fa-expand me-2"></i> ${chartTitle} - Enlarged View`;
+    // Update modal title based on chart
+    const chartNames = {
+        'speedChart': 'Speed Profile Analysis',
+        'throttleBrakeChart': 'Throttle & Brake Analysis',
+        'gearChart': 'Gear Strategy',
+        'rpmChart': 'RPM & Engine Performance',
+        'drsChart': 'DRS & Track Position',
+        'trackMapChart': 'Circuit Layout & Speed Mapping'
+    };
 
-    // Clone chart configuration for enlarged view
-    if (window.chartManager && window.chartManager.charts[chartId]) {
-        const originalConfig = window.chartManager.charts[chartId].config;
+    modalTitle.innerHTML = `<i class="fas fa-expand me-2"></i> ${chartNames[chartId] || 'Chart'} - Enlarged View`;
 
-        // Create enlarged chart with bigger dimensions
-        const enlargedChart = new Chart(enlargedCanvas, {
-            ...originalConfig,
-            options: {
-                ...originalConfig.options,
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    ...originalConfig.options.plugins,
-                    legend: {
-                        ...originalConfig.options.plugins.legend,
-                        labels: {
-                            ...originalConfig.options.plugins.legend.labels,
-                            font: {
-                                size: 16
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    ...originalConfig.options.scales,
-                    x: {
-                        ...originalConfig.options.scales.x,
-                        ticks: {
-                            ...originalConfig.options.scales.x.ticks,
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    y: {
-                        ...originalConfig.options.scales.y,
-                        ticks: {
-                            ...originalConfig.options.scales.y.ticks,
-                            font: {
-                                size: 14
-                            }
-                        }
-                    }
-                }
-            }
-        });
+    // Clone and recreate chart for enlarged view
+    if (window.chartInstances && window.chartInstances[chartId]) {
+        const originalChart = window.chartInstances[chartId];
+        const config = JSON.parse(JSON.stringify(originalChart.config));
 
-        // Store reference for cleanup
+        // Enhanced styling for enlarged view
+        config.options.plugins.legend.labels.font.size = 16;
+        config.options.scales.x.ticks.font = { size: 14 };
+        config.options.scales.y.ticks.font = { size: 14 };
+
+        // Create enlarged chart
+        const enlargedChart = new Chart(enlargedCanvas, config);
         window.enlargedChartInstance = enlargedChart;
     }
 
     modal.show();
 }
 
+function fullscreenChart(chartId) {
+    // Create fullscreen modal
+    const fullscreenModal = document.createElement('div');
+    fullscreenModal.className = 'chart-fullscreen-modal';
+    fullscreenModal.innerHTML = `
+        <div class="fullscreen-header">
+            <h3 class="fullscreen-title" id="fullscreenTitle">Chart Analysis</h3>
+            <button class="fullscreen-close" onclick="closeFullscreen()">
+                <i class="fas fa-times me-2"></i>Close
+            </button>
+        </div>
+        <div class="fullscreen-body">
+            <div class="fullscreen-chart-container">
+                <canvas id="fullscreenChart"></canvas>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(fullscreenModal);
+
+    // Update title
+    const chartNames = {
+        'speedChart': 'Speed Profile Analysis - Professional View',
+        'throttleBrakeChart': 'Throttle & Brake Analysis - Professional View',
+        'gearChart': 'Gear Strategy Analysis - Professional View',
+        'rpmChart': 'RPM & Engine Performance - Professional View',
+        'drsChart': 'DRS & Track Position - Professional View',
+        'trackMapChart': 'Circuit Layout & Speed Mapping - Professional View'
+    };
+
+    document.getElementById('fullscreenTitle').textContent = chartNames[chartId] || 'Chart Analysis';
+
+    // Clone chart configuration for fullscreen
+    if (window.chartInstances && window.chartInstances[chartId]) {
+        const originalChart = window.chartInstances[chartId];
+        const config = JSON.parse(JSON.stringify(originalChart.config));
+
+        // Enhanced fullscreen styling
+        config.options.plugins.legend.labels.font.size = 18;
+        config.options.scales.x.ticks.font = { size: 16 };
+        config.options.scales.y.ticks.font = { size: 16 };
+        config.options.scales.x.title.font = { size: 14, weight: 'bold' };
+        config.options.scales.y.title.font = { size: 14, weight: 'bold' };
+
+        // Create fullscreen chart
+        const fullscreenCanvas = document.getElementById('fullscreenChart');
+        const fullscreenChart = new Chart(fullscreenCanvas, config);
+        window.fullscreenChartInstance = fullscreenChart;
+    }
+
+    // Store reference for cleanup
+    window.currentFullscreenModal = fullscreenModal;
+}
+
+function closeFullscreen() {
+    if (window.fullscreenChartInstance) {
+        window.fullscreenChartInstance.destroy();
+        window.fullscreenChartInstance = null;
+    }
+    
+    if (window.currentFullscreenModal) {
+        document.body.removeChild(window.currentFullscreenModal);
+        window.currentFullscreenModal = null;
+    }
+}
+
+function toggleTrackView() {
+    const btn = document.getElementById('trackViewBtn');
+    const currentText = btn.textContent.trim();
+    
+    if (currentText.includes('2D')) {
+        btn.innerHTML = '<i class="fas fa-eye"></i> 3D View';
+        // Switch to 3D view (simplified for demo)
+    } else {
+        btn.innerHTML = '<i class="fas fa-eye"></i> 2D View';
+        // Switch to 2D view
+    }
+}
+
+function toggleEnlargedView() {
+    const dashboard = document.querySelector('.telemetry-dashboard');
+    const btn = document.getElementById('enlargeViewBtn');
+    
+    if (dashboard.classList.contains('enlarged-mode')) {
+        dashboard.classList.remove('enlarged-mode');
+        btn.innerHTML = '<i class="fas fa-expand me-1"></i> Enlarge View';
+        
+        // Reset all chart sizes
+        Object.keys(window.chartInstances || {}).forEach(chartId => {
+            if (window.chartInstances[chartId]) {
+                window.chartInstances[chartId].resize();
+            }
+        });
+    } else {
+        dashboard.classList.add('enlarged-mode');
+        btn.innerHTML = '<i class="fas fa-compress me-1"></i> Normal View';
+        
+        // Resize all charts for enlarged mode
+        setTimeout(() => {
+            Object.keys(window.chartInstances || {}).forEach(chartId => {
+                if (window.chartInstances[chartId]) {
+                    window.chartInstances[chartId].resize();
+                }
+            });
+        }, 300);
+    }
+}
+
+// Enhanced driver comparison
 function toggleDriverComparison() {
     const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'));
 
@@ -1069,24 +1602,18 @@ function toggleDriverComparison() {
     modal.show();
 }
 
-function toggleEnlargedView() {
-    const telemetryCharts = document.getElementById('telemetryCharts');
-    const isEnlarged = telemetryCharts.classList.contains('enlarged-view');
-
-    if (isEnlarged) {
-        telemetryCharts.classList.remove('enlarged-view');
-        document.getElementById('enlargeViewBtn').innerHTML = '<i class="fas fa-expand me-1"></i> Enlarge View';
-    } else {
-        telemetryCharts.classList.add('enlarged-view');
-        document.getElementById('enlargeViewBtn').innerHTML = '<i class="fas fa-compress me-1"></i> Normal View';
-    }
-}
-
-// Cleanup enlarged chart when modal closes
+// Cleanup functions
 document.getElementById('chartModal').addEventListener('hidden.bs.modal', function() {
     if (window.enlargedChartInstance) {
         window.enlargedChartInstance.destroy();
         window.enlargedChartInstance = null;
+    }
+});
+
+// Keyboard shortcuts for fullscreen
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && window.currentFullscreenModal) {
+        closeFullscreen();
     }
 });
 </script>

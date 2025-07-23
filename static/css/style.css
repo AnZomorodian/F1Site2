@@ -1124,46 +1124,405 @@ footer {
     transform: scale(1.1);
 }
 
-/* Enlarged View Styles */
-.enlarged-view {
+/* Professional Telemetry Dashboard */
+.telemetry-dashboard {
+    padding: 0;
+}
+
+.chart-row {
+    margin-bottom: 2rem;
+}
+
+.professional-chart-card {
+    background: linear-gradient(145deg, rgba(21, 21, 30, 0.95), rgba(30, 30, 40, 0.9));
+    border: 1px solid rgba(237, 17, 49, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.professional-chart-card:hover {
+    border-color: rgba(237, 17, 49, 0.6);
+    box-shadow: 0 12px 48px rgba(237, 17, 49, 0.2);
+    transform: translateY(-2px);
+}
+
+.chart-header-pro {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: linear-gradient(90deg, rgba(237, 17, 49, 0.1), rgba(237, 17, 49, 0.05));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chart-info h5.chart-title-pro {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.chart-info .chart-desc {
+    color: #b0b0b0;
+    font-size: 0.85rem;
+    margin: 4px 0 0 0;
+    font-style: italic;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-pro {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+}
+
+.btn-pro:hover {
+    background: linear-gradient(45deg, #ed1131, #ff4757);
+    border-color: #ed1131;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(237, 17, 49, 0.4);
+}
+
+.btn-pro i {
+    font-size: 0.9rem;
+}
+
+.chart-body-pro {
+    padding: 24px;
+    position: relative;
+    min-height: 350px;
+}
+
+.telemetry-chart {
+    width: 100% !important;
+    height: 300px !important;
+}
+
+.telemetry-chart-large {
+    width: 100% !important;
+    height: 400px !important;
+}
+
+.telemetry-chart-xl {
+    width: 100% !important;
+    height: 500px !important;
+}
+
+.chart-stats {
+    display: flex;
+    gap: 16px;
+    padding: 16px 24px;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-chip {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-chip .stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.stat-chip .stat-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ed1131;
+    font-family: 'Courier New', monospace;
+}
+
+/* Gear Analysis Card */
+.gear-analysis-card {
+    min-height: 400px;
+}
+
+.gear-summary {
+    padding: 20px 24px;
+    background: rgba(0, 0, 0, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gear-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+.gear-stat {
+    text-align: center;
+    padding: 16px 8px;
+    background: rgba(255, 215, 0, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.gear-stat .gear-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #ffd700;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.gear-stat .gear-label {
+    display: block;
+    font-size: 0.7rem;
+    color: #ccc;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+}
+
+/* Track Map Card */
+.track-map-card {
+    min-height: 600px;
+}
+
+.track-visualization {
+    position: relative;
+    padding: 24px;
+}
+
+.track-legend {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    color: #fff;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    margin-right: 10px;
+}
+
+/* Fullscreen Modal Enhancement */
+.chart-fullscreen-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 9999;
+    background: linear-gradient(145deg, rgba(0, 0, 0, 0.95), rgba(21, 21, 30, 0.98));
+    z-index: 10000;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+    flex-direction: column;
+    backdrop-filter: blur(20px);
 }
 
-.enlarged-view .telemetry-card {
-    width: 90vw;
-    height: 90vh;
-    max-width: none;
-    max-height: none;
+.fullscreen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: linear-gradient(90deg, rgba(237, 17, 49, 0.2), rgba(237, 17, 49, 0.1));
+    border-bottom: 2px solid rgba(237, 17, 49, 0.5);
+}
+
+.fullscreen-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #ffffff;
     margin: 0;
 }
 
-.enlarged-view .chart-container {
-    height: calc(100% - 80px);
+.fullscreen-close {
+    background: rgba(220, 53, 69, 0.2);
+    border: 1px solid #dc3545;
+    color: #ffffff;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.enlarged-view .telemetry-title {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
+.fullscreen-close:hover {
+    background: #dc3545;
+    transform: scale(1.05);
 }
 
-/* Modal Enhancements */
-.enlarged-chart-container {
-    height: 70vh;
+.fullscreen-body {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-chart-container {
+    width: 100%;
+    height: 100%;
+    max-width: 95vw;
+    max-height: calc(100vh - 140px);
     position: relative;
+}
+
+.fullscreen-chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 12px;
+    box-shadow: 0 0 50px rgba(237, 17, 49, 0.3);
+}
+
+/* Enhanced Modal Styles */
+.enlarged-chart-container {
+    height: 80vh;
+    position: relative;
+    padding: 20px;
 }
 
 .enlarged-chart-container canvas {
     max-height: 100%;
     width: 100% !important;
     height: 100% !important;
+    border-radius: 8px;
 }
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .chart-body-pro {
+        padding: 16px;
+        min-height: 300px;
+    }
+    
+    .telemetry-chart {
+        height: 250px !important;
+    }
+    
+    .telemetry-chart-large {
+        height: 320px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .chart-header-pro {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+    }
+    
+    .chart-stats {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .gear-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .track-legend {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-top: 20px;
+    }
+}
+
+/* Enlarged Mode Enhancement */
+.telemetry-dashboard.enlarged-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.98);
+    z-index: 9999;
+    overflow-y: auto;
+    padding: 20px;
+    backdrop-filter: blur(20px);
+}
+
+.telemetry-dashboard.enlarged-mode .professional-chart-card {
+    border-color: rgba(237, 17, 49, 0.8);
+    box-shadow: 0 16px 64px rgba(237, 17, 49, 0.3);
+}
+
+.telemetry-dashboard.enlarged-mode .chart-body-pro {
+    min-height: 450px;
+}
+
+.telemetry-dashboard.enlarged-mode .telemetry-chart {
+    height: 400px !important;
+}
+
+.telemetry-dashboard.enlarged-mode .telemetry-chart-large {
+    height: 500px !important;
+}
+
+.telemetry-dashboard.enlarged-mode .telemetry-chart-xl {
+    height: 600px !important;
+}
+
+/* Animation for transitions */
+.telemetry-dashboard {
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.professional-chart-card {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Enhanced hover effects */
+.btn-pro:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.professional-chart-card:hover .btn-pro {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.05);
+}
+
+/* Chart loading animation */
+@keyframes chartLoad {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.professional-chart-card {
+    animation: chartLoad 0.6s ease-out;
+}
+
+/* Staggered animation for multiple charts */
+.chart-row:nth-child(1) .professional-chart-card { animation-delay: 0.1s; }
+.chart-row:nth-child(2) .professional-chart-card { animation-delay: 0.2s; }
+.chart-row:nth-child(3) .professional-chart-card { animation-delay: 0.3s; }
+.chart-row:nth-child(4) .professional-chart-card { animation-delay: 0.4s; }
