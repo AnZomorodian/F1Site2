@@ -18,6 +18,7 @@ F-lap is a revolutionary Flask-based web application that provides professional-
 ✓ **Footer Flag Icon Removed** - Simplified footer design by removing flag icon from brand section
 ✓ **Blog Content Improved** - Updated featured article to focus on 2025 AI-powered telemetry revolution
 ✓ **Analysis Page Enhanced** - Added comprehensive session statistics overview with Total Laps, Fastest Lap, Top Speed, and Track Temperature metrics
+✓ **Session Selection Fixed** - Reverted to simple static session selection with all F1 sessions (FP1, FP2, FP3, SQ, S, Q, R) always available
 ✓ **Template Issues Fixed** - Resolved Jinja2 template syntax errors in analysis.html causing page load failures
 ✓ **Environment Setup** - All dependencies installed and configured for Replit compatibility  
 ✓ **Security Compliance** - Application follows robust security practices with proper client/server separation

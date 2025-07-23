@@ -65,68 +65,45 @@ class F1DataService:
             return []
     
     def get_session_info(self, year: int, round_number: int) -> Dict[str, SessionInfo]:
-        """Get session information for a specific round with enhanced detection"""
+        """Get session information for a specific round"""
         try:
             event = fastf1.get_event(year, round_number)
             sessions = {}
             
-            # Define all possible session types in order
-            session_types = [
-                ('FP1', 'Practice 1'),
-                ('FP2', 'Practice 2'), 
-                ('FP3', 'Practice 3'),
-                ('SQ', 'Sprint Qualifying'),
-                ('S', 'Sprint'),
-                ('Q', 'Qualifying'),
-                ('R', 'Race')
-            ]
+            # Define all possible session types - return all of them
+            session_types = {
+                'FP1': 'Practice 1',
+                'FP2': 'Practice 2', 
+                'FP3': 'Practice 3',
+                'Q': 'Qualifying',
+                'SQ': 'Sprint Qualifying',
+                'S': 'Sprint',
+                'R': 'Race'
+            }
             
-            # Check which sessions actually exist for this event
-            for session_key, session_name in session_types:
-                try:
-                    # Try to get the session and check if it has data
-                    session = fastf1.get_session(year, round_number, session_key)
-                    session.load(telemetry=False, weather=False, messages=False)
-                    
-                    # If session loads successfully and has results, include it
-                    if hasattr(session, 'results') and len(session.results) > 0:
-                        sessions[session_key] = SessionInfo(
-                            year=year,
-                            round_number=round_number,
-                            session_name=session_name,
-                            session_type=session_key,
-                            grand_prix_name=event['EventName'],
-                            circuit_name=event['Location']
-                        )
-                        self.logger.info(f"Found valid session: {session_key} for {event['EventName']}")
-                except Exception as session_error:
-                    self.logger.debug(f"Session {session_key} not available: {session_error}")
-                    continue
-            
-            # If no sessions found, return at least Race as fallback
-            if not sessions:
-                sessions['R'] = SessionInfo(
+            # Create SessionInfo for all session types
+            for session_key, session_name in session_types.items():
+                sessions[session_key] = SessionInfo(
                     year=year,
                     round_number=round_number,
-                    session_name='Race',
-                    session_type='R',
-                    grand_prix_name=event.get('EventName', 'Unknown GP'),
-                    circuit_name=event.get('Location', 'Unknown Circuit')
+                    session_name=session_name,
+                    session_type=session_key,
+                    grand_prix_name=event['EventName'],
+                    circuit_name=event['Location']
                 )
             
             return sessions
         except Exception as e:
             self.logger.error(f"Error getting session info for {year} round {round_number}: {e}")
-            # Return default race session as fallback
+            # Return basic sessions as fallback
             return {
-                'R': SessionInfo(
-                    year=year,
-                    round_number=round_number,
-                    session_name='Race',
-                    session_type='R',
-                    grand_prix_name='Unknown GP',
-                    circuit_name='Unknown Circuit'
-                )
+                'FP1': SessionInfo(year, round_number, 'Practice 1', 'FP1', 'Unknown GP', 'Unknown Circuit'),
+                'FP2': SessionInfo(year, round_number, 'Practice 2', 'FP2', 'Unknown GP', 'Unknown Circuit'),
+                'FP3': SessionInfo(year, round_number, 'Practice 3', 'FP3', 'Unknown GP', 'Unknown Circuit'),
+                'Q': SessionInfo(year, round_number, 'Qualifying', 'Q', 'Unknown GP', 'Unknown Circuit'),
+                'SQ': SessionInfo(year, round_number, 'Sprint Qualifying', 'SQ', 'Unknown GP', 'Unknown Circuit'),
+                'S': SessionInfo(year, round_number, 'Sprint', 'S', 'Unknown GP', 'Unknown Circuit'),
+                'R': SessionInfo(year, round_number, 'Race', 'R', 'Unknown GP', 'Unknown Circuit')
             }
     
     def get_drivers_in_session(self, year: int, round_number: int, session_type: str) -> List[DriverInfo]:
