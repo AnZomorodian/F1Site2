@@ -1,4 +1,4 @@
-# F-lap - Advanced F1 Telemetry Analysis Platform
+# Lapla - Advanced F1 Telemetry Analysis Platform
 
 ## Overview
 
@@ -15,7 +15,7 @@ F-lap is a revolutionary Flask-based web application that provides professional-
 ✓ **Improved Telemetry API** - New API endpoints for lap data and telemetry with fallback to sample data
 ✓ **Interactive Telemetry Charts** - Click on lap times to view detailed telemetry analysis with speed, throttle, brake, and gear data
 
-✓ **Rebranded to F-lap** - New modern identity for the platform
+✓ **Rebranded to Lapla** - New modern identity for the platform with enhanced branding
 ✓ **Enhanced Telemetry Visualization** - Larger, more readable charts with professional styling
 ✓ **Advanced Driver Selection** - Improved UI with team colors, driver details, and hover effects
 ✓ **Performance Insights Engine** - AI-powered analysis providing speed, braking, and efficiency insights
@@ -81,7 +81,35 @@ F-lap is a revolutionary Flask-based web application that provides professional-
 ✓ **Improved Button States** - Update Analysis button shows loading state with spinner
 ✓ **Keyboard Shortcuts** - ESC key support for closing enlarged view and fullscreen modes
 
-### Performance & Data Improvements (July 23, 2025 - Final Update)
+### Complete Rebranding & Final Enhancements (July 23, 2025 - Latest Update)
+✓ **Complete Rebranding to Lapla** - Successfully rebranded entire platform from "F-lap" to "Lapla":
+  - Homepage title and branding updated across all templates
+  - About page completely rewritten with enhanced feature descriptions
+  - Footer updated with modern "Lapla" branding and tagline
+  - Social media icons updated: LinkedIn replaced with Telegram, Twitter removed
+  - Contact information updated to reflect Lapla branding
+✓ **Sprint Session Support** - Added complete Sprint weekend functionality:
+  - Sprint Qualifying (SQ) sessions now available in session selector
+  - Sprint (S) race sessions fully supported
+  - Enhanced session type handling for all F1 weekend formats
+✓ **Enhanced Chart Functionality** - Completed zoom and fullscreen features:
+  - Chart enlargement with fixed positioning and modal backdrop
+  - Fullscreen API integration for immersive data viewing
+  - ESC key support for closing enlarged views and modals
+  - Improved circuit visualization with click-to-enlarge functionality
+✓ **Performance Metrics Dashboard** - New comprehensive metrics section:
+  - Lap Record tracking with fastest lap display
+  - Sector Best combined timing analysis
+  - Consistency metrics with lap variance calculations
+  - Top Speed monitoring with maximum recorded values
+  - Professional metric cards with gradient styling and hover effects
+✓ **Enhanced About Page** - Completely redesigned content:
+  - Added Sprint Support, AI-Powered Insights, and Interactive Charts features
+  - Updated team information to "DeepInk Team" branding
+  - Enhanced feature descriptions with technical depth
+  - Updated contact information and social links
+
+### Performance & Data Improvements (July 23, 2025)
 ✓ **F1 Data Loading Optimization** - Enhanced performance with intelligent caching:
   - Enabled FastF1 cache with /tmp/fastf1_cache for persistent data storage
   - Selective data loading (telemetry=False, weather=False, messages=False) for faster initial loads

@@ -303,16 +303,8 @@
                                         </div>
                                         <div class="chart-stats">
                                             <div class="stat-chip">
-                                                <span class="stat-label">Max Speed</span>
-                                                <span id="maxSpeedStat" class="stat-value">--</span>
-                                            </div>
-                                            <div class="stat-chip">
                                                 <span class="stat-label">Min Speed</span>
                                                 <span id="minSpeedStat" class="stat-value">--</span>
-                                            </div>
-                                            <div class="stat-chip">
-                                                <span class="stat-label">Avg Speed</span>
-                                                <span id="avgSpeedStat" class="stat-value">--</span>
                                             </div>
                                         </div>
                                     </div>
@@ -521,6 +513,64 @@
                                                 <div class="text-center py-3">
                                                     <div class="spinner-border text-warning" role="status">
                                                         <span class="visually-hidden">Loading fuel data...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Performance Metrics Data -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="card bg-dark border-secondary">
+                                        <div class="card-header">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-tachometer-alt me-2 text-info"></i>
+                                                Performance Metrics
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row" id="performanceMetricsData">
+                                                <div class="col-lg-3 col-md-6 mb-3">
+                                                    <div class="metric-card">
+                                                        <div class="metric-header">
+                                                            <i class="fas fa-flag-checkered text-success"></i>
+                                                            <span>Lap Record</span>
+                                                        </div>
+                                                        <div class="metric-value" id="lapRecord">--</div>
+                                                        <div class="metric-label">Fastest Lap</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6 mb-3">
+                                                    <div class="metric-card">
+                                                        <div class="metric-header">
+                                                            <i class="fas fa-stopwatch text-warning"></i>
+                                                            <span>Sector Best</span>
+                                                        </div>
+                                                        <div class="metric-value" id="sectorBest">--</div>
+                                                        <div class="metric-label">Best Combined</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6 mb-3">
+                                                    <div class="metric-card">
+                                                        <div class="metric-header">
+                                                            <i class="fas fa-chart-line text-primary"></i>
+                                                            <span>Consistency</span>
+                                                        </div>
+                                                        <div class="metric-value" id="consistency">--</div>
+                                                        <div class="metric-label">Lap Variance</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6 mb-3">
+                                                    <div class="metric-card">
+                                                        <div class="metric-header">
+                                                            <i class="fas fa-bolt text-danger"></i>
+                                                            <span>Top Speed</span>
+                                                        </div>
+                                                        <div class="metric-value" id="topSpeed">--</div>
+                                                        <div class="metric-label">Max Recorded</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1890,6 +1940,141 @@ window.selectLapForTelemetry = function(driverCode, lapNumber, element) {
     }
     loadCircuitLayout(driverCode, lapNumber);
 };
+
+// Chart zoom and fullscreen functionality
+function enlargeChart(chartId) {
+    const chartContainer = document.getElementById(chartId).closest('.professional-chart-card');
+    if (chartContainer.classList.contains('enlarged')) {
+        chartContainer.classList.remove('enlarged');
+    } else {
+        // Remove enlarged class from other charts
+        document.querySelectorAll('.professional-chart-card.enlarged').forEach(card => {
+            card.classList.remove('enlarged');
+        });
+        chartContainer.classList.add('enlarged');
+    }
+}
+
+function fullscreenChart(chartId) {
+    const chartContainer = document.getElementById(chartId).closest('.professional-chart-card');
+    if (!document.fullscreenElement) {
+        chartContainer.requestFullscreen().catch(err => {
+            console.log(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+// Add ESC key functionality for closing enlarged views
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        // Close enlarged charts
+        document.querySelectorAll('.professional-chart-card.enlarged').forEach(card => {
+            card.classList.remove('enlarged');
+        });
+        
+        // Close modals
+        const openModals = document.querySelectorAll('.modal.show');
+        openModals.forEach(modal => {
+            const modalInstance = bootstrap.Modal.getInstance(modal);
+            if (modalInstance) modalInstance.hide();
+        });
+        
+        // Exit fullscreen
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        }
+    }
+});
+
+// Fix circuit layout visualization
+function loadCircuitLayout(driverCode, lapNumber) {
+    const container = document.getElementById('trackMapContainer');
+    container.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-danger mb-3" role="status">
+                <span class="visually-hidden">Generating real circuit data...</span>
+            </div>
+            <p class="text-muted">Loading authentic F1 circuit layout with speed mapping...</p>
+        </div>
+    `;
+    
+    const sessionData = {
+        year: {{ session.year if session else 2025 }},
+        round: {{ session.round_number if session else 1 }},
+        session: '{{ session.session_type if session else "R" }}'
+    };
+    
+    fetch(`/api/circuit-layout/${sessionData.year}/${sessionData.round}/${sessionData.session}/${driverCode}/${lapNumber}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data.image) {
+                container.innerHTML = `
+                    <div class="circuit-display">
+                        <img src="${data.data.image}" 
+                             alt="Circuit Layout with Speed Mapping" 
+                             class="img-fluid circuit-image"
+                             onclick="enlargeImage(this)"
+                             style="cursor: pointer; max-width: 100%; height: auto; background: #000; border-radius: 8px; padding: 10px;">
+                        <div class="circuit-info mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Click image to enlarge • Real circuit data with speed visualization
+                            </small>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="text-center text-warning">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <p>Circuit data not available for this session</p>
+                        <small class="text-muted">Select a different lap or session with available data</small>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Circuit layout error:', error);
+            container.innerHTML = `
+                <div class="text-center text-danger">
+                    <i class="fas fa-times-circle fa-3x mb-3"></i>
+                    <p>Unable to load circuit data</p>
+                    <small class="text-muted">Please try again or select a different session</small>
+                </div>
+            `;
+        });
+}
+
+// Image enlargement function
+function enlargeImage(img) {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.innerHTML = `
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-dark">
+                <div class="modal-header border-danger">
+                    <h5 class="modal-title text-danger">
+                        <i class="fas fa-map-marked-alt me-2"></i>Circuit Layout - Full View
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="${img.src}" class="img-fluid" style="max-height: 80vh;">
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    
+    modal.addEventListener('hidden.bs.modal', () => {
+        modal.remove();
+    });
+}
 </script>
 
 <!-- Sector Details Modal -->

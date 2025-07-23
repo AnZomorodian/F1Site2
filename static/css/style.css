@@ -1222,6 +1222,112 @@ footer {
     height: 500px !important;
 }
 
+/* Chart enlargement and fullscreen styles */
+.professional-chart-card.enlarged {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    height: 80vh;
+    z-index: 1050;
+    box-shadow: 0 0 50px rgba(237, 17, 49, 0.5);
+    border: 2px solid var(--f1-red);
+}
+
+.professional-chart-card.enlarged .chart-body-pro {
+    height: calc(100% - 120px);
+}
+
+.professional-chart-card.enlarged canvas {
+    height: 100% !important;
+}
+
+.professional-chart-card:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    border-radius: 0;
+}
+
+.professional-chart-card:fullscreen .chart-body-pro {
+    height: calc(100% - 100px);
+}
+
+/* Circuit display improvements */
+.circuit-display {
+    position: relative;
+}
+
+.circuit-image {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.circuit-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 30px rgba(237, 17, 49, 0.3);
+}
+
+.circuit-info {
+    text-align: center;
+}
+
+/* Modal backdrop for enlarged charts */
+.professional-chart-card.enlarged::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: -1;
+}
+
+/* Performance Metrics Styles */
+.metric-card {
+    background: linear-gradient(145deg, rgba(21, 21, 30, 0.95), rgba(30, 30, 40, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.metric-card:hover {
+    border-color: rgba(237, 17, 49, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(237, 17, 49, 0.2);
+}
+
+.metric-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    color: #b0b0b0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 8px;
+}
+
+.metric-label {
+    font-size: 0.85rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .chart-stats {
     display: flex;
     gap: 16px;

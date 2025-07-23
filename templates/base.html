@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}F-lap - F1 Telemetry Analysis{% endblock %}</title>
+    <title>{% block title %}Lapla - F1 Telemetry Analysis{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -25,7 +25,7 @@
         <div class="container-fluid">
             <a class="navbar-brand fw-bold text-danger" href="{{ url_for('index') }}">
                 <i class="fas fa-flag-checkered me-2"></i>
-                F-lap
+                Lapla
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -77,11 +77,11 @@
                     </div>
                 </div>
                 
-                <!-- Center: F-lap Logo -->
+                <!-- Center: Lapla Logo -->
                 <div class="col-md-4 text-center">
                     <div class="footer-logo">
                         <i class="fas fa-flag-checkered text-danger me-2" style="font-size: 1.5rem;"></i>
-                        <span class="footer-brand-name">F-lap</span>
+                        <span class="footer-brand-name">Lapla</span>
                         <div class="footer-tagline">Advanced F1 Telemetry Analysis</div>
                     </div>
                 </div>
@@ -89,14 +89,11 @@
                 <!-- Right: Social Media -->
                 <div class="col-md-4 text-end">
                     <div class="social-links">
-                        <a href="#" class="social-link" title="Twitter" aria-label="Twitter">
-                            <i class="fab fa-twitter"></i>
-                        </a>
                         <a href="#" class="social-link" title="GitHub" aria-label="GitHub">
                             <i class="fab fa-github"></i>
                         </a>
-                        <a href="#" class="social-link" title="LinkedIn" aria-label="LinkedIn">
-                            <i class="fab fa-linkedin"></i>
+                        <a href="#" class="social-link" title="Telegram" aria-label="Telegram">
+                            <i class="fab fa-telegram-plane"></i>
                         </a>
                         <a href="#" class="social-link" title="Discord" aria-label="Discord">
                             <i class="fab fa-discord"></i>
@@ -113,7 +110,7 @@
                 <div class="col-12 text-center">
                     <hr class="border-secondary">
                     <small class="text-muted">
-                        © {{ current_year or 2025 }} F-lap Platform • Built with FastF1 • All F1 data from official sources
+                        © {{ current_year or 2025 }} Lapla Platform • Built with FastF1 • All F1 data from official sources
                     </small>
                 </div>
             </div>

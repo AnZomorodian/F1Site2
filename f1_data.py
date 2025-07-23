@@ -63,6 +63,8 @@ class F1DataService:
                 'FP2': 'Practice 2', 
                 'FP3': 'Practice 3',
                 'Q': 'Qualifying',
+                'SQ': 'Sprint Qualifying',
+                'S': 'Sprint',
                 'R': 'Race'
             }
             
