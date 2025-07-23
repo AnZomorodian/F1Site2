@@ -1123,3 +1123,47 @@ footer {
     opacity: 1;
     transform: scale(1.1);
 }
+
+/* Enlarged View Styles */
+.enlarged-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.enlarged-view .telemetry-card {
+    width: 90vw;
+    height: 90vh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+}
+
+.enlarged-view .chart-container {
+    height: calc(100% - 80px);
+}
+
+.enlarged-view .telemetry-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+/* Modal Enhancements */
+.enlarged-chart-container {
+    height: 70vh;
+    position: relative;
+}
+
+.enlarged-chart-container canvas {
+    max-height: 100%;
+    width: 100% !important;
+    height: 100% !important;
+}
