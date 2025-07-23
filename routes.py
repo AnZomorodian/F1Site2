@@ -357,3 +357,24 @@ def api_fuel_data(year, round_number, session_type):
     except Exception as e:
         logger.error(f"Error getting fuel data: {e}")
         return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/performance-metrics/<int:year>/<int:round_number>/<session_type>')
+def api_performance_metrics(year, round_number, session_type):
+    """API endpoint for session performance metrics"""
+    try:
+        driver_codes = request.args.getlist('drivers')
+        metrics_data = f1_service.get_performance_metrics(year, round_number, session_type, driver_codes)
+        return jsonify({
+            'success': True,
+            'data': metrics_data,
+            'meta': {
+                'year': year,
+                'round': round_number,
+                'session': session_type,
+                'drivers': driver_codes,
+                'timestamp': f1_service.get_current_timestamp()
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error getting performance metrics: {e}")
+        return jsonify({'success': False, 'error': str(e)})

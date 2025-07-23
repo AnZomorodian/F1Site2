@@ -2075,6 +2075,104 @@ function enlargeImage(img) {
         modal.remove();
     });
 }
+
+// Load Performance Metrics
+function loadPerformanceMetrics() {
+    const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    const sessionData = {
+        year: {{ session.year }},
+        round: {{ session.round_number }},
+        session: '{{ session.session_type }}'
+    };
+    
+    const params = new URLSearchParams();
+    selectedDrivers.forEach(driver => params.append('drivers', driver));
+    
+    const url = `/api/performance-metrics/${sessionData.year}/${sessionData.round}/${sessionData.session}?${params.toString()}`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updatePerformanceMetrics(data.data);
+            } else {
+                console.error('Error loading performance metrics:', data.error);
+                showMetricsError('Performance metrics unavailable for this session');
+            }
+        })
+        .catch(error => {
+            console.error('Performance metrics fetch error:', error);
+            showMetricsError('Unable to load performance metrics');
+        });
+}
+
+// Update Performance Metrics Display
+function updatePerformanceMetrics(metrics) {
+    // Update Lap Record
+    if (metrics.lap_record) {
+        document.getElementById('lapRecord').textContent = metrics.lap_record.time;
+        document.getElementById('lapRecord').title = `Session fastest: ${metrics.lap_record.driver}`;
+        animateMetricUpdate('lapRecord');
+    }
+    
+    // Update Sector Best
+    if (metrics.sector_best) {
+        document.getElementById('sectorBest').textContent = metrics.sector_best.time;
+        document.getElementById('sectorBest').title = 'Theoretical best from fastest sectors';
+        animateMetricUpdate('sectorBest');
+    }
+    
+    // Update Consistency
+    if (metrics.consistency) {
+        document.getElementById('consistency').textContent = metrics.consistency.variance;
+        document.getElementById('consistency').title = 'Standard deviation of lap times';
+        animateMetricUpdate('consistency');
+    }
+    
+    // Update Top Speed
+    if (metrics.top_speed) {
+        document.getElementById('topSpeed').textContent = metrics.top_speed.speed;
+        document.getElementById('topSpeed').title = `Top speed: ${metrics.top_speed.driver}`;
+        animateMetricUpdate('topSpeed');
+    }
+}
+
+// Animate metric updates
+function animateMetricUpdate(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.style.transform = 'scale(1.1)';
+        element.style.color = '#ed1131';
+        setTimeout(() => {
+            element.style.transform = 'scale(1)';
+            element.style.color = '#ffffff';
+        }, 300);
+    }
+}
+
+// Show metrics error
+function showMetricsError(message) {
+    document.getElementById('performanceMetricsData').innerHTML = `
+        <div class="col-12 text-center">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${message}
+            </div>
+        </div>
+    `;
+}
+
+// Enhanced page load function with performance metrics
+document.addEventListener('DOMContentLoaded', function() {
+    {% if session and selected_drivers %}
+    loadWeatherData();
+    loadFuelData();
+    loadAIInsights();
+    loadPerformanceMetrics();
+    {% endif %}
+});
 </script>
 
 <!-- Sector Details Modal -->
