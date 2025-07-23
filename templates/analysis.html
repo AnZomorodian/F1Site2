@@ -453,29 +453,7 @@
                                 </div>
                             </div>
 
-                            <!-- Performance Insights -->
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="performance-insights p-4 rounded">
-                                        <h5 class="text-danger mb-3">
-                                            <i class="fas fa-brain me-2"></i>
-                                            Advanced Performance Insights
-                                        </h5>
-                                        <div id="insightsContent">
-                                            <div class="row" id="aiInsightsRow">
-                                                <div class="col-12">
-                                                    <div class="text-center py-3">
-                                                        <div class="spinner-border text-danger" role="status">
-                                                            <span class="visually-hidden">Loading insights...</span>
-                                                        </div>
-                                                        <p class="mt-2 text-muted">Generating AI-powered performance analysis...</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <!-- Enhanced Weather and Fuel Data -->
                             <div class="row mt-4">
@@ -647,6 +625,34 @@
                                                     </div>
                                                     <div class="metric-trend">
                                                         <i class="fas fa-trophy trend-icon"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div class="performance-metric-card track-position">
+                                                    <div class="metric-icon">
+                                                        <i class="fas fa-map-marker-alt"></i>
+                                                    </div>
+                                                    <div class="metric-content">
+                                                        <div class="metric-value" id="trackPosition">P--</div>
+                                                        <div class="metric-label">Grid Position</div>
+                                                        <div class="metric-sub" id="positionChange">--- change</div>
+                                                    </div>
+                                                    <div class="metric-trend">
+                                                        <i class="fas fa-chart-line trend-icon"></i>
+                                                    </div>
+                                                </div>
+
+                                                <div class="performance-metric-card gap-analysis">
+                                                    <div class="metric-icon">
+                                                        <i class="fas fa-clock"></i>
+                                                    </div>
+                                                    <div class="metric-content">
+                                                        <div class="metric-value" id="gapToLeader">+-.---s</div>
+                                                        <div class="metric-label">Gap to Leader</div>
+                                                        <div class="metric-sub" id="gapTrend">--- trend</div>
+                                                    </div>
+                                                    <div class="metric-trend">
+                                                        <i class="fas fa-stopwatch trend-icon"></i>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1458,6 +1464,7 @@ function renderTelemetryCharts(telemetryData) {
     createRPMChart(telemetryData);
     createDRSChart(telemetryData);
     createTrackMapChart(telemetryData);
+    createCombinedChart(telemetryData);
     
     // Update statistics
     updateTelemetryStats(telemetryData);
@@ -1868,6 +1875,134 @@ function updateGearStats(data) {
     document.getElementById('currentGearDisplay').textContent = currentGear;
     document.getElementById('maxGearDisplay').textContent = maxGear;
     document.getElementById('gearChangesDisplay').textContent = gearChanges;
+}
+
+function createCombinedChart(telemetryData) {
+    const ctx = document.getElementById('combinedChart');
+    if (!ctx) return;
+
+    const distance = telemetryData.distance || Array.from({length: telemetryData.speed.length}, (_, i) => i * 50);
+    
+    // Store chart instance
+    if (!window.chartInstances) window.chartInstances = {};
+    if (window.chartInstances.combinedChart) {
+        window.chartInstances.combinedChart.destroy();
+    }
+    
+    window.chartInstances.combinedChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: distance,
+            datasets: [{
+                label: 'Speed (km/h)',
+                data: telemetryData.speed,
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: false,
+                yAxisID: 'y',
+                pointRadius: 0,
+                pointHoverRadius: 4
+            }, {
+                label: 'Throttle (%)',
+                data: telemetryData.throttle,
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: false,
+                yAxisID: 'y1',
+                pointRadius: 0,
+                pointHoverRadius: 4
+            }, {
+                label: 'Brake (%)',
+                data: telemetryData.brake.map(b => b ? 100 : 0),
+                borderColor: '#dc3545',
+                backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                borderWidth: 2,
+                tension: 0,
+                fill: false,
+                yAxisID: 'y1',
+                pointRadius: 0,
+                pointHoverRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#ffffff',
+                        font: { size: 12, weight: 'bold' }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#28a745',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Track Distance (m)',
+                        color: '#ffffff',
+                        font: { size: 11, weight: 'bold' }
+                    },
+                    ticks: { color: '#b0b0b0' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Speed (km/h)',
+                        color: '#28a745',
+                        font: { size: 11, weight: 'bold' }
+                    },
+                    ticks: { color: '#28a745' },
+                    grid: { color: 'rgba(40, 167, 69, 0.2)' }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Throttle/Brake (%)',
+                        color: '#007bff',
+                        font: { size: 11, weight: 'bold' }
+                    },
+                    ticks: { color: '#007bff' },
+                    grid: { drawOnChartArea: false }
+                }
+            }
+        }
+    });
+}
+
+function refreshChart(chartId) {
+    // Refresh chart functionality
+    if (window.chartInstances && window.chartInstances[chartId]) {
+        window.chartInstances[chartId].update();
+    }
+}
+
+function maximizeChart(chartId) {
+    // Use existing fullscreen functionality
+    fullscreenChart(chartId);
 }
 </script>
 
@@ -2486,29 +2621,67 @@ function updatePerformanceMetrics(metrics) {
     // Update Lap Record
     if (metrics.lap_record) {
         document.getElementById('lapRecord').textContent = metrics.lap_record.time;
-        document.getElementById('lapRecord').title = `Session fastest: ${metrics.lap_record.driver}`;
+        const driverElement = document.getElementById('lapRecordDriver');
+        if (driverElement) driverElement.textContent = metrics.lap_record.driver;
         animateMetricUpdate('lapRecord');
     }
     
     // Update Sector Best
     if (metrics.sector_best) {
         document.getElementById('sectorBest').textContent = metrics.sector_best.time;
-        document.getElementById('sectorBest').title = 'Theoretical best from fastest sectors';
+        const breakdownElement = document.getElementById('sectorBreakdown');
+        if (breakdownElement && metrics.sector_breakdown) {
+            breakdownElement.textContent = `S1: ${metrics.sector_breakdown.s1} S2: ${metrics.sector_breakdown.s2} S3: ${metrics.sector_breakdown.s3}`;
+        }
         animateMetricUpdate('sectorBest');
     }
     
     // Update Consistency
     if (metrics.consistency) {
-        document.getElementById('consistency').textContent = metrics.consistency.variance;
-        document.getElementById('consistency').title = 'Standard deviation of lap times';
+        document.getElementById('consistency').textContent = `${(100 - metrics.consistency.raw_variance * 10).toFixed(1)}%`;
+        const detailsElement = document.getElementById('consistencyDetails');
+        if (detailsElement) detailsElement.textContent = `Std Dev: ${metrics.consistency.variance}`;
         animateMetricUpdate('consistency');
     }
     
     // Update Top Speed
     if (metrics.top_speed) {
         document.getElementById('topSpeed').textContent = metrics.top_speed.speed;
-        document.getElementById('topSpeed').title = `Top speed: ${metrics.top_speed.driver}`;
+        const driverElement = document.getElementById('topSpeedDriver');
+        if (driverElement) driverElement.textContent = metrics.top_speed.driver;
         animateMetricUpdate('topSpeed');
+    }
+    
+    // Update Tyre Efficiency
+    if (metrics.tyre_efficiency) {
+        document.getElementById('tyrePerformance').textContent = metrics.tyre_efficiency.efficiency;
+        const compoundElement = document.getElementById('tyreCompound');
+        if (compoundElement) compoundElement.textContent = `Compound: ${metrics.tyre_efficiency.compound}`;
+        animateMetricUpdate('tyrePerformance');
+    }
+    
+    // Update Strongest Sector
+    if (metrics.strongest_sector) {
+        document.getElementById('sectorStrength').textContent = metrics.strongest_sector.sector;
+        const advantageElement = document.getElementById('sectorAdvantage');
+        if (advantageElement) advantageElement.textContent = metrics.strongest_sector.advantage + ' advantage';
+        animateMetricUpdate('sectorStrength');
+    }
+    
+    // Update Track Position
+    if (metrics.track_position) {
+        document.getElementById('trackPosition').textContent = metrics.track_position.position;
+        const changeElement = document.getElementById('positionChange');
+        if (changeElement) changeElement.textContent = metrics.track_position.change;
+        animateMetricUpdate('trackPosition');
+    }
+    
+    // Update Gap Analysis
+    if (metrics.gap_analysis) {
+        document.getElementById('gapToLeader').textContent = metrics.gap_analysis.gap;
+        const trendElement = document.getElementById('gapTrend');
+        if (trendElement) trendElement.textContent = metrics.gap_analysis.trend + ' trend';
+        animateMetricUpdate('gapToLeader');
     }
 }
 
