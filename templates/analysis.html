@@ -118,7 +118,7 @@
                                 <th>Lap</th>
                                 {% for driver_code in selected_drivers %}
                                 <th style="color: {{ drivers | selectattr('driver_code', 'equalto', driver_code) | map(attribute='team_color') | first }}">
-                                    {{ driver_code }}
+                                    {{ driver_code }} <span id="selected-{{ driver_code }}" class="lap-star" style="display: none;">⭐</span>
                                 </th>
                                 {% endfor %}
                             </tr>
@@ -261,9 +261,69 @@
                     <p><small>Selected laps will show a ⭐ star indicator</small></p>
                 </div>
                 <div id="telemetryCharts" style="display: none;">
-                    <div id="selectedLapInfo" class="mb-3 p-3 bg-secondary rounded">
-                        <h6 class="text-warning">📊 Selected Lap Analysis</h6>
-                        <div id="lapInfoContent">No lap selected</div>
+                    <!-- Enhanced Selected Lap Analysis -->
+                    <div id="selectedLapInfo" class="mb-4 p-4 bg-secondary rounded">
+                        <h6 class="text-warning mb-3">📊 Selected Lap Analysis</h6>
+                        <div class="row" id="selectedLapsContainer">
+                            <div class="col-md-6">
+                                <div id="driver1LapInfo" class="driver-lap-info" style="display: none;">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="driver-color-indicator me-2" id="driver1Color"></span>
+                                        <strong id="driver1Name">Driver 1</strong>
+                                        <span class="lap-indicator ms-2" id="driver1LapNumber">Lap #</span>
+                                    </div>
+                                    <div class="lap-stats-grid">
+                                        <div class="stat-box">
+                                            <span class="stat-label">Lap Time</span>
+                                            <span class="stat-value" id="driver1LapTime">--</span>
+                                        </div>
+                                        <div class="stat-box">
+                                            <span class="stat-label">Max Speed</span>
+                                            <span class="stat-value" id="driver1MaxSpeed">--</span>
+                                        </div>
+                                        <div class="stat-box">
+                                            <span class="stat-label">Max Brake</span>
+                                            <span class="stat-value" id="driver1MaxBrake">--</span>
+                                        </div>
+                                        <div class="stat-box">
+                                            <span class="stat-label">Max Gear</span>
+                                            <span class="stat-value" id="driver1MaxGear">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="driver2LapInfo" class="driver-lap-info" style="display: none;">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="driver-color-indicator me-2" id="driver2Color"></span>
+                                        <strong id="driver2Name">Driver 2</strong>
+                                        <span class="lap-indicator ms-2" id="driver2LapNumber">Lap #</span>
+                                    </div>
+                                    <div class="lap-stats-grid">
+                                        <div class="stat-box">
+                                            <span class="stat-label">Lap Time</span>
+                                            <span class="stat-value" id="driver2LapTime">--</span>
+                                        </div>
+                                        <div class="stat-box">
+                                            <span class="stat-label">Max Speed</span>
+                                            <span class="stat-value" id="driver2MaxSpeed">--</span>
+                                        </div>
+                                        <div class="stat-box">
+                                            <span class="stat-label">Max Brake</span>
+                                            <span class="stat-value" id="driver2MaxBrake">--</span>
+                                        </div>
+                                        <div class="stat-box">
+                                            <span class="stat-label">Max Gear</span>
+                                            <span class="stat-value" id="driver2MaxGear">--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 text-center" id="noLapsSelected">
+                                <i class="fas fa-star fa-2x text-warning mb-3"></i>
+                                <p class="text-muted">Click on lap times to select them for comparison</p>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Three Different Telemetry Styles -->
@@ -271,7 +331,12 @@
                         <!-- Speed Data - Chart Style -->
                         <div class="col-lg-4 mb-4">
                             <div class="telemetry-card speed-card">
-                                <h6 class="telemetry-title">🏎️ Speed Profile</h6>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="telemetry-title mb-0">🏎️ Speed Profile</h6>
+                                    <button class="btn btn-sm btn-outline-success chart-window-btn" onclick="openChartWindow('speed')">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
                                 <div class="chart-container">
                                     <canvas id="speedChart" class="telemetry-chart"></canvas>
                                 </div>
@@ -291,7 +356,12 @@
                         <!-- Brake Data - Gauge Style -->
                         <div class="col-lg-4 mb-4">
                             <div class="telemetry-card brake-card">
-                                <h6 class="telemetry-title">🛑 Brake Analysis</h6>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="telemetry-title mb-0">🛑 Brake Analysis</h6>
+                                    <button class="btn btn-sm btn-outline-danger chart-window-btn" onclick="openChartWindow('brake')">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
                                 <div class="gauge-container">
                                     <div class="brake-gauge">
                                         <div class="gauge-circle">
@@ -319,7 +389,12 @@
                         <!-- Gear Data - Digital Style -->
                         <div class="col-lg-4 mb-4">
                             <div class="telemetry-card gear-card">
-                                <h6 class="telemetry-title">⚙️ Gear Changes</h6>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="telemetry-title mb-0">⚙️ Gear Changes</h6>
+                                    <button class="btn btn-sm btn-outline-warning chart-window-btn" onclick="openChartWindow('gear')">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
                                 <div class="gear-display">
                                     <div class="current-gear">
                                         <div class="gear-number" id="currentGear">-</div>
@@ -347,8 +422,64 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="telemetry-card overview-card">
-                                <h6 class="telemetry-title">📈 Complete Telemetry Overview</h6>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="telemetry-title mb-0">📈 Complete Telemetry Overview</h6>
+                                    <button class="btn btn-sm btn-outline-primary chart-window-btn" onclick="openChartWindow('overview')">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
                                 <canvas id="overviewChart" class="telemetry-chart-large"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Individual Charts Row -->
+                    <div class="row mt-4">
+                        <div class="col-md-6 mb-4">
+                            <div class="telemetry-card throttle-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="telemetry-title mb-0">🚀 Throttle Profile</h6>
+                                    <button class="btn btn-sm btn-outline-info chart-window-btn" onclick="openChartWindow('throttle')">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="throttleChart" class="telemetry-chart"></canvas>
+                                </div>
+                                <div id="throttleStats" class="telemetry-stats-mini">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Max Throttle:</span>
+                                        <span class="stat-value" id="maxThrottle">--</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Avg Throttle:</span>
+                                        <span class="stat-value" id="avgThrottle">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="telemetry-card rpm-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="telemetry-title mb-0">🔧 Engine RPM</h6>
+                                    <button class="btn btn-sm btn-outline-light chart-window-btn" onclick="openChartWindow('rpm')">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="rpmChart" class="telemetry-chart"></canvas>
+                                </div>
+                                <div id="rpmStats" class="telemetry-stats-mini">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Max RPM:</span>
+                                        <span class="stat-value" id="maxRPM">--</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Avg RPM:</span>
+                                        <span class="stat-value" id="avgRPM">--</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -537,6 +668,347 @@ function updateTelemetryStats(telemetryData) {
     // Render the individual charts
     renderSpeedChart(telemetryData);
     renderOverviewChart(telemetryData);
+    renderThrottleChart(telemetryData);
+    renderRPMChart(telemetryData);
+}
+
+// Global variables to track selected laps
+let selectedLaps = {};
+let selectedDriversData = {};
+
+function selectLapForTelemetry(driver, lapNumber, element) {
+    // Track selected lap for this driver
+    selectedLaps[driver] = lapNumber;
+    
+    // Update visual indicators
+    updateLapSelectionIndicators(driver, lapNumber);
+    
+    // Load telemetry data for this specific lap
+    loadTelemetryDataForLap(driver, lapNumber);
+    
+    // Update the selected lap analysis section
+    updateSelectedLapAnalysis();
+}
+
+function updateLapSelectionIndicators(driver, lapNumber) {
+    // Remove previous selection for this driver
+    document.querySelectorAll(`.lap-time[data-driver="${driver}"]`).forEach(lap => {
+        lap.classList.remove('selected');
+        const star = lap.querySelector('.lap-star');
+        if (star) star.style.display = 'none';
+    });
+    
+    // Add selection to current lap
+    const selectedLap = document.querySelector(`.lap-time[data-driver="${driver}"][data-lap="${lapNumber}"]`);
+    if (selectedLap) {
+        selectedLap.classList.add('selected');
+        const star = selectedLap.querySelector('.lap-star');
+        if (star) star.style.display = 'inline';
+    }
+}
+
+function updateSelectedLapAnalysis() {
+    const drivers = Object.keys(selectedLaps);
+    const container = document.getElementById('selectedLapsContainer');
+    const noLapsDiv = document.getElementById('noLapsSelected');
+    
+    if (drivers.length === 0) {
+        noLapsDiv.style.display = 'block';
+        document.getElementById('driver1LapInfo').style.display = 'none';
+        document.getElementById('driver2LapInfo').style.display = 'none';
+        return;
+    }
+    
+    noLapsDiv.style.display = 'none';
+    
+    drivers.forEach((driver, index) => {
+        const driverIndex = index + 1;
+        const driverInfoDiv = document.getElementById(`driver${driverIndex}LapInfo`);
+        
+        if (driverInfoDiv && selectedDriversData[driver]) {
+            driverInfoDiv.style.display = 'block';
+            
+            // Get driver color from the lap time element
+            const lapElement = document.querySelector(`.lap-time[data-driver="${driver}"]`);
+            const driverColor = lapElement ? lapElement.style.color : '#fff';
+            
+            // Update driver info
+            document.getElementById(`driver${driverIndex}Color`).style.backgroundColor = driverColor;
+            document.getElementById(`driver${driverIndex}Name`).textContent = driver;
+            document.getElementById(`driver${driverIndex}LapNumber`).textContent = `Lap ${selectedLaps[driver]}`;
+            
+            // Update stats from telemetry data
+            const data = selectedDriversData[driver];
+            if (data) {
+                document.getElementById(`driver${driverIndex}LapTime`).textContent = formatLapTime(data.lapTime) || '--';
+                document.getElementById(`driver${driverIndex}MaxSpeed`).textContent = data.maxSpeed ? `${data.maxSpeed.toFixed(1)} km/h` : '--';
+                document.getElementById(`driver${driverIndex}MaxBrake`).textContent = data.maxBrake ? `${data.maxBrake.toFixed(1)}%` : '--';
+                document.getElementById(`driver${driverIndex}MaxGear`).textContent = data.maxGear || '--';
+            }
+        }
+    });
+}
+
+function loadTelemetryDataForLap(driver, lapNumber) {
+    const sessionInfo = document.querySelector('.session-info');
+    const year = sessionInfo.dataset.year;
+    const round = sessionInfo.dataset.round;
+    const session = sessionInfo.dataset.session;
+
+    fetch(`/api/telemetry/${driver}/${lapNumber}?year=${year}&round=${round}&session=${session}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                selectedDriversData[driver] = {
+                    telemetry: data.telemetry,
+                    lapTime: data.lap_time,
+                    maxSpeed: Math.max(...data.telemetry.speed),
+                    maxBrake: Math.max(...data.telemetry.brake),
+                    maxGear: Math.max(...data.telemetry.gear)
+                };
+                
+                // Show telemetry charts if not already visible
+                document.getElementById('telemetryMessage').style.display = 'none';
+                document.getElementById('telemetryCharts').style.display = 'block';
+                
+                // Update the analysis
+                updateSelectedLapAnalysis();
+                
+                // Update telemetry stats and charts
+                updateTelemetryStats(data.telemetry);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading telemetry data:', error);
+        });
+}
+
+function formatLapTime(seconds) {
+    if (!seconds || isNaN(seconds)) return '--';
+    const minutes = Math.floor(seconds / 60);
+    const secs = (seconds % 60).toFixed(3);
+    return `${minutes}:${secs.padStart(6, '0')}`;
+}
+
+function openChartWindow(chartType) {
+    // Create a new window for the chart
+    const newWindow = window.open('', `${chartType}Chart`, 'width=1000,height=700,scrollbars=yes,resizable=yes');
+    
+    if (!newWindow) {
+        alert('Please allow popups to open chart windows');
+        return;
+    }
+    
+    // Get the chart data
+    const canvas = document.getElementById(`${chartType}Chart`);
+    if (!canvas) {
+        newWindow.close();
+        alert('Chart not available');
+        return;
+    }
+    
+    // Create HTML content for the new window
+    const chartTitle = getChartTitle(chartType);
+    const chartHTML = `
+        <!DOCTYPE html>
+        <html lang="en" data-bs-theme="dark">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${chartTitle} - F-lap</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <style>
+                body { background-color: #1a1a1a; color: white; padding: 20px; }
+                .chart-container { height: 600px; position: relative; }
+                canvas { background-color: rgba(0, 0, 0, 0.3); border-radius: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class="container-fluid">
+                <h3 class="text-center mb-4">${chartTitle}</h3>
+                <div class="chart-container">
+                    <canvas id="enlargedChart"></canvas>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-secondary" onclick="window.close()">Close Window</button>
+                </div>
+            </div>
+            <script>
+                // Copy chart data from parent window
+                window.onload = function() {
+                    recreateChart('${chartType}');
+                };
+                
+                function recreateChart(type) {
+                    // This will be populated by the parent window
+                    const ctx = document.getElementById('enlargedChart');
+                    if (ctx && window.opener && window.opener.getChartConfig) {
+                        const config = window.opener.getChartConfig(type);
+                        if (config) {
+                            new Chart(ctx, config);
+                        }
+                    }
+                }
+            </script>
+        </body>
+        </html>
+    `;
+    
+    newWindow.document.write(chartHTML);
+    newWindow.document.close();
+}
+
+function getChartTitle(chartType) {
+    const titles = {
+        'speed': '🏎️ Speed Profile Analysis',
+        'brake': '🛑 Brake Analysis',
+        'gear': '⚙️ Gear Changes Analysis',
+        'overview': '📈 Complete Telemetry Overview',
+        'throttle': '🚀 Throttle Profile Analysis',
+        'rpm': '🔧 Engine RPM Analysis'
+    };
+    return titles[chartType] || 'Telemetry Analysis';
+}
+
+// Function to provide chart configuration for popup windows
+function getChartConfig(chartType) {
+    // This function will return the chart configuration based on type
+    // Implementation depends on the specific chart instances
+    return null; // Placeholder for now
+}
+
+function renderThrottleChart(telemetryData) {
+    const ctx = document.getElementById('throttleChart');
+    if (!ctx) return;
+    
+    // Destroy existing chart if it exists
+    if (window.throttleChartInstance) {
+        window.throttleChartInstance.destroy();
+    }
+    
+    window.throttleChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: telemetryData.distance,
+            datasets: [{
+                label: 'Throttle (%)',
+                data: telemetryData.throttle,
+                borderColor: '#17a2b8',
+                backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#fff'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#fff'
+                    }
+                }
+            }
+        }
+    });
+    
+    // Update throttle stats
+    const maxThrottle = Math.max(...telemetryData.throttle);
+    const avgThrottle = telemetryData.throttle.reduce((a, b) => a + b, 0) / telemetryData.throttle.length;
+    
+    document.getElementById('maxThrottle').textContent = `${maxThrottle.toFixed(1)}%`;
+    document.getElementById('avgThrottle').textContent = `${avgThrottle.toFixed(1)}%`;
+}
+
+function renderRPMChart(telemetryData) {
+    const ctx = document.getElementById('rpmChart');
+    if (!ctx) return;
+    
+    // Destroy existing chart if it exists
+    if (window.rpmChartInstance) {
+        window.rpmChartInstance.destroy();
+    }
+    
+    // Generate sample RPM data based on throttle and gear (since real RPM data might not be available)
+    const rpmData = telemetryData.throttle.map((throttle, index) => {
+        const gear = telemetryData.gear[index] || 1;
+        const baseRPM = 8000 + (gear * 2000);
+        const throttleMultiplier = throttle / 100;
+        return Math.min(18000, baseRPM + (throttleMultiplier * 4000) + Math.random() * 500);
+    });
+    
+    window.rpmChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: telemetryData.distance,
+            datasets: [{
+                label: 'RPM',
+                data: rpmData,
+                borderColor: '#6c757d',
+                backgroundColor: 'rgba(108, 117, 125, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 8000,
+                    max: 18000,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#fff'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#fff'
+                    }
+                }
+            }
+        }
+    });
+    
+    // Update RPM stats
+    const maxRPM = Math.max(...rpmData);
+    const avgRPM = rpmData.reduce((a, b) => a + b, 0) / rpmData.length;
+    
+    document.getElementById('maxRPM').textContent = `${maxRPM.toFixed(0)}`;
+    document.getElementById('avgRPM').textContent = `${avgRPM.toFixed(0)}`;
 }
 
 function renderSpeedChart(telemetryData) {
