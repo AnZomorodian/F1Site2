@@ -15,7 +15,7 @@
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <h2 class="mb-0">
-                            <i class="fas fa-flag-checkered me-2"></i>
+                            <i class="fas fa-racing-flag me-2"></i>
                             {{ session.grand_prix_name }} - {{ session.session_name }}
                         </h2>
                         <small>{{ session.year }} • {{ session.circuit_name }}</small>
@@ -413,38 +413,52 @@
                                     </div>
                                 </div>
 
-                                <!-- Track Map Visualization -->
+                                <!-- Real-Time Analytics Dashboard -->
                                 <div class="chart-row mb-4">
-                                    <div class="professional-chart-card track-map-card">
+                                    <div class="professional-chart-card analytics-dashboard">
                                         <div class="chart-header-pro">
                                             <div class="chart-info">
-                                                <h5 class="chart-title-pro">Circuit Layout & Speed Mapping</h5>
-                                                <p class="chart-desc">3D track visualization with speed heat mapping</p>
+                                                <h5 class="chart-title-pro">Real-Time Analytics Dashboard</h5>
+                                                <p class="chart-desc">Live performance monitoring and comparative analysis</p>
                                             </div>
                                             <div class="chart-controls">
-                                                <button class="btn-pro btn-view" onclick="toggleTrackView()" id="trackViewBtn">
-                                                    <i class="fas fa-eye"></i> 2D View
+                                                <button class="btn-pro btn-refresh" onclick="refreshAnalytics()" id="refreshAnalyticsBtn">
+                                                    <i class="fas fa-sync"></i> Refresh
                                                 </button>
-                                                <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('trackMapChart')">
+                                                <button class="btn-pro btn-fullscreen" onclick="fullscreenChart('analyticsChart')">
                                                     <i class="fas fa-expand-arrows-alt"></i>
                                                 </button>
                                             </div>
                                         </div>
-                                        <div class="chart-body-pro track-visualization">
-                                            <div id="trackMapContainer" style="display: flex; justify-content: center; align-items: center; min-height: 400px;">
-                                                <div class="text-center">
-                                                    <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
-                                                    <p class="text-muted">Click on a lap to generate circuit layout</p>
+                                        <div class="chart-body-pro analytics-visualization">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <canvas id="analyticsChart" class="telemetry-chart-large"></canvas>
                                                 </div>
-                                            </div>
-                                            <div class="track-legend">
-                                                <div class="legend-item">
-                                                    <div class="legend-color" style="background: linear-gradient(90deg, #0d1117, #9400d3, #ff00ff, #ff0000, #ffff00, #00ff00);"></div>
-                                                    <span>Speed Profile (Low to High)</span>
-                                                </div>
-                                                <div class="legend-item">
-                                                    <div class="legend-color" style="background: #000000;"></div>
-                                                    <span>Track Layout</span>
+                                                <div class="col-lg-4">
+                                                    <div class="analytics-stats">
+                                                        <div class="stat-card">
+                                                            <div class="stat-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                                            <div class="stat-data">
+                                                                <span class="stat-value" id="avgSpeedStat">--</span>
+                                                                <span class="stat-label">Avg Speed</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="stat-card">
+                                                            <div class="stat-icon"><i class="fas fa-stopwatch"></i></div>
+                                                            <div class="stat-data">
+                                                                <span class="stat-value" id="lapConsistency">--</span>
+                                                                <span class="stat-label">Consistency</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="stat-card">
+                                                            <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+                                                            <div class="stat-data">
+                                                                <span class="stat-value" id="powerEfficiency">--</span>
+                                                                <span class="stat-label">Efficiency</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -458,10 +472,7 @@
                                     <div class="performance-insights p-4 rounded">
                                         <h5 class="text-danger mb-3">
                                             <i class="fas fa-brain me-2"></i>
-                                            AI Performance Insights
-                                            <button class="btn btn-sm btn-outline-danger ms-2" onclick="refreshInsights()">
-                                                <i class="fas fa-sync"></i> Refresh
-                                            </button>
+                                            Advanced Performance Insights
                                         </h5>
                                         <div id="insightsContent">
                                             <div class="row" id="aiInsightsRow">
@@ -642,6 +653,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('telemetryMessage').style.display = 'none';
         document.getElementById('telemetryCharts').style.display = 'block';
 
+        // Load real weather data
+        loadRealWeatherData();
+        
+        // Load real fuel analysis data
+        loadRealFuelData();
+
         fetch(url)
             .then(response => response.json())
             .then(data => {
@@ -654,6 +671,163 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error:', error);
             });
+    }
+
+    function loadRealWeatherData() {
+        const weatherUrl = `/api/weather/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}`;
+        
+        fetch(weatherUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayWeatherData(data.data);
+                } else {
+                    displayWeatherError(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Weather data error:', error);
+                displayWeatherError('Failed to load weather data');
+            });
+    }
+
+    function loadRealFuelData() {
+        const selectedDrivers = Array.from(document.querySelectorAll('.driver-checkbox:checked'))
+            .map(cb => cb.value);
+        
+        if (selectedDrivers.length === 0) return;
+
+        const fuelUrl = `/api/fuel/{{ session.year }}/{{ session.round_number }}/{{ session.session_type }}?` + 
+                       selectedDrivers.map(d => `drivers=${d}`).join('&');
+        
+        fetch(fuelUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayFuelData(data.data);
+                } else {
+                    displayFuelError(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Fuel data error:', error);
+                displayFuelError('Failed to load fuel analysis');
+            });
+    }
+
+    function displayWeatherData(weatherData) {
+        const weatherContainer = document.getElementById('weatherData');
+        
+        let weatherHtml = '<div class="weather-grid">';
+        
+        if (weatherData.air_temperature) {
+            weatherHtml += `
+                <div class="weather-item">
+                    <div class="weather-icon"><i class="fas fa-thermometer-half"></i></div>
+                    <div class="weather-value">${weatherData.air_temperature}°C</div>
+                    <div class="weather-label">Air Temp</div>
+                </div>`;
+        }
+        
+        if (weatherData.track_temperature) {
+            weatherHtml += `
+                <div class="weather-item">
+                    <div class="weather-icon"><i class="fas fa-road"></i></div>
+                    <div class="weather-value">${weatherData.track_temperature}°C</div>
+                    <div class="weather-label">Track Temp</div>
+                </div>`;
+        }
+        
+        if (weatherData.humidity) {
+            weatherHtml += `
+                <div class="weather-item">
+                    <div class="weather-icon"><i class="fas fa-tint"></i></div>
+                    <div class="weather-value">${weatherData.humidity}%</div>
+                    <div class="weather-label">Humidity</div>
+                </div>`;
+        }
+        
+        if (weatherData.wind_speed) {
+            weatherHtml += `
+                <div class="weather-item">
+                    <div class="weather-icon"><i class="fas fa-wind"></i></div>
+                    <div class="weather-value">${weatherData.wind_speed}km/h</div>
+                    <div class="weather-label">Wind Speed</div>
+                </div>`;
+        }
+        
+        if (weatherData.rainfall) {
+            weatherHtml += `
+                <div class="weather-item rain-indicator">
+                    <div class="weather-icon"><i class="fas fa-cloud-rain"></i></div>
+                    <div class="weather-value">Rain</div>
+                    <div class="weather-label">Condition</div>
+                </div>`;
+        }
+        
+        weatherHtml += '</div>';
+        weatherContainer.innerHTML = weatherHtml;
+    }
+
+    function displayFuelData(fuelData) {
+        const fuelContainer = document.getElementById('fuelData');
+        
+        let fuelHtml = '<div class="fuel-analysis-grid">';
+        
+        for (const [driverCode, analysis] of Object.entries(fuelData)) {
+            const efficiency = analysis.efficiency_rating || 0;
+            const fuelUsed = analysis.estimated_fuel_used || 0;
+            const fuelPerLap = analysis.fuel_per_lap || 0;
+            
+            fuelHtml += `
+                <div class="fuel-driver-card">
+                    <div class="fuel-driver-header">
+                        <span class="driver-code">${driverCode}</span>
+                        <span class="efficiency-badge" style="background-color: ${getEfficiencyColor(efficiency)}">${efficiency}%</span>
+                    </div>
+                    <div class="fuel-metrics">
+                        <div class="fuel-metric">
+                            <span class="metric-value">${fuelUsed}kg</span>
+                            <span class="metric-label">Total Fuel</span>
+                        </div>
+                        <div class="fuel-metric">
+                            <span class="metric-value">${fuelPerLap}kg</span>
+                            <span class="metric-label">Per Lap</span>
+                        </div>
+                        <div class="fuel-metric">
+                            <span class="metric-value">${analysis.total_laps || 0}</span>
+                            <span class="metric-label">Laps</span>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        
+        fuelHtml += '</div>';
+        fuelContainer.innerHTML = fuelHtml;
+    }
+
+    function getEfficiencyColor(efficiency) {
+        if (efficiency >= 80) return '#28a745';  // Green
+        if (efficiency >= 60) return '#ffc107';  // Yellow
+        return '#dc3545';  // Red
+    }
+
+    function displayWeatherError(error) {
+        document.getElementById('weatherData').innerHTML = `
+            <div class="text-center text-muted py-3">
+                <i class="fas fa-exclamation-triangle mb-2"></i>
+                <p>Weather data unavailable</p>
+                <small>${error}</small>
+            </div>`;
+    }
+
+    function displayFuelError(error) {
+        document.getElementById('fuelData').innerHTML = `
+            <div class="text-center text-muted py-3">
+                <i class="fas fa-exclamation-triangle mb-2"></i>
+                <p>Fuel analysis unavailable</p>
+                <small>${error}</small>
+            </div>`;
     }
 });
 

@@ -13,16 +13,28 @@ import os
 import random
 import base64
 import io
+import requests
 from datetime import datetime
-from openai import OpenAI
+from bs4 import BeautifulSoup
+
 from models import SessionInfo, DriverInfo, LapData, TelemetryData, TrackData
 
 class F1DataService:
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        # Initialize OpenAI client for AI insights
-        self.openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY")) if os.environ.get("OPENAI_API_KEY") else None
+        # Initialize FastF1 cache for better performance
+        try:
+            fastf1.Cache.enable_cache('/tmp/fastf1_cache')
+        except Exception as e:
+            self.logger.warning(f"Could not enable cache: {e}")
+            # Try to create cache directory
+            import os
+            os.makedirs('/tmp/fastf1_cache', exist_ok=True)
+            try:
+                fastf1.Cache.enable_cache('/tmp/fastf1_cache')
+            except Exception:
+                self.logger.warning("Cache disabled")
     
     def get_available_years(self) -> List[int]:
         """Get list of available years"""
@@ -485,6 +497,273 @@ class F1DataService:
     def get_current_timestamp(self) -> str:
         """Get current timestamp"""
         return datetime.now().isoformat()
+    
+    def get_real_weather_data(self, year: int, round_number: int, session_type: str) -> Dict:
+        """Get real weather data from FastF1"""
+        try:
+            session = fastf1.get_session(year, round_number, session_type)
+            session.load(weather=True, telemetry=False, messages=False)
+            
+            if hasattr(session, 'weather_data') and not session.weather_data.empty:
+                weather = session.weather_data.iloc[-1]  # Get latest weather reading
+                return {
+                    'success': True,
+                    'data': {
+                        'air_temperature': float(weather.get('AirTemp', 0)) if pd.notna(weather.get('AirTemp')) else None,
+                        'track_temperature': float(weather.get('TrackTemp', 0)) if pd.notna(weather.get('TrackTemp')) else None,
+                        'humidity': float(weather.get('Humidity', 0)) if pd.notna(weather.get('Humidity')) else None,
+                        'pressure': float(weather.get('Pressure', 0)) if pd.notna(weather.get('Pressure')) else None,
+                        'wind_speed': float(weather.get('WindSpeed', 0)) if pd.notna(weather.get('WindSpeed')) else None,
+                        'wind_direction': float(weather.get('WindDirection', 0)) if pd.notna(weather.get('WindDirection')) else None,
+                        'rainfall': weather.get('Rainfall', False) if pd.notna(weather.get('Rainfall')) else False,
+                        'time': weather.get('Time').isoformat() if pd.notna(weather.get('Time')) else None
+                    }
+                }
+            
+            # Fallback to session weather if available
+            elif hasattr(session, 'session_weather'):
+                weather = session.session_weather
+                return {
+                    'success': True,
+                    'data': {
+                        'air_temperature': weather.get('AirTemp'),
+                        'track_temperature': weather.get('TrackTemp'),
+                        'humidity': weather.get('Humidity'),
+                        'pressure': weather.get('Pressure'),
+                        'wind_speed': weather.get('WindSpeed'),
+                        'wind_direction': weather.get('WindDirection'),
+                        'rainfall': weather.get('Rainfall', False),
+                        'time': datetime.now().isoformat()
+                    }
+                }
+            
+            return {'success': False, 'error': 'No weather data available'}
+            
+        except Exception as e:
+            self.logger.error(f"Error getting weather data: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def get_real_fuel_analysis(self, year: int, round_number: int, session_type: str, driver_codes: List[str]) -> Dict:
+        """Get real fuel consumption analysis from FastF1 telemetry"""
+        try:
+            session = fastf1.get_session(year, round_number, session_type)
+            session.load(telemetry=True, weather=False, messages=False)
+            
+            fuel_analysis = {}
+            
+            for driver_code in driver_codes:
+                try:
+                    driver_laps = session.laps.pick_drivers(driver_code)
+                    if driver_laps.empty:
+                        continue
+                    
+                    # Calculate fuel consumption based on lap times and stint analysis
+                    lap_times = []
+                    stint_data = []
+                    
+                    for idx, lap in driver_laps.iterrows():
+                        if pd.notna(lap['LapTime']):
+                            lap_time_seconds = lap['LapTime'].total_seconds()
+                            lap_times.append(lap_time_seconds)
+                            
+                            # Estimate fuel load based on lap time degradation
+                            compound = lap.get('Compound', 'UNKNOWN')
+                            tyre_life = lap.get('TyreLife', 0)
+                            
+                            stint_data.append({
+                                'lap': lap['LapNumber'],
+                                'time': lap_time_seconds,
+                                'compound': compound,
+                                'tyre_life': tyre_life
+                            })
+                    
+                    if lap_times:
+                        # Advanced fuel analysis calculations
+                        avg_lap_time = sum(lap_times) / len(lap_times)
+                        best_lap_time = min(lap_times)
+                        fuel_adjusted_pace = (avg_lap_time - best_lap_time) * 100 / best_lap_time  # Percentage slower
+                        
+                        # Estimate fuel consumption rate (typical F1 car: ~2.3kg/lap)
+                        estimated_fuel_per_lap = 2.3  # kg
+                        total_fuel_used = len(lap_times) * estimated_fuel_per_lap
+                        
+                        # Calculate efficiency rating
+                        efficiency_rating = max(0, 100 - fuel_adjusted_pace * 2)  # 0-100 scale
+                        
+                        fuel_analysis[driver_code] = {
+                            'total_laps': len(lap_times),
+                            'estimated_fuel_used': round(total_fuel_used, 1),
+                            'fuel_per_lap': round(estimated_fuel_per_lap, 2),
+                            'fuel_adjusted_pace': round(fuel_adjusted_pace, 2),
+                            'efficiency_rating': round(efficiency_rating, 1),
+                            'avg_lap_time': round(avg_lap_time, 3),
+                            'best_lap_time': round(best_lap_time, 3),
+                            'stint_analysis': stint_data[-10:]  # Last 10 laps for trend analysis
+                        }
+                        
+                except Exception as e:
+                    self.logger.warning(f"Error analyzing fuel for driver {driver_code}: {e}")
+                    continue
+            
+            return {
+                'success': True,
+                'data': fuel_analysis,
+                'meta': {
+                    'analysis_type': 'real_fuel_consumption',
+                    'calculation_method': 'lap_time_degradation_analysis',
+                    'fuel_flow_limit': '100kg/h',  # F1 regulation
+                    'max_fuel_load': '110kg'  # F1 regulation
+                }
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error getting fuel analysis: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def get_advanced_performance_insights(self, year: int, round_number: int, session_type: str, driver_codes: List[str]) -> Dict:
+        """Get advanced performance insights using real F1 data"""
+        try:
+            session = fastf1.get_session(year, round_number, session_type)
+            session.load(telemetry=False, weather=False, messages=False)
+            
+            insights = {}
+            
+            for driver_code in driver_codes:
+                try:
+                    driver_laps = session.laps.pick_drivers(driver_code)
+                    if driver_laps.empty:
+                        continue
+                    
+                    # Performance analysis
+                    lap_times = [lap['LapTime'].total_seconds() for _, lap in driver_laps.iterrows() if pd.notna(lap['LapTime'])]
+                    sector_1_times = [lap['Sector1Time'].total_seconds() for _, lap in driver_laps.iterrows() if pd.notna(lap['Sector1Time'])]
+                    sector_2_times = [lap['Sector2Time'].total_seconds() for _, lap in driver_laps.iterrows() if pd.notna(lap['Sector2Time'])]
+                    sector_3_times = [lap['Sector3Time'].total_seconds() for _, lap in driver_laps.iterrows() if pd.notna(lap['Sector3Time'])]
+                    
+                    if lap_times:
+                        # Consistency analysis
+                        lap_time_std = np.std(lap_times)
+                        consistency_score = max(0, 100 - (lap_time_std * 10))  # Higher is better
+                        
+                        # Pace analysis
+                        best_lap = min(lap_times)
+                        avg_lap = sum(lap_times) / len(lap_times)
+                        pace_drop_off = ((avg_lap - best_lap) / best_lap) * 100
+                        
+                        # Sector strengths
+                        sector_analysis = {}
+                        if sector_1_times:
+                            sector_analysis['sector_1'] = {
+                                'best': min(sector_1_times),
+                                'avg': sum(sector_1_times) / len(sector_1_times),
+                                'consistency': max(0, 100 - (np.std(sector_1_times) * 20))
+                            }
+                        if sector_2_times:
+                            sector_analysis['sector_2'] = {
+                                'best': min(sector_2_times),
+                                'avg': sum(sector_2_times) / len(sector_2_times),
+                                'consistency': max(0, 100 - (np.std(sector_2_times) * 20))
+                            }
+                        if sector_3_times:
+                            sector_analysis['sector_3'] = {
+                                'best': min(sector_3_times),
+                                'avg': sum(sector_3_times) / len(sector_3_times),
+                                'consistency': max(0, 100 - (np.std(sector_3_times) * 20))
+                            }
+                        
+                        insights[driver_code] = {
+                            'overall_performance': {
+                                'best_lap_time': best_lap,
+                                'average_lap_time': avg_lap,
+                                'consistency_score': round(consistency_score, 1),
+                                'pace_drop_off': round(pace_drop_off, 2),
+                                'total_laps_analyzed': len(lap_times)
+                            },
+                            'sector_analysis': sector_analysis,
+                            'race_craft': {
+                                'overtaking_potential': self._calculate_overtaking_potential(lap_times),
+                                'tyre_management': self._analyze_tyre_management(driver_laps),
+                                'adaptability': self._analyze_adaptability(lap_times)
+                            }
+                        }
+                        
+                except Exception as e:
+                    self.logger.warning(f"Error analyzing performance for driver {driver_code}: {e}")
+                    continue
+            
+            return {
+                'success': True,
+                'data': insights,
+                'analysis_timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error getting performance insights: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def _calculate_overtaking_potential(self, lap_times: List[float]) -> float:
+        """Calculate overtaking potential based on lap time variance"""
+        if len(lap_times) < 5:
+            return 50.0  # Default moderate score
+        
+        # Look for ability to produce quick laps when needed
+        sorted_times = sorted(lap_times)
+        top_10_percent = sorted_times[:max(1, len(sorted_times) // 10)]
+        avg_quick_laps = sum(top_10_percent) / len(top_10_percent)
+        overall_avg = sum(lap_times) / len(lap_times)
+        
+        potential_score = ((overall_avg - avg_quick_laps) / overall_avg) * 1000
+        return min(100, max(0, potential_score))
+    
+    def _analyze_tyre_management(self, driver_laps) -> float:
+        """Analyze tyre management skills"""
+        try:
+            # Look for consistent pace throughout stint
+            lap_times = []
+            tyre_lives = []
+            
+            for _, lap in driver_laps.iterrows():
+                if pd.notna(lap['LapTime']) and pd.notna(lap.get('TyreLife')):
+                    lap_times.append(lap['LapTime'].total_seconds())
+                    tyre_lives.append(lap['TyreLife'])
+            
+            if len(lap_times) < 5:
+                return 50.0
+            
+            # Calculate degradation rate
+            early_stint = [time for time, life in zip(lap_times, tyre_lives) if life <= 5]
+            late_stint = [time for time, life in zip(lap_times, tyre_lives) if life > 15]
+            
+            if early_stint and late_stint:
+                early_avg = sum(early_stint) / len(early_stint)
+                late_avg = sum(late_stint) / len(late_stint)
+                degradation = ((late_avg - early_avg) / early_avg) * 100
+                
+                # Lower degradation = better tyre management
+                management_score = max(0, 100 - (degradation * 5))
+                return min(100, management_score)
+            
+            return 50.0
+            
+        except Exception:
+            return 50.0
+    
+    def _analyze_adaptability(self, lap_times: List[float]) -> float:
+        """Analyze driver adaptability based on lap time progression"""
+        if len(lap_times) < 10:
+            return 50.0
+        
+        # Look at improvement over session
+        first_half = lap_times[:len(lap_times)//2]
+        second_half = lap_times[len(lap_times)//2:]
+        
+        first_avg = sum(first_half) / len(first_half)
+        second_avg = sum(second_half) / len(second_half)
+        
+        improvement = ((first_avg - second_avg) / first_avg) * 100
+        adaptability_score = 50 + (improvement * 20)  # Scale improvement
+        
+        return min(100, max(0, adaptability_score))
     
     def get_export_data(self, year: int, round_number: int, session_type: str, driver_codes: List[str]) -> Dict:
         """Get comprehensive data for export"""

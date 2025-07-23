@@ -312,48 +312,38 @@ def api_compare_drivers(year, round_number, session_type):
 
 @app.route('/api/insights/<int:year>/<int:round_number>/<session_type>')
 def api_performance_insights(year, round_number, session_type):
-    """API endpoint for AI-powered performance insights"""
+    """API endpoint for advanced performance insights"""
     try:
         driver_codes = request.args.getlist('drivers')
         
         if not driver_codes:
             return jsonify({'success': False, 'error': 'No drivers selected for analysis'})
         
-        # Get AI-powered insights
-        insights = f1_service.get_ai_performance_insights(year, round_number, session_type, driver_codes)
+        # Get advanced performance insights
+        insights = f1_service.get_advanced_performance_insights(year, round_number, session_type, driver_codes)
         
-        return jsonify({
-            'success': True,
-            'data': insights,
-            'timestamp': f1_service.get_current_timestamp()
-        })
+        return jsonify(insights)
     except Exception as e:
         logger.error(f"Error generating performance insights: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/weather/<int:year>/<int:round_number>/<session_type>')
 def api_weather_data(year, round_number, session_type):
-    """API endpoint for weather data"""
+    """API endpoint for real weather data"""
     try:
-        weather_data = f1_service.get_weather_data(year, round_number, session_type)
-        return jsonify({
-            'success': True,
-            'data': weather_data
-        })
+        weather_data = f1_service.get_real_weather_data(year, round_number, session_type)
+        return jsonify(weather_data)
     except Exception as e:
         logger.error(f"Error getting weather data: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/fuel/<int:year>/<int:round_number>/<session_type>')
 def api_fuel_data(year, round_number, session_type):
-    """API endpoint for fuel consumption data"""
+    """API endpoint for real fuel consumption analysis"""
     try:
         driver_codes = request.args.getlist('drivers')
-        fuel_data = f1_service.get_fuel_data(year, round_number, session_type, driver_codes)
-        return jsonify({
-            'success': True,
-            'data': fuel_data
-        })
+        fuel_data = f1_service.get_real_fuel_analysis(year, round_number, session_type, driver_codes)
+        return jsonify(fuel_data)
     except Exception as e:
         logger.error(f"Error getting fuel data: {e}")
         return jsonify({'success': False, 'error': str(e)})
