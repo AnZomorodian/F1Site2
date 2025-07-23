@@ -1,0 +1,541 @@
+{% extends "base.html" %}
+
+{% block title %}Performance Insights - Lapla{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="page-title">
+                <i class="fas fa-chart-line me-3"></i>
+                Performance Insights
+            </h1>
+            <p class="page-subtitle text-muted">
+                Advanced performance analysis and strategic insights engine
+            </p>
+        </div>
+        <div class="col-auto">
+            <div class="page-actions">
+                <button class="btn btn-outline-secondary me-2" onclick="refreshInsights()">
+                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" 
+                            data-bs-toggle="dropdown">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="exportPerformanceData('pdf')">Performance Report (PDF)</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportPerformanceData('excel')">Detailed Analysis (Excel)</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportPerformanceData('csv')">Data Export (CSV)</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Controls -->
+<div class="controls-section mb-4">
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-end">
+                <div class="col-md-3">
+                    <label for="seasonSelect" class="form-label">Season</label>
+                    <select class="form-select" id="seasonSelect" onchange="loadRaces()">
+                        {% for year in years %}
+                        <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="roundSelect" class="form-label">Race</label>
+                    <select class="form-select" id="roundSelect" onchange="loadSessions()">
+                        <option value="">Select Race</option>
+                        {% for race in schedule %}
+                        <option value="{{ race.round }}">R{{ race.round }} - {{ race.event_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="sessionSelect" class="form-label">Session</label>
+                    <select class="form-select" id="sessionSelect">
+                        <option value="">Select Session</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" onclick="generateInsights()">
+                        <i class="fas fa-bolt me-1"></i>Analyze
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Animation -->
+<div id="loadingInsights" class="text-center py-5" style="display: none;">
+    <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="text-muted">Analyzing performance data...</p>
+</div>
+
+<!-- Performance Insights Display -->
+<div id="insightsContainer">
+    <!-- Race Overview -->
+    <div class="section mb-4" id="raceOverview" style="display: none;">
+        <div class="section-header mb-3">
+            <h3 class="section-title">Race Overview Analysis</h3>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card insights-card">
+                    <div class="card-body">
+                        <div class="row" id="overviewMetrics">
+                            <!-- Metrics will be populated by JavaScript -->
+                        </div>
+                        
+                        <div id="winnerInfo" class="winner-info mt-3 p-3 bg-success bg-opacity-10 rounded" style="display: none;">
+                            <h6 class="text-success mb-1">
+                                <i class="fas fa-trophy me-2"></i>Race Winner
+                            </h6>
+                            <div id="winnerDetails"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card" id="fastestLapCard" style="display: none;">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-3">
+                            <i class="fas fa-bolt me-2"></i>Fastest Lap
+                        </h6>
+                        <div class="fastest-lap-info" id="fastestLapInfo">
+                            <!-- Fastest lap info will be populated -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Driver Performance Analysis -->
+    <div class="section mb-4" id="driverPerformance" style="display: none;">
+        <div class="section-header mb-3">
+            <h3 class="section-title">Driver Performance Analysis</h3>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover driver-performance-table">
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Driver</th>
+                                <th>Team</th>
+                                <th>Best Lap</th>
+                                <th>Avg Lap</th>
+                                <th>Consistency</th>
+                                <th>Performance Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody id="driverPerformanceTable">
+                            <!-- Driver performance data will be populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Metrics -->
+    <div class="section mb-4" id="performanceMetrics" style="display: none;">
+        <div class="section-header mb-3">
+            <h3 class="section-title">Performance Metrics</h3>
+        </div>
+        
+        <div class="row" id="metricsGrid">
+            <!-- Performance metrics cards will be populated -->
+        </div>
+    </div>
+    
+    <!-- Strategic Insights -->
+    <div class="section mb-4" id="strategicInsights" style="display: none;">
+        <div class="section-header mb-3">
+            <h3 class="section-title">Strategic Insights</h3>
+        </div>
+        
+        <div class="row" id="insightsGrid">
+            <!-- Strategic insights cards will be populated -->
+        </div>
+    </div>
+</div>
+
+<style>
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.insights-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+}
+
+.section-title {
+    color: #333;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.section-title i {
+    color: #667eea;
+}
+
+.metric-item {
+    text-align: center;
+    padding: 1rem;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.driver-performance-table {
+    font-size: 0.9rem;
+}
+
+.position-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 15px;
+    font-weight: bold;
+    text-align: center;
+    min-width: 30px;
+}
+
+.position-1 { background: gold; color: #000; }
+.position-2 { background: silver; color: #000; }
+.position-3 { background: #cd7f32; color: #fff; }
+.position-dnf { background: #dc3545; color: #fff; }
+
+.performance-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rating-bar {
+    width: 60px;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.rating-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #dc3545, #ffc107, #28a745);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.insight-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    transition: transform 0.2s ease;
+}
+
+.insight-card:hover {
+    transform: translateY(-5px);
+}
+
+.insight-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.confidence-stars {
+    color: #ffd700;
+}
+</style>
+
+<script>
+let currentYear = {{ current_year }};
+let currentSchedule = {{ schedule | tojsonfilter }};
+
+function loadRaces() {
+    const seasonSelect = document.getElementById('seasonSelect');
+    const year = parseInt(seasonSelect.value);
+    currentYear = year;
+    
+    // Fetch races for selected year
+    fetch(`/api/schedule/${year}`)
+        .then(response => response.json())
+        .then(data => {
+            const roundSelect = document.getElementById('roundSelect');
+            roundSelect.innerHTML = '<option value="">Select Race</option>';
+            
+            data.forEach(race => {
+                const option = document.createElement('option');
+                option.value = race.round;
+                option.textContent = `R${race.round} - ${race.event_name}`;
+                roundSelect.appendChild(option);
+            });
+            
+            currentSchedule = data;
+            
+            // Clear sessions
+            document.getElementById('sessionSelect').innerHTML = '<option value="">Select Session</option>';
+        });
+}
+
+function loadSessions() {
+    const roundSelect = document.getElementById('roundSelect');
+    const sessionSelect = document.getElementById('sessionSelect');
+    
+    if (!roundSelect.value) {
+        sessionSelect.innerHTML = '<option value="">Select Session</option>';
+        return;
+    }
+    
+    // Fetch available sessions for selected race
+    fetch(`/api/sessions/${currentYear}/${roundSelect.value}`)
+        .then(response => response.json())
+        .then(data => {
+            sessionSelect.innerHTML = '<option value="">Select Session</option>';
+            
+            data.available_sessions.forEach(session => {
+                const option = document.createElement('option');
+                option.value = session.type;
+                option.textContent = session.name;
+                sessionSelect.appendChild(option);
+            });
+        });
+}
+
+function generateInsights() {
+    const year = document.getElementById('seasonSelect').value;
+    const round = document.getElementById('roundSelect').value;
+    const session = document.getElementById('sessionSelect').value;
+    
+    if (!year || !round || !session) {
+        alert('Please select a season, race, and session');
+        return;
+    }
+    
+    // Show loading
+    document.getElementById('loadingInsights').style.display = 'block';
+    document.getElementById('insightsContainer').style.display = 'none';
+    
+    // Fetch insights data
+    fetch(`/api/performance-insights/${year}/${round}/${session}`)
+        .then(response => response.json())
+        .then(data => {
+            displayInsights(data);
+            document.getElementById('loadingInsights').style.display = 'none';
+            document.getElementById('insightsContainer').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching insights:', error);
+            document.getElementById('loadingInsights').style.display = 'none';
+            alert('Error loading performance insights');
+        });
+}
+
+function displayInsights(data) {
+    // Display race overview
+    if (data.race_overview) {
+        displayRaceOverview(data.race_overview);
+    }
+    
+    // Display driver performance
+    if (data.driver_performance) {
+        displayDriverPerformance(data.driver_performance);
+    }
+    
+    // Display performance metrics
+    if (data.performance_metrics) {
+        displayPerformanceMetrics(data.performance_metrics);
+    }
+    
+    // Display strategic insights
+    if (data.strategic_insights) {
+        displayStrategicInsights(data.strategic_insights);
+    }
+}
+
+function displayRaceOverview(overview) {
+    const section = document.getElementById('raceOverview');
+    section.style.display = 'block';
+    
+    // Update metrics
+    const metricsDiv = document.getElementById('overviewMetrics');
+    metricsDiv.innerHTML = `
+        <div class="col-md-3">
+            <div class="metric-item">
+                <div class="metric-value">${overview.total_drivers || 'N/A'}</div>
+                <div class="metric-label">Total Drivers</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-item">
+                <div class="metric-value">${overview.total_laps || 'N/A'}</div>
+                <div class="metric-label">Total Laps</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-item">
+                <div class="metric-value">${overview.fastest_lap_time || 'N/A'}</div>
+                <div class="metric-label">Fastest Lap</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-item">
+                <div class="metric-value">${overview.track_temperature || 'N/A'}°C</div>
+                <div class="metric-label">Track Temp</div>
+            </div>
+        </div>
+    `;
+    
+    // Update fastest lap
+    if (overview.fastest_lap) {
+        const fastestLapCard = document.getElementById('fastestLapCard');
+        const fastestLapInfo = document.getElementById('fastestLapInfo');
+        
+        fastestLapInfo.innerHTML = `
+            <div class="driver-name">${overview.fastest_lap.driver}</div>
+            <div class="lap-time">${overview.fastest_lap.time}</div>
+            <small class="text-muted">Lap ${overview.fastest_lap.lap_number}</small>
+        `;
+        
+        fastestLapCard.style.display = 'block';
+    }
+}
+
+function displayDriverPerformance(performance) {
+    const section = document.getElementById('driverPerformance');
+    const tbody = document.getElementById('driverPerformanceTable');
+    
+    section.style.display = 'block';
+    
+    let html = '';
+    performance.drivers.forEach((driver, index) => {
+        html += `
+            <tr>
+                <td>
+                    <span class="position-badge position-${index + 1}">${index + 1}</span>
+                </td>
+                <td>
+                    <div class="driver-info">
+                        <strong>${driver.driver_name}</strong>
+                        <small class="d-block text-muted">${driver.driver_code}</small>
+                    </div>
+                </td>
+                <td>${driver.team_name}</td>
+                <td>${driver.best_lap_time || 'N/A'}</td>
+                <td>${driver.avg_lap_time || 'N/A'}</td>
+                <td>${driver.consistency_rating || 'N/A'}</td>
+                <td>
+                    <div class="performance-rating">
+                        <span>${driver.performance_rating || 'N/A'}</span>
+                        <div class="rating-bar">
+                            <div class="rating-fill" style="width: ${(driver.performance_rating || 0) * 10}%"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+}
+
+function displayPerformanceMetrics(metrics) {
+    const section = document.getElementById('performanceMetrics');
+    const grid = document.getElementById('metricsGrid');
+    
+    section.style.display = 'block';
+    
+    let html = '';
+    Object.entries(metrics).forEach(([key, value]) => {
+        html += `
+            <div class="col-md-3 mb-3">
+                <div class="card insight-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-bar insight-icon"></i>
+                        <h5>${key.replace(/_/g, ' ').toUpperCase()}</h5>
+                        <p class="mb-0">${value}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    grid.innerHTML = html;
+}
+
+function displayStrategicInsights(insights) {
+    const section = document.getElementById('strategicInsights');
+    const grid = document.getElementById('insightsGrid');
+    
+    section.style.display = 'block';
+    
+    let html = '';
+    insights.forEach(insight => {
+        html += `
+            <div class="col-md-4 mb-3">
+                <div class="card insight-card">
+                    <div class="card-body">
+                        <i class="fas fa-lightbulb insight-icon"></i>
+                        <h6>${insight.title}</h6>
+                        <p class="mb-2">${insight.description}</p>
+                        <div class="confidence-stars">
+                            ${'★'.repeat(insight.confidence || 3)}${'☆'.repeat(5 - (insight.confidence || 3))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    grid.innerHTML = html;
+}
+
+function refreshInsights() {
+    generateInsights();
+}
+
+function exportPerformanceData(format) {
+    const year = document.getElementById('seasonSelect').value;
+    const round = document.getElementById('roundSelect').value;
+    const session = document.getElementById('sessionSelect').value;
+    
+    if (!year || !round || !session) {
+        alert('Please generate insights first');
+        return;
+    }
+    
+    window.open(`/api/export-insights/${year}/${round}/${session}?format=${format}`, '_blank');
+}
+</script>
+{% endblock %}

@@ -23,8 +23,8 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-danger">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold text-danger" href="{{ url_for('index') }}">
-                Lapla
+            <a class="navbar-brand fw-bold text-danger animated-brand" href="{{ url_for('index') }}">
+                <span class="brand-text">Lapla</span>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -36,6 +36,11 @@
                     <li class="nav-item">
                         <a class="nav-link nav-icon-only" href="{{ url_for('index') }}" title="Home">
                             <i class="fas fa-home"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-icon-only" href="{{ url_for('performance_insights') }}" title="Performance Insights">
+                            <i class="fas fa-chart-line"></i>
                         </a>
                     </li>
                     <li class="nav-item">

@@ -1,0 +1,693 @@
+{% extends "base.html" %}
+
+{% block title %}Performance Insights - F1 Dashboard 2025{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="page-title">
+                <i data-feather="trending-up" class="me-3"></i>
+                Performance Insights
+            </h1>
+            <p class="page-subtitle text-muted">
+                Advanced performance analysis and strategic insights engine
+            </p>
+        </div>
+        <div class="col-auto">
+            <div class="page-actions">
+                <button class="btn btn-outline-secondary me-2" onclick="refreshInsights()">
+                    <i data-feather="refresh-cw" class="me-1"></i>Refresh
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" 
+                            data-bs-toggle="dropdown">
+                        <i data-feather="download" class="me-1"></i>Export
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="exportPerformanceData('pdf')">Performance Report (PDF)</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportPerformanceData('excel')">Detailed Analysis (Excel)</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportPerformanceData('csv')">Data Export (CSV)</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Controls -->
+<div class="controls-section mb-4">
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-end">
+                <div class="col-md-3">
+                    <label for="seasonSelect" class="form-label">Season</label>
+                    <select class="form-select" id="seasonSelect">
+                        <option value="2025" selected>2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="roundSelect" class="form-label">Race</label>
+                    <select class="form-select" id="roundSelect">
+                        <option value="">Select Race</option>
+                        <option value="1">R1 - Australian Grand Prix</option>
+                        <option value="2">R2 - Chinese Grand Prix</option>
+                        <option value="3">R3 - Japanese Grand Prix</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="analysisType" class="form-label">Analysis Type</label>
+                    <select class="form-select" id="analysisType">
+                        <option value="comprehensive">Comprehensive</option>
+                        <option value="driver">Driver Focus</option>
+                        <option value="team">Team Focus</option>
+                        <option value="strategy">Strategy Focus</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" onclick="generateInsights()">
+                        <i data-feather="zap" class="me-1"></i>Analyze
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Insights Display -->
+<div id="insightsContainer">
+    {% if insights %}
+    
+    <!-- Race Overview -->
+    {% if insights.race_overview %}
+    <div class="section mb-4">
+        <div class="section-header mb-3">
+            <h3 class="section-title">Race Overview Analysis</h3>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card insights-card">
+                    <div class="card-body">
+                        {% if not insights.race_overview.error %}
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="metric-item">
+                                    <div class="metric-value">{{ insights.race_overview.total_drivers or 'N/A' }}</div>
+                                    <div class="metric-label">Total Drivers</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-item">
+                                    <div class="metric-value">{{ insights.race_overview.finishers or 'N/A' }}</div>
+                                    <div class="metric-label">Finishers</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-item">
+                                    <div class="metric-value">{{ "%.1f"|format(insights.race_overview.completion_rate or 0) }}%</div>
+                                    <div class="metric-label">Completion Rate</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-item">
+                                    <div class="metric-value">{{ "%.1f"|format(insights.race_overview.competitiveness_index or 0) }}/10</div>
+                                    <div class="metric-label">Competitiveness</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if insights.race_overview.winner %}
+                        <div class="winner-info mt-3 p-3 bg-success bg-opacity-10 rounded">
+                            <h6 class="text-success mb-1">
+                                <i data-feather="award" class="me-2"></i>Race Winner
+                            </h6>
+                            <strong>{{ insights.race_overview.winner.driver_name }}</strong>
+                            ({{ insights.race_overview.winner.team_name }})
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="alert alert-warning">
+                            <i data-feather="alert-triangle" class="me-2"></i>
+                            {{ insights.race_overview.error }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                {% if insights.race_overview.fastest_lap %}
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-3">
+                            <i data-feather="zap" class="me-2"></i>Fastest Lap
+                        </h6>
+                        <div class="fastest-lap-info">
+                            <div class="driver-name">{{ insights.race_overview.fastest_lap.driver }}</div>
+                            <div class="lap-time">{{ insights.race_overview.fastest_lap.time }}</div>
+                            <small class="text-muted">Lap {{ insights.race_overview.fastest_lap.lap_number }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Driver Performance Analysis -->
+    {% if insights.driver_performance %}
+    <div class="section mb-4">
+        <div class="section-header mb-3">
+            <h3 class="section-title">Driver Performance Analysis</h3>
+            <div class="section-actions">
+                <button class="btn btn-sm btn-outline-secondary" onclick="toggleDriverView()">
+                    <i data-feather="grid" class="me-1"></i>Toggle View
+                </button>
+            </div>
+        </div>
+        
+        {% if not insights.driver_performance.error and insights.driver_performance.drivers %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover driver-performance-table">
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Driver</th>
+                                <th>Team</th>
+                                <th>Grid</th>
+                                <th>+/-</th>
+                                <th>Points</th>
+                                <th>Rating</th>
+                                <th>Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for driver in insights.driver_performance.drivers %}
+                            <tr>
+                                <td>
+                                    <span class="position-badge position-{{ driver.final_position or 'dnf' }}">
+                                        {{ driver.final_position or 'DNF' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="driver-info">
+                                        <strong>{{ driver.driver_name or 'Unknown' }}</strong>
+                                        <small class="d-block text-muted">{{ driver.driver_code or '' }}</small>
+                                    </div>
+                                </td>
+                                <td>{{ driver.team or 'Unknown' }}</td>
+                                <td>{{ driver.grid_position or 'N/A' }}</td>
+                                <td>
+                                    {% if driver.positions_gained is not none %}
+                                    <span class="position-change {% if driver.positions_gained > 0 %}positive{% elif driver.positions_gained < 0 %}negative{% else %}neutral{% endif %}">
+                                        {% if driver.positions_gained > 0 %}+{{ driver.positions_gained }}{% elif driver.positions_gained < 0 %}{{ driver.positions_gained }}{% else %}={% endif %}
+                                    </span>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="points-badge">{{ driver.points_scored or 0 }}</span>
+                                </td>
+                                <td>
+                                    <div class="rating-display">
+                                        <span class="rating-value">{{ "%.1f"|format(driver.performance_rating or 0) }}</span>
+                                        <div class="rating-bar">
+                                            <div class="rating-fill" style="width: {{ (driver.performance_rating or 0) * 10 }}%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <small class="performance-note">{{ driver.qualifying_vs_race or 'Analysis pending' }}</small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Performers Highlight -->
+        {% if insights.driver_performance.top_performers %}
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <div class="card highlight-card">
+                    <div class="card-body text-center">
+                        <i data-feather="trending-up" class="highlight-icon text-success"></i>
+                        <h6>Top Performers</h6>
+                        {% for performer in insights.driver_performance.top_performers[:3] %}
+                        <div class="performer-item">
+                            <strong>{{ performer.driver_name }}</strong>
+                            <small class="d-block text-muted">Rating: {{ "%.1f"|format(performer.performance_rating or 0) }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            {% if insights.driver_performance.biggest_gainers %}
+            <div class="col-md-4">
+                <div class="card highlight-card">
+                    <div class="card-body text-center">
+                        <i data-feather="arrow-up" class="highlight-icon text-primary"></i>
+                        <h6>Biggest Gainers</h6>
+                        {% for gainer in insights.driver_performance.biggest_gainers[:3] %}
+                        <div class="performer-item">
+                            <strong>{{ gainer.driver_name }}</strong>
+                            <small class="d-block text-muted">+{{ gainer.positions_gained }} positions</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if insights.driver_performance.disappointments %}
+            <div class="col-md-4">
+                <div class="card highlight-card">
+                    <div class="card-body text-center">
+                        <i data-feather="arrow-down" class="highlight-icon text-warning"></i>
+                        <h6>Underperformers</h6>
+                        {% for disappointment in insights.driver_performance.disappointments[:3] %}
+                        <div class="performer-item">
+                            <strong>{{ disappointment.driver_name }}</strong>
+                            <small class="d-block text-muted">{{ disappointment.positions_gained }} positions</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="alert alert-info">
+            <i data-feather="info" class="me-2"></i>
+            {{ insights.driver_performance.error if insights.driver_performance.error else 'Driver performance data not available' }}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Team Analysis -->
+    {% if insights.team_analysis %}
+    <div class="section mb-4">
+        <div class="section-header mb-3">
+            <h3 class="section-title">Team Performance Analysis</h3>
+        </div>
+        
+        {% if not insights.team_analysis.error and insights.team_analysis.teams %}
+        <div class="row">
+            {% for team in insights.team_analysis.teams %}
+            <div class="col-lg-6 mb-3">
+                <div class="card team-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h6 class="team-name">{{ team.team_name }}</h6>
+                            <span class="team-rating">{{ "%.1f"|format(team.team_performance_rating or 0) }}/10</span>
+                        </div>
+                        
+                        <div class="team-stats">
+                            <div class="stat-row">
+                                <span class="stat-label">Total Points:</span>
+                                <span class="stat-value">{{ team.total_points or 0 }}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Best Position:</span>
+                                <span class="stat-value">{{ team.best_position or 'N/A' }}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Average Position:</span>
+                                <span class="stat-value">{{ "%.1f"|format(team.average_position or 0) if team.average_position else 'N/A' }}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Drivers:</span>
+                                <span class="stat-value">{{ team.driver_count or 0 }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if team.drivers %}
+                        <div class="team-drivers mt-3">
+                            {% for driver in team.drivers %}
+                            <div class="driver-entry">
+                                <span class="driver-name">{{ driver.driver_name }}</span>
+                                <span class="driver-position">P{{ driver.position or 'DNF' }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i data-feather="info" class="me-2"></i>
+            {{ insights.team_analysis.error if insights.team_analysis.error else 'Team analysis data not available' }}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Strategic Insights -->
+    {% if insights.strategic_insights %}
+    <div class="section mb-4">
+        <div class="section-header mb-3">
+            <h3 class="section-title">Strategic Analysis</h3>
+        </div>
+        
+        <div class="row">
+            {% if insights.strategic_insights.grid_vs_finish_analysis %}
+            <div class="col-lg-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">Grid vs Finish Analysis</h6>
+                    </div>
+                    <div class="card-body">
+                        {% set grid_analysis = insights.strategic_insights.grid_vs_finish_analysis %}
+                        {% if not grid_analysis.error %}
+                        <div class="strategic-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Average Position Change:</span>
+                                <span class="metric-value">{{ "%.1f"|format(grid_analysis.average_position_change or 0) }}</span>
+                            </div>
+                            
+                            {% if grid_analysis.biggest_gainer %}
+                            <div class="metric">
+                                <span class="metric-label">Biggest Gainer:</span>
+                                <span class="metric-value text-success">
+                                    +{{ grid_analysis.biggest_gainer.change }} positions
+                                </span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if grid_analysis.biggest_loser %}
+                            <div class="metric">
+                                <span class="metric-label">Biggest Loser:</span>
+                                <span class="metric-value text-warning">
+                                    {{ grid_analysis.biggest_loser.change }} positions
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted">{{ grid_analysis.error }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if insights.strategic_insights.points_distribution %}
+            <div class="col-lg-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">Points Distribution</h6>
+                    </div>
+                    <div class="card-body">
+                        {% set points_dist = insights.strategic_insights.points_distribution %}
+                        {% if not points_dist.error %}
+                        <div class="strategic-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Total Points Awarded:</span>
+                                <span class="metric-value">{{ points_dist.total_points_awarded or 0 }}</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Winner Points:</span>
+                                <span class="metric-value">{{ points_dist.points_to_winner or 0 }}</span>
+                            </div>
+                            {% if points_dist.points_distribution %}
+                            <div class="metric">
+                                <span class="metric-label">Top 3 Total:</span>
+                                <span class="metric-value">{{ points_dist.points_distribution.top_3 or 0 }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted">{{ points_dist.error }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if insights.strategic_insights.strategic_recommendations %}
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Strategic Recommendations</h6>
+            </div>
+            <div class="card-body">
+                <div class="recommendations-list">
+                    {% for recommendation in insights.strategic_insights.strategic_recommendations %}
+                    <div class="recommendation-item">
+                        <i data-feather="chevron-right" class="me-2 text-primary"></i>
+                        {{ recommendation }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Sample Insights -->
+    {% if insights.sample_insights %}
+    <div class="section mb-4">
+        <div class="section-header mb-3">
+            <h3 class="section-title">Advanced Performance Metrics</h3>
+            <p class="section-subtitle text-muted">
+                Enhanced analysis capabilities and performance indicators
+            </p>
+        </div>
+        
+        <div class="row">
+            {% for category, details in insights.sample_insights.advanced_metrics.items() %}
+            <div class="col-lg-6 mb-4">
+                <div class="card sample-insights-card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">{{ category.replace('_', ' ').title() }}</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ details.description }}</p>
+                        
+                        <div class="metrics-list">
+                            <strong>Key Metrics:</strong>
+                            <ul class="list-unstyled mt-2">
+                                {% for metric in details.key_metrics %}
+                                <li class="metric-item">
+                                    <i data-feather="check-circle" class="me-2 text-success"></i>
+                                    {{ metric }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <div class="sample-data-note">
+                            <small class="text-muted">{{ details.sample_data }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    {% elif error %}
+    <div class="section">
+        <div class="alert alert-danger">
+            <i data-feather="alert-circle" class="me-2"></i>
+            <strong>Error generating insights:</strong> {{ error }}
+        </div>
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="generateInsights()">
+                <i data-feather="refresh-cw" class="me-2"></i>Retry Analysis
+            </button>
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="section">
+        <div class="empty-state text-center py-5">
+            <i data-feather="trending-up" class="empty-icon mb-3"></i>
+            <h4>Generate Performance Insights</h4>
+            <p class="text-muted">
+                Select a season and race to generate comprehensive performance analysis and strategic insights.
+            </p>
+            <button class="btn btn-primary mt-3" onclick="loadSampleInsights()">
+                <i data-feather="zap" class="me-2"></i>View Sample Analysis
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Performance Charts -->
+<div class="section">
+    <div class="section-header mb-3">
+        <h3 class="section-title">Performance Visualization</h3>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Driver Performance Ratings</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">Team Performance Comparison</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="teamChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let currentInsights = {{ insights|tojson|safe if insights else 'null' }};
+
+function generateInsights() {
+    const season = document.getElementById('seasonSelect').value;
+    const round = document.getElementById('roundSelect').value;
+    const analysisType = document.getElementById('analysisType').value;
+    
+    if (!round) {
+        alert('Please select a race round');
+        return;
+    }
+    
+    showLoading('Generating performance insights...');
+    
+    window.location.href = `/performance-insights?season=${season}&round=${round}&type=${analysisType}`;
+}
+
+function refreshInsights() {
+    generateInsights();
+}
+
+function exportPerformanceData(format) {
+    const season = document.getElementById('seasonSelect').value || 2025;
+    const round = document.getElementById('roundSelect').value || 1;
+    
+    showLoading(`Preparing ${format.toUpperCase()} export...`);
+    
+    const exportUrl = `/api/export/${format}?season=${season}&round=${round}&type=performance`;
+    
+    const link = document.createElement('a');
+    link.href = exportUrl;
+    link.download = `f1_performance_insights_${season}_r${round}.${format}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    hideLoading();
+}
+
+function toggleDriverView() {
+    const table = document.querySelector('.driver-performance-table');
+    if (table) {
+        table.classList.toggle('compact-view');
+    }
+}
+
+function loadSampleInsights() {
+    document.getElementById('seasonSelect').value = '2025';
+    document.getElementById('roundSelect').value = '1';
+    generateInsights();
+}
+
+// Initialize charts if data is available
+document.addEventListener('DOMContentLoaded', function() {
+    if (currentInsights) {
+        initializePerformanceCharts(currentInsights);
+    }
+});
+
+function initializePerformanceCharts(insights) {
+    // Driver performance chart
+    const performanceCtx = document.getElementById('performanceChart');
+    if (performanceCtx && insights.driver_performance && insights.driver_performance.drivers) {
+        const drivers = insights.driver_performance.drivers.slice(0, 10);
+        
+        new Chart(performanceCtx, {
+            type: 'radar',
+            data: {
+                labels: drivers.map(d => d.driver_code || d.driver_name),
+                datasets: [{
+                    label: 'Performance Rating',
+                    data: drivers.map(d => d.performance_rating || 0),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                }
+            }
+        });
+    }
+    
+    // Team performance chart
+    const teamCtx = document.getElementById('teamChart');
+    if (teamCtx && insights.team_analysis && insights.team_analysis.teams) {
+        const teams = insights.team_analysis.teams.slice(0, 10);
+        
+        new Chart(teamCtx, {
+            type: 'bar',
+            data: {
+                labels: teams.map(t => t.team_name),
+                datasets: [{
+                    label: 'Total Points',
+                    data: teams.map(t => t.total_points || 0),
+                    backgroundColor: 'rgba(255, 99, 132, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+}
+</script>
+{% endblock %}
