@@ -63,10 +63,10 @@ def analysis():
         # Format lap times for display
         def format_lap_time(seconds):
             if not seconds or seconds <= 0:
-                return None, None
+                return None
             minutes = int(seconds // 60)
             remaining_seconds = seconds % 60
-            return minutes, remaining_seconds
+            return f"{minutes}:{remaining_seconds:06.3f}"
         
         return render_template('analysis.html',
                              session=current_session,
@@ -123,6 +123,45 @@ def api_drivers(year, round_number, session_type):
         logger.error(f"Error getting drivers: {e}")
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/api/lap_data/<int:year>/<int:round_number>/<session_type>')
+def api_lap_data(year, round_number, session_type):
+    """API endpoint to get lap data for drivers"""
+    try:
+        driver_codes = request.args.getlist('drivers')
+        if not driver_codes:
+            return jsonify({'success': False, 'error': 'No drivers specified'})
+        
+        lap_data = f1_service.get_lap_data(year, round_number, session_type, driver_codes)
+        
+        # If no real data available, use sample data for demonstration
+        if not lap_data or all(not laps for laps in lap_data.values()):
+            lap_data = {}
+            for driver_code in driver_codes:
+                lap_data[driver_code] = f1_service.generate_sample_lap_data(driver_code)
+        
+        # Format the data for JSON response
+        formatted_data = {}
+        for driver_code, laps in lap_data.items():
+            formatted_laps = []
+            for lap in laps:
+                formatted_laps.append({
+                    'lap_number': lap.lap_number,
+                    'lap_time': lap.lap_time,
+                    'lap_time_formatted': format_lap_time_api(lap.lap_time),
+                    'sector_1_time': lap.sector_1_time,
+                    'sector_2_time': lap.sector_2_time,
+                    'sector_3_time': lap.sector_3_time,
+                    'is_personal_best': lap.is_personal_best,
+                    'compound': lap.compound,
+                    'tyre_life': lap.tyre_life
+                })
+            formatted_data[driver_code] = formatted_laps
+        
+        return jsonify({'success': True, 'data': formatted_data})
+    except Exception as e:
+        logger.error(f"Error getting lap data: {e}")
+        return jsonify({'success': False, 'error': str(e)})
+
 @app.route('/api/telemetry/<int:year>/<int:round_number>/<session_type>/<driver_code>/<int:lap_number>')
 def api_telemetry(year, round_number, session_type, driver_code, lap_number):
     """API endpoint to get telemetry data for a specific lap"""
@@ -149,8 +188,18 @@ def api_telemetry(year, round_number, session_type, driver_code, lap_number):
         else:
             return jsonify({'success': False, 'error': 'No telemetry data available'})
     except Exception as e:
-        logger.error(f"Error getting telemetry: {e}")
+        logger.error(f"Error getting telemetry data: {e}")
         return jsonify({'success': False, 'error': str(e)})
+
+def format_lap_time_api(seconds):
+    """Format lap time for API responses"""
+    if not seconds or seconds <= 0:
+        return None
+    minutes = int(seconds // 60)
+    remaining_seconds = seconds % 60
+    return f"{minutes}:{remaining_seconds:06.3f}"
+
+
 
 @app.route('/api/track/<int:year>/<int:round_number>/<session_type>')
 def api_track(year, round_number, session_type):

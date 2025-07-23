@@ -134,7 +134,7 @@
                                     {% set lap = lap_data[driver_code][lap_num-1] %}
                                     <span class="lap-time" data-driver="{{ driver_code }}" data-lap="{{ lap_num }}"
                                           style="color: {{ drivers | selectattr('driver_code', 'equalto', driver_code) | map(attribute='team_color') | first }}">
-                                        {{ lap.lap_time }}
+                                        {{ format_lap_time(lap.lap_time) if lap.lap_time else '-' }}
                                     </span>
                                     {% else %}
                                     -

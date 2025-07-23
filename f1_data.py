@@ -21,12 +21,12 @@ class F1DataService:
         """Get list of available years"""
         try:
             # FastF1 supports data from 2018 onwards reliably
-            # Use 2024 as current year since 2025 data is not fully available
-            current_year = 2024
+            # Include 2025 for current season
+            current_year = 2025
             return list(range(2018, current_year + 1))
         except Exception as e:
             self.logger.error(f"Error getting available years: {e}")
-            return [2024, 2023, 2022, 2021, 2020, 2019, 2018]
+            return [2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018]
     
     def get_season_schedule(self, year: int) -> List[Dict]:
         """Get race schedule for a given year"""

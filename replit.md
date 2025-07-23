@@ -7,8 +7,12 @@ F-lap is a revolutionary Flask-based web application that provides professional-
 ## Recent Major Updates (July 2025)
 
 ✓ **Migration Complete** - Successfully migrated from Replit Agent to standard Replit environment
-✓ **Environment Setup** - All dependencies installed and configured for Replit compatibility
+✓ **Environment Setup** - All dependencies installed and configured for Replit compatibility  
 ✓ **Security Compliance** - Application follows robust security practices with proper client/server separation
+✓ **2025 Season Support** - Added support for 2025 F1 season data and improved year handling
+✓ **Enhanced Lap Time Display** - Lap times now show in proper format (1:16.456) instead of raw seconds
+✓ **Improved Telemetry API** - New API endpoints for lap data and telemetry with fallback to sample data
+✓ **Interactive Telemetry Charts** - Click on lap times to view detailed telemetry analysis with speed, throttle, brake, and gear data
 
 ✓ **Rebranded to F-lap** - New modern identity for the platform
 ✓ **Enhanced Telemetry Visualization** - Larger, more readable charts with professional styling
