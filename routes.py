@@ -333,7 +333,7 @@ def api_performance_insights(year, round_number, session_type):
 def api_weather_data(year, round_number, session_type):
     """API endpoint for real weather data"""
     try:
-        weather_data = f1_service.get_real_weather_data(year, round_number, session_type)
+        weather_data = f1_service.get_weather_data(year, round_number, session_type)
         return jsonify(weather_data)
     except Exception as e:
         logger.error(f"Error getting weather data: {e}")
@@ -344,7 +344,7 @@ def api_fuel_data(year, round_number, session_type):
     """API endpoint for real fuel consumption analysis"""
     try:
         driver_codes = request.args.getlist('drivers')
-        fuel_data = f1_service.get_real_fuel_analysis(year, round_number, session_type, driver_codes)
+        fuel_data = f1_service.get_fuel_analysis(year, round_number, session_type, driver_codes)
         return jsonify(fuel_data)
     except Exception as e:
         logger.error(f"Error getting fuel data: {e}")
@@ -376,7 +376,7 @@ def custom_insights(year, round, session):
     """Generate custom performance insights using Lapla Analytics Engine"""
     try:
         # Get session data
-        session_info = f1_service.get_session_info(year, round, session)
+        session_info = f1_service.get_session_info(year, round).get(session)
         if not session_info:
             return jsonify({"error": "Session not found"})
             

@@ -549,7 +549,7 @@ class F1DataService:
             self.logger.error(f"Error getting weather data: {e}")
             return {'success': False, 'error': str(e)}
     
-    def get_real_fuel_analysis(self, year: int, round_number: int, session_type: str, driver_codes: List[str]) -> Dict:
+    def get_fuel_analysis(self, year: int, round_number: int, session_type: str, driver_codes: List[str]) -> Dict:
         """Get real fuel consumption analysis from FastF1 telemetry"""
         try:
             session = fastf1.get_session(year, round_number, session_type)
@@ -1070,9 +1070,13 @@ class F1DataService:
                 for sector in [1, 2, 3]:
                     sector_col = f'Sector{sector}Time'
                     if sector_col in laps.columns:
-                        best_sector = laps[laps[sector_col].notna()][sector_col].min()
-                        if hasattr(best_sector, 'total_seconds'):
-                            sector_times.append(best_sector.total_seconds())
+                        valid_sectors = laps[laps[sector_col].notna()][sector_col]
+                        if not valid_sectors.empty:
+                            best_sector = valid_sectors.min()
+                            if hasattr(best_sector, 'total_seconds'):
+                                sector_times.append(best_sector.total_seconds())
+                            else:
+                                sector_times.append(float(best_sector))
                         else:
                             sector_times.append(float(best_sector) if best_sector else 0)
                 
