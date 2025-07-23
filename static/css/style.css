@@ -705,3 +705,261 @@ footer {
 .dropdown-item:hover {
     background-color: rgba(220, 53, 69, 0.2);
 }
+
+/* Navigation Icon-Only Animations */
+.nav-icon-only {
+    position: relative;
+    padding: 8px 12px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    font-size: 1.2em;
+    margin: 0 2px;
+}
+
+.nav-icon-only:hover {
+    background: linear-gradient(45deg, #dc3545, #ff6b6b);
+    transform: translateY(-2px) scale(1.1);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+    text-decoration: none;
+}
+
+.nav-icon-only i {
+    transition: transform 0.3s ease;
+    color: white;
+}
+
+.nav-icon-only:hover i {
+    transform: rotate(10deg);
+    color: white;
+}
+
+/* Enhanced Telemetry Display Cards */
+.telemetry-card {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    height: 350px;
+    position: relative;
+    overflow: hidden;
+}
+
+.speed-card {
+    border-color: #00ff00;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+}
+
+.brake-card {
+    border-color: #ff0000;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.1);
+}
+
+.gear-card {
+    border-color: #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+}
+
+.overview-card {
+    border-color: #007bff;
+    box-shadow: 0 0 20px rgba(0, 123, 255, 0.1);
+    height: auto;
+}
+
+.telemetry-title {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* Speed Chart Container */
+.chart-container {
+    height: 200px;
+    position: relative;
+}
+
+/* Brake Gauge Styling */
+.gauge-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.brake-gauge {
+    position: relative;
+}
+
+.gauge-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #333 0%, #666 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #555;
+}
+
+.gauge-fill {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #ff0000 0%, #ff4444 var(--brake-percentage, 0%), transparent var(--brake-percentage, 0%));
+    transition: all 0.5s ease;
+}
+
+.gauge-center {
+    position: absolute;
+    text-align: center;
+    color: white;
+    z-index: 10;
+}
+
+.gauge-value {
+    display: block;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ff0000;
+}
+
+.gauge-label {
+    display: block;
+    font-size: 0.7em;
+    color: #ccc;
+    margin-top: 5px;
+}
+
+/* Gear Display Styling */
+.gear-display {
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.current-gear {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.gear-number {
+    font-size: 4em;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    font-family: 'Courier New', monospace;
+    border: 3px solid #ffd700;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    animation: gearPulse 2s ease-in-out infinite;
+}
+
+@keyframes gearPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.gear-label {
+    font-size: 0.8em;
+    color: #ccc;
+    margin-top: 10px;
+}
+
+.gear-sequence {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 200px;
+}
+
+.gear-item {
+    width: 25px;
+    height: 25px;
+    background: #333;
+    border: 1px solid #666;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    color: #ffd700;
+    transition: all 0.2s ease;
+}
+
+.gear-item.active {
+    background: #ffd700;
+    color: #000;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* Telemetry Stats Mini */
+.telemetry-stats-mini {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.telemetry-stats-mini .stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.telemetry-stats-mini .stat-label {
+    color: #ccc;
+    font-size: 0.9em;
+}
+
+.telemetry-stats-mini .stat-value {
+    color: #fff;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+/* Telemetry Charts */
+.telemetry-chart {
+    width: 100%;
+    height: 200px;
+}
+
+.telemetry-chart-large {
+    width: 100%;
+    height: 300px;
+}
+
+/* Lap Star Animation */
+.lap-star {
+    font-size: 0.8em;
+    margin-right: 4px;
+    animation: starGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes starGlow {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
+}
+
+.clickable-lap {
+    user-select: none;
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+}
+
+.clickable-lap:hover {
+    background: linear-gradient(45deg, rgba(255, 0, 0, 0.1), rgba(255, 215, 0, 0.1));
+    border-radius: 4px;
+    transform: scale(1.05);
+}

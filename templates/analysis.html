@@ -244,67 +244,121 @@
                 </div>
             </div>
 
-            <div class="col-md-6">
-                <div class="card bg-dark border-secondary">
-                    <div class="card-header">
-                        <h6 class="mb-0">
-                            <i class="fas fa-balance-scale me-2"></i>
-                            Compare Drivers
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <button class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#comparisonModal">
-                            <i class="fas fa-chart-line me-2"></i>
-                            View Comparison
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- Telemetry Section -->
+        <!-- Enhanced Telemetry Data Section -->
         <div class="card bg-dark border-secondary">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-chart-line me-2"></i>
-                    Telemetry Data
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Interactive Telemetry Analysis
                 </h5>
             </div>
             <div class="card-body">
-                <div id="telemetryMessage" class="text-center text-muted py-5">
-                    <i class="fas fa-info-circle fa-3x mb-3"></i>
-                    <p>Click on any lap time above to view detailed telemetry data</p>
+                <div id="telemetryMessage" class="text-center text-muted py-4">
+                    <i class="fas fa-star fa-2x mb-3 text-warning"></i>
+                    <p>Click on any lap time above to select it for telemetry analysis</p>
+                    <p><small>Selected laps will show a ⭐ star indicator</small></p>
                 </div>
                 <div id="telemetryCharts" style="display: none;">
-                    <canvas id="telemetryChart" width="400" height="200"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Comparison Modal -->
-<div class="modal fade" id="comparisonModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content bg-dark">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title text-white">
-                    <i class="fas fa-balance-scale me-2"></i>
-                    Driver Comparison
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div id="comparisonContent">
-                    <div class="text-center text-muted py-5">
-                        <i class="fas fa-info-circle fa-3x mb-3"></i>
-                        <p>Select two drivers and click on their lap times to compare telemetry data</p>
+                    <div id="selectedLapInfo" class="mb-3 p-3 bg-secondary rounded">
+                        <h6 class="text-warning">📊 Selected Lap Analysis</h6>
+                        <div id="lapInfoContent">No lap selected</div>
+                    </div>
+                    
+                    <!-- Three Different Telemetry Styles -->
+                    <div class="row">
+                        <!-- Speed Data - Chart Style -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="telemetry-card speed-card">
+                                <h6 class="telemetry-title">🏎️ Speed Profile</h6>
+                                <div class="chart-container">
+                                    <canvas id="speedChart" class="telemetry-chart"></canvas>
+                                </div>
+                                <div id="speedStats" class="telemetry-stats-mini">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Max Speed:</span>
+                                        <span class="stat-value" id="maxSpeed">--</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Avg Speed:</span>
+                                        <span class="stat-value" id="avgSpeed">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Brake Data - Gauge Style -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="telemetry-card brake-card">
+                                <h6 class="telemetry-title">🛑 Brake Analysis</h6>
+                                <div class="gauge-container">
+                                    <div class="brake-gauge">
+                                        <div class="gauge-circle">
+                                            <div class="gauge-fill" id="brakeGaugeFill"></div>
+                                            <div class="gauge-center">
+                                                <span class="gauge-value" id="brakeGaugeValue">0%</span>
+                                                <span class="gauge-label">MAX BRAKE</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="brakeStats" class="telemetry-stats-mini">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Peak Brake:</span>
+                                        <span class="stat-value" id="maxBrake">--</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Brake Zones:</span>
+                                        <span class="stat-value" id="brakeZones">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Gear Data - Digital Style -->
+                        <div class="col-lg-4 mb-4">
+                            <div class="telemetry-card gear-card">
+                                <h6 class="telemetry-title">⚙️ Gear Changes</h6>
+                                <div class="gear-display">
+                                    <div class="current-gear">
+                                        <div class="gear-number" id="currentGear">-</div>
+                                        <div class="gear-label">CURRENT GEAR</div>
+                                    </div>
+                                    <div class="gear-sequence" id="gearSequence">
+                                        <!-- Gear sequence will be populated here -->
+                                    </div>
+                                </div>
+                                <div id="gearStats" class="telemetry-stats-mini">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Max Gear:</span>
+                                        <span class="stat-value" id="maxGear">--</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Gear Changes:</span>
+                                        <span class="stat-value" id="gearChanges">--</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Combined Overview Chart -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="telemetry-card overview-card">
+                                <h6 class="telemetry-title">📈 Complete Telemetry Overview</h6>
+                                <canvas id="overviewChart" class="telemetry-chart-large"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Removed Compare Drivers Modal as requested -->
 
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script>
@@ -437,29 +491,193 @@ function updateTelemetryStats(telemetryData) {
     const avgSpeed = telemetryData.speed.reduce((a, b) => a + b, 0) / telemetryData.speed.length;
     const maxThrottle = Math.max(...telemetryData.throttle);
     const maxBrake = Math.max(...telemetryData.brake);
+    const maxGear = Math.max(...telemetryData.gear);
     
-    const statsHtml = `
-        <div class="row text-center">
-            <div class="col-6 mb-2">
-                <strong>Max Speed</strong><br>
-                <span class="text-danger">${maxSpeed.toFixed(1)} km/h</span>
-            </div>
-            <div class="col-6 mb-2">
-                <strong>Avg Speed</strong><br>
-                <span class="text-info">${avgSpeed.toFixed(1)} km/h</span>
-            </div>
-            <div class="col-6 mb-2">
-                <strong>Max Throttle</strong><br>
-                <span class="text-success">${maxThrottle.toFixed(1)}%</span>
-            </div>
-            <div class="col-6 mb-2">
-                <strong>Max Brake</strong><br>
-                <span class="text-warning">${maxBrake.toFixed(1)}%</span>
-            </div>
-        </div>
-    `;
+    // Update speed stats
+    document.getElementById('maxSpeed').textContent = `${maxSpeed.toFixed(1)} km/h`;
+    document.getElementById('avgSpeed').textContent = `${avgSpeed.toFixed(1)} km/h`;
     
-    document.getElementById('telemetryStats').innerHTML = statsHtml;
+    // Update brake gauge
+    const brakePercentage = (maxBrake / 100) * 360;
+    const brakeGaugeFill = document.getElementById('brakeGaugeFill');
+    const brakeGaugeValue = document.getElementById('brakeGaugeValue');
+    if (brakeGaugeFill && brakeGaugeValue) {
+        brakeGaugeFill.style.setProperty('--brake-percentage', `${brakePercentage}deg`);
+        brakeGaugeValue.textContent = `${maxBrake.toFixed(1)}%`;
+    }
+    
+    // Update brake stats
+    const brakeZones = telemetryData.brake.filter(b => b > 50).length;
+    document.getElementById('maxBrake').textContent = `${maxBrake.toFixed(1)}%`;
+    document.getElementById('brakeZones').textContent = brakeZones;
+    
+    // Update gear display
+    const currentGearElement = document.getElementById('currentGear');
+    const gearSequenceElement = document.getElementById('gearSequence');
+    
+    if (currentGearElement && gearSequenceElement) {
+        // Show current max gear
+        currentGearElement.textContent = maxGear;
+        
+        // Create gear sequence visualization
+        const uniqueGears = [...new Set(telemetryData.gear)].sort((a, b) => a - b);
+        const gearChanges = telemetryData.gear.filter((gear, index) => 
+            index > 0 && gear !== telemetryData.gear[index - 1]
+        ).length;
+        
+        gearSequenceElement.innerHTML = uniqueGears.map(gear => 
+            `<div class="gear-item ${gear === maxGear ? 'active' : ''}">${gear}</div>`
+        ).join('');
+        
+        // Update gear stats
+        document.getElementById('maxGear').textContent = maxGear;
+        document.getElementById('gearChanges').textContent = gearChanges;
+    }
+    
+    // Render the individual charts
+    renderSpeedChart(telemetryData);
+    renderOverviewChart(telemetryData);
+}
+
+function renderSpeedChart(telemetryData) {
+    const ctx = document.getElementById('speedChart');
+    if (!ctx) return;
+    
+    // Destroy existing chart if it exists
+    if (window.speedChartInstance) {
+        window.speedChartInstance.destroy();
+    }
+    
+    window.speedChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: telemetryData.distance,
+            datasets: [{
+                label: 'Speed (km/h)',
+                data: telemetryData.speed,
+                borderColor: '#00ff00',
+                backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#fff'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#fff'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderOverviewChart(telemetryData) {
+    const ctx = document.getElementById('overviewChart');
+    if (!ctx) return;
+    
+    // Destroy existing chart if it exists
+    if (window.overviewChartInstance) {
+        window.overviewChartInstance.destroy();
+    }
+    
+    window.overviewChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: telemetryData.distance,
+            datasets: [
+                {
+                    label: 'Speed (km/h)',
+                    data: telemetryData.speed,
+                    borderColor: '#00ff00',
+                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                    borderWidth: 2,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Throttle (%)',
+                    data: telemetryData.throttle,
+                    borderColor: '#0099ff',
+                    backgroundColor: 'rgba(0, 153, 255, 0.1)',
+                    borderWidth: 2,
+                    yAxisID: 'y1'
+                },
+                {
+                    label: 'Brake (%)',
+                    data: telemetryData.brake,
+                    borderColor: '#ff0000',
+                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                    borderWidth: 2,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#fff'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#fff'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        color: '#fff'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#fff'
+                    }
+                }
+            }
+        }
+    });
 }
 
 function loadWeatherData() {
